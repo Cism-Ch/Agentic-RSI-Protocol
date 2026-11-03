@@ -149,33 +149,33 @@ def detect_stack() -> dict:
     return detected
 
 def main():
-    print("🔍 [RSI Stack Inspector] Analyzing project ecosystem...")
+    print("[RSI Stack Inspector] Analyzing project ecosystem...")
     stack = detect_stack()
 
     if not stack:
-        print("ℹ️ No standard ecosystem technologies detected yet.")
+        print("[INFO] No standard ecosystem technologies detected yet.")
         return
 
-    print(f"📦 {len(stack)} technical components identified in the project:\n")
+    print(f"[INFO] {len(stack)} technical components identified in the project:\n")
     missing_tools = []
 
     for tech, info in stack.items():
-        skill_status = "✅ Installed" if info["has_skill"] else f"⚠️ MISSING ({info['recommended_skill']})"
-        mcp_status = "✅ Configured" if info["has_mcp"] else f"⚠️ MISSING ({info['recommended_mcp']})"
+        skill_status = "[OK] Installed" if info["has_skill"] else f"[WARN] MISSING ({info['recommended_skill']})"
+        mcp_status = "[OK] Configured" if info["has_mcp"] else f"[WARN] MISSING ({info['recommended_mcp']})"
         
-        print(f"🔹 {tech.upper()}: {info['purpose']}")
-        print(f"   ├─ Skill : {skill_status}")
+        print(f"* {tech.upper()}: {info['purpose']}")
+        print(f"   |-- Skill : {skill_status}")
         if info["recommended_mcp"]:
-            print(f"   └─ MCP   : {mcp_status}")
+            print(f"   \\-- MCP   : {mcp_status}")
         print()
 
         if not info["has_skill"] or not info["has_mcp"]:
             missing_tools.append((tech, info))
 
     if missing_tools:
-        print("💡 [RSI Recommendations] To avoid unguided coding, install the missing official tools.")
+        print("[INFO] [RSI Recommendations] To avoid unguided coding, install the missing official tools.")
     else:
-        print("🌟 [RSI Stack Audit] Official tooling is complete and compliant!")
+        print("[OK] [RSI Stack Audit] Official tooling is complete and compliant!")
 
 if __name__ == "__main__":
     main()

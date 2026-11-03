@@ -94,10 +94,10 @@ def main():
     curr = get_current_version()
     next_ver = bump_semver(curr, args.bump, args.mention)
 
-    print(f"📦 [SemVer Bump] {curr} ➔ {next_ver}")
+    print(f"[SemVer Bump] {curr} -> {next_ver}")
     update_package_json(next_ver)
     update_changelog(next_ver)
-    print("✅ Version and CHANGELOG updated successfully.")
+    print("[OK] Version and CHANGELOG updated successfully.")
 
 if __name__ == "__main__":
     main()

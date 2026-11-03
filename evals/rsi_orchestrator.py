@@ -27,7 +27,7 @@ MAX_TASKS_LINES = 250
 MAX_MODULE_LINES = 80
 
 def run_evaluation(attempt: int, quick: bool = True) -> bool:
-    print(f"\n🔄 [RSI Loop] Launching deterministic evaluation — Attempt {attempt}/3...")
+    print(f"\n[RSI Loop] Launching deterministic evaluation - Attempt {attempt}/3...")
     eval_script = ROOT_DIR / "evals" / "run_fullstack_eval.py"
     cmd = [sys.executable, str(eval_script)]
     if quick:
@@ -37,14 +37,14 @@ def run_evaluation(attempt: int, quick: bool = True) -> bool:
     passed = res.returncode == 0
 
     if passed:
-        print(f"🎉 [RSI Loop] Deterministic validation passed (Score: 100/100) on attempt {attempt}!")
+        print(f"[OK] [RSI Loop] Deterministic validation passed (Score: 100/100) on attempt {attempt}!")
         return True
     else:
-        print(f"⚠️ [RSI Loop] Attempt {attempt} failed. Inspect evals/logs/trajectory_latest.json.")
+        print(f"[WARN] [RSI Loop] Attempt {attempt} failed. Inspect evals/logs/trajectory_latest.json.")
         return False
 
 def check_guardrails() -> bool:
-    print("\n🛡️ [RSI Guardrails] Running strict integrity check...")
+    print("\n[RSI Guardrails] Running strict integrity check...")
     passed = True
 
     # 1. Compactness check for docs/TASKS.md
@@ -52,20 +52,20 @@ def check_guardrails() -> bool:
         content = TASKS_PATH.read_text(encoding="utf-8")
         lines = len(content.splitlines())
         if lines > MAX_TASKS_LINES:
-            print(f"❌ [Guardrail Violated] docs/TASKS.md contains {lines} lines (> {MAX_TASKS_LINES}). Run rollover to docs/archive/tasks/!")
+            print(f"[FAIL] [Guardrail Violated] docs/TASKS.md contains {lines} lines (> {MAX_TASKS_LINES}). Run rollover to docs/archive/tasks/!")
             passed = False
         else:
-            print(f"✅ docs/TASKS.md: {lines}/{MAX_TASKS_LINES} lines")
+            print(f"[OK] docs/TASKS.md: {lines}/{MAX_TASKS_LINES} lines")
 
     # 2. Compactness check for rule modules
     if MODULES_DIR.exists():
         for mod in MODULES_DIR.glob("*.md"):
             cnt = len([l for l in mod.read_text(encoding="utf-8").splitlines() if l.strip()])
             if cnt > MAX_MODULE_LINES:
-                print(f"❌ [Guardrail Violated] {mod.name} contains {cnt} lines (> {MAX_MODULE_LINES}). Summarize it!")
+                print(f"[FAIL] [Guardrail Violated] {mod.name} contains {cnt} lines (> {MAX_MODULE_LINES}). Summarize it!")
                 passed = False
             else:
-                print(f"✅ {mod.name}: {cnt}/{MAX_MODULE_LINES} lines")
+                print(f"[OK] {mod.name}: {cnt}/{MAX_MODULE_LINES} lines")
 
     return passed
 

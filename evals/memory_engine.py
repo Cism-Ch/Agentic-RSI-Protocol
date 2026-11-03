@@ -34,15 +34,15 @@ MODULE_TRIGGERS = {
 def audit_memory_modules() -> bool:
     """Verifies that each module strictly remains under the maximum line ceiling."""
     if not MODULES_DIR.exists():
-        print(f"⚠️ [RSI Memory Audit] Modules directory not found at {MODULES_DIR}")
+        print(f"[WARN] [RSI Memory Audit] Modules directory not found at {MODULES_DIR}")
         return True
 
     modules = list(MODULES_DIR.glob("*.md"))
     if not modules:
-        print("ℹ️ [RSI Memory Audit] No modules found.")
+        print("[INFO] [RSI Memory Audit] No modules found.")
         return True
 
-    print(f"📊 [RSI Memory Audit] {len(modules)} modules detected.")
+    print(f"[RSI Memory Audit] {len(modules)} modules detected.")
     has_violation = False
 
     for mod in modules:
@@ -50,18 +50,18 @@ def audit_memory_modules() -> bool:
             content = mod.read_text(encoding="utf-8")
             line_count = len([line for line in content.splitlines() if line.strip()])
             if line_count > MAX_LINES_PER_MODULE:
-                print(f"  ❌ {mod.name}: {line_count}/{MAX_LINES_PER_MODULE} lines (LIMIT EXCEEDED!)")
+                print(f"  [FAIL] {mod.name}: {line_count}/{MAX_LINES_PER_MODULE} lines (LIMIT EXCEEDED!)")
                 has_violation = True
             else:
-                print(f"  ✅ {mod.name}: {line_count}/{MAX_LINES_PER_MODULE} lines")
+                print(f"  [OK] {mod.name}: {line_count}/{MAX_LINES_PER_MODULE} lines")
         except Exception as e:
-            print(f"  ⚠️ Error reading {mod.name}: {e}")
+            print(f"  [WARN] Error reading {mod.name}: {e}")
 
     if has_violation:
-        print("\n❌ FAILURE: Some modules exceed the maximum allowed line count. Summarize or split them!")
+        print("\n[FAIL] Some modules exceed the maximum allowed line count. Summarize or split them!")
         return False
     else:
-        print("\n✅ All modules comply with the strict compactness limit!")
+        print("\n[OK] All modules comply with the strict compactness limit!")
         return True
 
 def resolve_context(files: list[str]) -> str:
@@ -74,13 +74,13 @@ def resolve_context(files: list[str]) -> str:
                 matched_modules.add(mod)
 
     if not matched_modules:
-        return "ℹ️ No specific sub-playbook required for these files. Refer to fullstack_playbook.md if needed."
+        return "[INFO] No specific sub-playbook required for these files. Refer to fullstack_playbook.md if needed."
 
-    output = ["🧠 [RSI Dynamic Memory Injection]"]
+    output = ["[RSI Dynamic Memory Injection]"]
     for mod in sorted(matched_modules):
         mod_path = MODULES_DIR / mod
         if mod_path.exists():
-            output.append(f"\n--- 📖 Module: {mod} ---")
+            output.append(f"\n--- [Module: {mod}] ---")
             output.append(mod_path.read_text(encoding="utf-8").strip())
 
     return "\n".join(output)

@@ -77,39 +77,39 @@ def audit_secrets() -> list[dict]:
     return findings
 
 def run_security_audit() -> bool:
-    print("🔒 [RSI Security Audit] Running static security and secret leak audit...")
+    print("[RSI Security Audit] Running static security and secret leak audit...")
     gitignore_issues = audit_gitignore()
     secret_findings = audit_secrets()
 
     success = True
     if gitignore_issues:
-        print("\n❌ .gitignore configuration vulnerabilities:")
+        print("\n[FAIL] .gitignore configuration vulnerabilities:")
         for issue in gitignore_issues:
             print(f"  - {issue}")
         success = False
     else:
-        print("  ✅ .gitignore configuration is airtight and compliant.")
+        print("  [OK] .gitignore configuration is airtight and compliant.")
 
     if secret_findings:
-        print(f"\n❌ {len(secret_findings)} potential secret leak(s) detected:")
+        print(f"\n[FAIL] {len(secret_findings)} potential secret leak(s) detected:")
         for finding in secret_findings:
             print(f"  - [{finding['type']}] {finding['file']}:{finding['line']} -> {finding['sample']}")
         success = False
     else:
-        print("  ✅ No exposed secrets, private keys, or credentials found.")
+        print("  [OK] No exposed secrets, private keys, or credentials found.")
 
     # Check for real uncommitted .env files
     env_files = list(ROOT_DIR.glob(".env*"))
     real_envs = [f.name for f in env_files if f.name != ".env.example"]
     if real_envs:
-        print(f"  ℹ️ Local .env files present: {real_envs} (must stay ignored by git)")
+        print(f"  [INFO] Local .env files present: {real_envs} (must stay ignored by git)")
     else:
-        print("  ✅ No unencrypted plaintext .env files in directory.")
+        print("  [OK] No unencrypted plaintext .env files in directory.")
 
     if success:
-        print("\n🛡️ SECURITY AUDIT: SUCCESS (0 critical vulnerabilities detected)")
+        print("\n[SUCCESS] SECURITY AUDIT: PASSED (0 critical vulnerabilities detected)")
     else:
-        print("\n⚠️ SECURITY AUDIT: FAILED")
+        print("\n[FAIL] SECURITY AUDIT: FAILED")
 
     return success
 
