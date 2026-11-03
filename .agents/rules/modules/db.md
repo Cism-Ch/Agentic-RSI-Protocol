@@ -1,9 +1,8 @@
-# 🗄️ Module : Base de Données & Persistance
+# 🗄️ Module: Database & Persistence
 
-> Règle Anti-Bloat : Ce module ne doit JAMAIS dépasser **80 lignes**.
+> Anti-Bloat Rule: This module must NEVER exceed **80 lines**.
 
-- [R-DB-01] Valider systématiquement les données entrantes via un schéma de validation (ex. Zod) avant toute écriture en base.
-- [R-DB-02] Utiliser un client singleton pour éviter l'épuisement des connexions sur les runtimes serverless.
-- [R-DB-03] Ne jamais faire de mutations destructives non indexées sur de grands volumes.
-- [R-DB-04] Toujours isoler les identifiants uniques selon la spécification de l'adaptateur de base de données.
-
+- [R-DB-01] Systematically validate input data using a schema validator (e.g., Zod) before any database write.
+- [R-DB-02] Use a singleton client to prevent connection exhaustion on serverless runtimes.
+- [R-DB-03] Never perform destructive, unindexed mutations on large datasets.
+- [R-DB-04] Always isolate unique identifiers according to the database adapter specification.

@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """
-Juge Déterministe RSI Adaptatif & Agnostique
-- Détection automatique du gestionnaire de paquets (pnpm, npm, yarn, bun)
-- Exécution du typecheck et du linter si configurés
-- Validation adaptative des schémas de BDD (Prisma, Drizzle, etc.) si présents
-- Vérification de l'hygiène de la mémoire modulaire RSI
-- Filtrage compact des erreurs (max 10 lignes signifiantes) pour préserver le contexte des agents IA
+RSI Adaptive & Agnostic Deterministic Judge
+- Automatic detection of package manager (pnpm, npm, yarn, bun)
+- Execution of typecheck and linter if configured
+- Adaptive validation of DB schemas (Prisma, Drizzle, etc.) when present
+- RSI modular memory hygiene verification
+- Static security audit & secret leak detection
+- Compact error filtering (max 10 significant lines) to protect AI agent context windows
 """
 
 import sys
@@ -16,7 +17,7 @@ import argparse
 from pathlib import Path
 from datetime import datetime
 
-# Configuration encodage console Windows
+# Configure Windows console encoding
 if sys.stdout.encoding != 'utf-8':
     try:
         sys.stdout.reconfigure(encoding='utf-8', errors='replace')
@@ -70,7 +71,7 @@ def run_cmd(name: str, cmd_str: str, weight: int, timeout_sec: int = 180) -> dic
             "passed": False,
             "score": 0,
             "max_score": weight,
-            "error_log": f"Timeout dépassé ({timeout_sec}s) lors de l'exécution de: {cmd_str}"
+            "error_log": f"Timeout exceeded ({timeout_sec}s) while executing: {cmd_str}"
         }
     except Exception as e:
         return {
@@ -86,7 +87,7 @@ def build_adaptive_checks(quick: bool) -> list[dict]:
     py = sys.executable
     checks = []
 
-    # 1. Typecheck (si TypeScript présent)
+    # 1. Typecheck (if TypeScript is configured)
     if (ROOT_DIR / "tsconfig.json").exists():
         checks.append({
             "name": "typecheck",
@@ -95,7 +96,7 @@ def build_adaptive_checks(quick: bool) -> list[dict]:
             "timeout": 120
         })
 
-    # 2. Linter (si configuré dans package.json)
+    # 2. Linter (if configured in package.json)
     has_lint_script = False
     pkg_json = ROOT_DIR / "package.json"
     if pkg_json.exists():
@@ -114,7 +115,7 @@ def build_adaptive_checks(quick: bool) -> list[dict]:
             "timeout": 240
         })
 
-    # 3. Validation de BDD / ORM (Optionnelle et Adaptative)
+    # 3. Database / ORM Validation (Optional & Adaptive)
     prisma_schema = ROOT_DIR / "prisma" / "schema.prisma"
     db_validator = ROOT_DIR / ".agents" / "skills" / "db_schema_validator.py"
 
@@ -133,7 +134,7 @@ def build_adaptive_checks(quick: bool) -> list[dict]:
             "timeout": 60
         })
 
-    # 4. Hygiène de la Mémoire Modulaire RSI
+    # 4. RSI Modular Memory Hygiene
     memory_engine = ROOT_DIR / "evals" / "memory_engine.py"
     if memory_engine.exists():
         checks.append({
@@ -143,7 +144,7 @@ def build_adaptive_checks(quick: bool) -> list[dict]:
             "timeout": 30
         })
 
-    # 5. Audit de Sécurité Statique (Secrets & .gitignore)
+    # 5. Static Security Audit (Secrets & .gitignore)
     sec_audit = ROOT_DIR / "evals" / "security_audit.py"
     if sec_audit.exists():
         checks.append({
@@ -153,7 +154,7 @@ def build_adaptive_checks(quick: bool) -> list[dict]:
             "timeout": 30
         })
 
-    # 6. Build de Production (mode complet uniquement)
+    # 6. Production Build (Full mode only)
     if not quick and has_lint_script:
         pkg_has_build = False
         try:
@@ -174,8 +175,8 @@ def build_adaptive_checks(quick: bool) -> list[dict]:
     return checks
 
 def main():
-    parser = argparse.ArgumentParser(description="Juge Déterministe RSI Adaptatif & Agnostique")
-    parser.add_argument("--quick", "-q", action="store_true", help="Ignorer le build de production pour une boucle rapide")
+    parser = argparse.ArgumentParser(description="Adaptive & Agnostic RSI Deterministic Judge")
+    parser.add_argument("--quick", "-q", action="store_true", help="Skip production build for fast reflexive loops")
     args = parser.parse_args()
 
     check_configs = build_adaptive_checks(args.quick)
@@ -184,30 +185,41 @@ def main():
     for cfg in check_configs:
         res = run_cmd(cfg["name"], cfg["cmd"], weight=cfg["weight"], timeout_sec=cfg["timeout"])
         executed_checks.append(res)
+        # Fast exit on critical syntax/typecheck errors
+        if not res["passed"] and cfg["name"] in ["typecheck", "rsi_memory_hygiene", "security_audit"]:
+            break
 
-    total_score = sum(c["score"] for c in executed_checks)
-    max_possible = sum(c["max_score"] for c in executed_checks)
-    normalized_score = int((total_score / max_possible) * 100) if max_possible > 0 else 100
+    total_score = 0
+    max_score = sum(c["weight"] for c in check_configs)
+    raw_score = sum(r["score"] for r in executed_checks)
 
-    failed_steps = [c for c in executed_checks if not c["passed"]]
+    if max_score > 0:
+        total_score = int((raw_score / max_score) * 100)
+    else:
+        total_score = 100
 
-    report = {
+    failed_steps = [r for r in executed_checks if not r["passed"]]
+    status = "PASS" if total_score == 100 and not failed_steps else "FAIL"
+
+    trajectory = {
         "timestamp": datetime.now().isoformat(),
         "mode": "QUICK" if args.quick else "FULL",
-        "total_score": normalized_score,
-        "raw_score": total_score,
-        "max_score": max_possible,
-        "status": "PASS" if normalized_score == 100 else "FAIL",
+        "total_score": total_score,
+        "raw_score": raw_score,
+        "max_score": max_score,
+        "status": status,
         "failed_steps": failed_steps,
-        "summary": {c["step"]: "PASSED" if c["passed"] else "FAILED" for c in executed_checks}
+        "summary": {r["step"]: ("PASSED" if r["passed"] else "FAILED") for r in executed_checks}
     }
 
     LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    LOG_PATH.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
-    print(json.dumps(report, indent=2, ensure_ascii=False))
+    with open(LOG_PATH, "w", encoding="utf-8") as f:
+        json.dump(trajectory, f, indent=2, ensure_ascii=False)
 
-    sys.exit(0 if normalized_score == 100 else 1)
+    print(json.dumps(trajectory, indent=2, ensure_ascii=False))
+
+    if status != "PASS":
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
-

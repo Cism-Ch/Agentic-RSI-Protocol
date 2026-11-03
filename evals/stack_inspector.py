@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """
-Auditeur de Stack Technique et Écosystème Officiel (Skills & MCP)
-- Détecte le package manager, framework, ORM, auth, styles, services cloud
-- Recommande et vérifie l'installation des outils officiels (serveurs MCP & Skills)
-- Entièrement générique et configurable
+Technical Stack & Official Tooling (Skills & MCP) Auditor
+- Detects package manager, framework, ORM, auth, styles, cloud services
+- Recommends and verifies official tooling installation (MCP servers & Skills)
+- Fully generic and configurable
 """
 
 import sys
 import json
 from pathlib import Path
 
-# UTF-8 pour Windows
+# UTF-8 for Windows console
 if sys.stdout.encoding != 'utf-8':
     try:
         sys.stdout.reconfigure(encoding='utf-8', errors='replace')
@@ -26,7 +26,7 @@ ECOSYSTEM_CATALOG = {
         "files": ["components.json"],
         "skill": "shadcn",
         "mcp_server": None,
-        "purpose": "Composants d'interface utilisateur accessibles et stylisés"
+        "purpose": "Accessible and styled UI component primitives"
     },
     "prisma": {
         "deps": ["@prisma/client", "prisma"],
@@ -34,14 +34,14 @@ ECOSYSTEM_CATALOG = {
         "skill": "prisma-management",
         "skill_keywords": ["prisma"],
         "mcp_server": None,
-        "purpose": "Gestion et validation du schéma de base de données"
+        "purpose": "Database schema management and validation"
     },
     "upstash": {
         "deps": ["@upstash/redis", "@upstash/qstash", "@upstash/ratelimit"],
         "files": [],
         "skill": "upstash",
         "mcp_server": "upstash",
-        "purpose": "File d'attente asynchrone, rate-limiting et cache distribué"
+        "purpose": "Asynchronous job queue, rate limiting, and distributed cache"
     },
     "tigris": {
         "deps": ["@aws-sdk/client-s3", "@aws-sdk/s3-request-presigner"],
@@ -50,7 +50,7 @@ ECOSYSTEM_CATALOG = {
         "skill": "file-storage",
         "skill_keywords": ["tigris", "storage"],
         "mcp_server": None,
-        "purpose": "Stockage d'objets S3 haute performance sans egress"
+        "purpose": "Zero-egress S3-compatible high-performance object storage"
     },
     "playwright": {
         "deps": ["@playwright/test", "playwright"],
@@ -58,7 +58,7 @@ ECOSYSTEM_CATALOG = {
         "skill": "playwright-skill",
         "skill_keywords": ["playwright"],
         "mcp_server": None,
-        "purpose": "Automatisation et tests E2E déterministes"
+        "purpose": "Deterministic E2E testing and browser automation"
     }
 }
 
@@ -149,34 +149,33 @@ def detect_stack() -> dict:
     return detected
 
 def main():
-    print("🔍 [RSI Stack Inspector] Analyse de l'écosystème du projet...")
+    print("🔍 [RSI Stack Inspector] Analyzing project ecosystem...")
     stack = detect_stack()
 
     if not stack:
-        print("ℹ️ Aucune technologie de l'écosystème standard identifiée.")
+        print("ℹ️ No standard ecosystem technologies detected yet.")
         return
 
-    print(f"📦 {len(stack)} briques techniques identifiées dans le projet :\n")
+    print(f"📦 {len(stack)} technical components identified in the project:\n")
     missing_tools = []
 
     for tech, info in stack.items():
-        skill_status = "✅ Installé" if info["has_skill"] else f"⚠️ MANQUANT ({info['recommended_skill']})"
-        mcp_status = "✅ Configuré" if info["has_mcp"] else f"⚠️ MANQUANT ({info['recommended_mcp']})"
+        skill_status = "✅ Installed" if info["has_skill"] else f"⚠️ MISSING ({info['recommended_skill']})"
+        mcp_status = "✅ Configured" if info["has_mcp"] else f"⚠️ MISSING ({info['recommended_mcp']})"
         
-        print(f"🔹 {tech.upper()} : {info['purpose']}")
-        print(f"   ├─ Skill  : {skill_status}")
+        print(f"🔹 {tech.upper()}: {info['purpose']}")
+        print(f"   ├─ Skill : {skill_status}")
         if info["recommended_mcp"]:
-            print(f"   └─ MCP    : {mcp_status}")
+            print(f"   └─ MCP   : {mcp_status}")
         print()
 
         if not info["has_skill"] or not info["has_mcp"]:
             missing_tools.append((tech, info))
 
     if missing_tools:
-        print("💡 [Recommandations RSI] Pour éviter de coder à l'aveugle, installez les outils officiels manquants.")
+        print("💡 [RSI Recommendations] To avoid unguided coding, install the missing official tools.")
     else:
-        print("🌟 [RSI Stack Audit] Outillage officiel complet et conforme !")
+        print("🌟 [RSI Stack Audit] Official tooling is complete and compliant!")
 
 if __name__ == "__main__":
     main()
-

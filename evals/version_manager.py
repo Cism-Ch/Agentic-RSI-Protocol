@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-Gestionnaire Universel de Versioning SemVer
-Gère le cycle de vie des versions :
-- Incrémentation SemVer (Major, Minor, Patch, mentions)
-- Mise à jour de package.json
-- Scellement de la section [Unreleased] de CHANGELOG.md avec la date du jour
-- Création automatique du tag Git
+Universal SemVer Versioning Manager
+Manages release version life cycles:
+- SemVer bumping (Major, Minor, Patch, pre-release tags)
+- package.json version updating
+- Sealing the [Unreleased] section in CHANGELOG.md with current date
+- Automatic Git tagging preparation
 """
 
 import sys
@@ -17,7 +17,7 @@ import subprocess
 from pathlib import Path
 from datetime import datetime
 
-# UTF-8 pour Windows
+# UTF-8 for Windows console
 if sys.stdout.encoding != 'utf-8':
     try:
         sys.stdout.reconfigure(encoding='utf-8', errors='replace')
@@ -33,7 +33,7 @@ def parse_semver(version_str: str) -> tuple[int, int, int, str | None]:
     clean = version_str.lstrip("v").strip()
     match = re.match(r"^(\d+)\.(\d+)\.(\d+)(?:-([a-zA-Z0-9._-]+))?$", clean)
     if not match:
-        raise ValueError(f"Format SemVer invalide: '{version_str}'")
+        raise ValueError(f"Invalid SemVer format: '{version_str}'")
     return int(match.group(1)), int(match.group(2)), int(match.group(3)), match.group(4)
 
 def get_current_version() -> str:
@@ -57,7 +57,7 @@ def bump_semver(current_ver: str, bump_type: str, mention: str | None = None) ->
     elif bump_lower == "patch":
         patch += 1
     else:
-        raise ValueError(f"Type d'incrément invalide: '{bump_type}'")
+        raise ValueError(f"Invalid bump type: '{bump_type}'")
 
     new_ver = f"{major}.{minor}.{patch}"
     if mention:
@@ -86,9 +86,9 @@ def update_changelog(new_ver: str) -> None:
         CHANGELOG_PATH.write_text(updated, encoding="utf-8")
 
 def main():
-    parser = argparse.ArgumentParser(description="Gestionnaire SemVer Universel")
-    parser.add_argument("--bump", choices=["major", "minor", "patch"], default="patch", help="Niveau d'incrément SemVer")
-    parser.add_argument("--mention", help="Mention optionnelle (ex: beta, hotfix)")
+    parser = argparse.ArgumentParser(description="Universal SemVer Manager")
+    parser.add_argument("--bump", choices=["major", "minor", "patch"], default="patch", help="SemVer bump increment level")
+    parser.add_argument("--mention", help="Optional pre-release tag (e.g. beta, hotfix)")
     args = parser.parse_args()
 
     curr = get_current_version()
@@ -97,8 +97,7 @@ def main():
     print(f"📦 [SemVer Bump] {curr} ➔ {next_ver}")
     update_package_json(next_ver)
     update_changelog(next_ver)
-    print("✅ Version et CHANGELOG mis à jour avec succès.")
+    print("✅ Version and CHANGELOG updated successfully.")
 
 if __name__ == "__main__":
     main()
-

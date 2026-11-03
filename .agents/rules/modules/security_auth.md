@@ -1,9 +1,8 @@
-# 🔒 Module : Sécurité, Auth & Données Sensibles
+# 🔒 Module: Security, Auth & Sensitive Data
 
-> Règle Anti-Bloat : Ce module ne doit JAMAIS dépasser **80 lignes**.
+> Anti-Bloat Rule: This module must NEVER exceed **80 lines**.
 
-- [R-SEC-01] Valider impérativement les sessions et permissions côté serveur en tête de contrôleur ou d'action.
-- [R-SEC-02] Ne JAMAIS renvoyer de hashs de mots de passe, tokens ou clés privées au client.
-- [R-SEC-03] Chiffrer au repos (AES-256) toutes les clés secrètes ou données sensibles fournies par les utilisateurs.
-- [R-SEC-04] Assurer l'intégrité absolue des variables d'environnement (`.env`) sans jamais effacer de clés existantes.
-
+- [R-SEC-01] Strictly validate sessions and permissions server-side at the start of every controller or action.
+- [R-SEC-02] NEVER expose password hashes, tokens, or private keys to the client.
+- [R-SEC-03] Encrypt at rest (AES-256) all user-provided secrets, tokens, or sensitive credentials.
+- [R-SEC-04] Guarantee absolute integrity of environment variables (`.env`) without deleting existing keys.

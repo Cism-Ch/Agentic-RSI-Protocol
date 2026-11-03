@@ -1,24 +1,23 @@
-# 🤖 AGENTS.md — Référence Agents IA & Protocole RSI
+# 🤖 AGENTS.md — AI Agent Reference & RSI Protocol
 
-Ce document régit les directives d'ingénierie, la gouvernance de la codebase et le protocole d'auto-amélioration récursive (RSI).
+This document governs engineering guidelines, codebase governance, and the Recursive Self-Improvement (RSI) protocol.
 
 ---
 
-### Résumé des Règles Inviolables
+### Inviolable Rules Summary
 
-1. **Architecture & Typage Strict :** Zéro erreur de type, inférence forte et validation runtime systématique.
-2. **Suivi des Tâches (SSOT Inviolable — `docs/TASKS.md`) :**
-   - **Interdiction de coder sans tâche :** Tout travail DOIT être rattaché à une tâche formalisée dans `docs/TASKS.md` (`TASK-DOMAINE-XX`) avec description et critères cochables.
-   - **Mise à jour en temps réel :** Marquer `[-]` au début, `[x]` à l'achèvement.
-   - **Validation avant clôture :** Ne jamais marquer une tâche terminée sans avoir validé avec le juge déterministe (`python evals/run_fullstack_eval.py`).
-   - **Plafond strict :** `docs/TASKS.md` ne doit jamais dépasser **250 lignes** (Rollover vers `docs/archive/tasks/`).
-3. **Protocole RSI (Auto-Amélioration Récursive) :**
-   - **Mémoire procédurale modulaire :** Consulter `.agents/rules/modules/` pour les règles spécialisées (< 80 lignes par fichier).
-   - **Juge Déterministe Adaptatif :** Valider les développements avec `python evals/run_fullstack_eval.py --quick`.
-   - **Boucle Méta-Cognitive :** Adopter le rôle `.agents/prompts/meta_optimizer.md` pour extraire les enseignements et enrichir les sous-playbooks en cas d'échec réparé ou d'audit de sécurité.
-   - **Workflow Dédié :** Utiliser la commande `/rsi-feature`.
-4. **Cadence des Tests Anti-Saturation :**
-   - Micro-éditions sans test global -> Jalon avec `--quick` compact -> Clôture avec validation complète.
-5. **Dualité Mémoire :**
-   - Artefacts IDE pour le suivi épisodique de session ; fichiers `.agents/rules/modules/` pour la mémoire procédurale durable.
-
+1. **Architecture & Strict Typing:** Zero type errors, strong inference, and systematic runtime validation.
+2. **Task Tracking (Inviolable SSOT — `docs/TASKS.md`):**
+   - **No Unregistered Coding:** All work MUST be attached to a formalized task in `docs/TASKS.md` (`TASK-DOMAIN-XX`) with a description and checkable acceptance criteria.
+   - **Real-Time Updates:** Mark `[-]` at start, `[x]` upon completion.
+   - **Validation Before Closure:** Never mark a task completed without validating with the deterministic judge (`python evals/run_fullstack_eval.py`).
+   - **Strict Ceiling:** `docs/TASKS.md` must never exceed **250 lines** (Rollover to `docs/archive/tasks/`).
+3. **RSI Protocol (Recursive Self-Improvement):**
+   - **Modular Procedural Memory:** Consult `.agents/rules/modules/` for specialized rules (< 80 lines per file).
+   - **Adaptive Deterministic Judge:** Validate progress with `python evals/run_fullstack_eval.py --quick`.
+   - **Meta-Cognitive Loop:** Adopt `.agents/prompts/meta_optimizer.md` to extract lessons and enrich sub-playbooks when fixing bugs or after security audits.
+   - **Dedicated Workflow:** Use the `/rsi-feature` command.
+4. **Anti-Saturation Test Cadence:**
+   - Micro-edits without global test suite -> Milestone checkpoint with compact `--quick` -> Task closure with full validation.
+5. **Memory Duality:**
+   - IDE Artifacts for episodic session tracking; `.agents/rules/modules/` files for durable procedural memory.

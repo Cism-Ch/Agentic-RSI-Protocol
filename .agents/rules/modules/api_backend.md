@@ -1,9 +1,8 @@
-# ⚡ Module : API & Backend
+# ⚡ Module: API & Backend
 
-> Règle Anti-Bloat : Ce module ne doit JAMAIS dépasser **80 lignes**.
+> Anti-Bloat Rule: This module must NEVER exceed **80 lines**.
 
-- [R-API-01] Renvoyer systématiquement des structures prévisibles de type `{ success: true, data } | { success: false, error }`.
-- [R-API-02] Protéger les endpoints sensibles et les formulaires avec du rate-limiting.
-- [R-API-03] Traiter les tâches lourdes de manière asynchrone via des workers ou files d'attente avec vérification de signature.
-- [R-API-04] Rendre les jobs asynchrones strictement idempotents pour supporter les retries automatiques sans effets de bord.
-
+- [R-API-01] Consistently return predictable structures matching `{ success: true, data } | { success: false, error }`.
+- [R-API-02] Protect sensitive endpoints and submission forms with rate-limiting.
+- [R-API-03] Process heavy tasks asynchronously via workers or message queues with signature verification.
+- [R-API-04] Make asynchronous jobs strictly idempotent to support automatic retries without side effects.

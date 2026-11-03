@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Audit de Sécurité Statique & Détection de Fuite de Secrets
-- Vérifie l'absence de clés d'API, tokens, certificats privés et secrets codés en dur
-- Valide l'étanchéité du .gitignore (.env*, clés privées, caches)
-- Inspecte les permissions et conformité aux règles de sécurité du protocole RSI
+Static Security Audit & Secret Leak Detector
+- Checks for hardcoded API keys, tokens, private certificates, and secrets
+- Validates .gitignore airtightness (.env*, private keys, caches)
+- Inspects permissions and conformance to RSI security guardrails
 """
 
 import sys
@@ -11,7 +11,7 @@ import re
 import os
 from pathlib import Path
 
-# Fix encoding Windows console
+# Fix Windows console UTF-8 encoding
 if sys.stdout.encoding != 'utf-8':
     try:
         sys.stdout.reconfigure(encoding='utf-8', errors='replace')
@@ -22,13 +22,13 @@ if sys.stdout.encoding != 'utf-8':
 ROOT_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_PATTERNS = [
-    (re.compile(r'-----BEGIN (?:RSA |EC |DSA |OPENSSH )?PRIVATE KEY-----'), "Clé privée (RSA/EC/SSH)"),
-    (re.compile(r'sk-[a-zA-Z0-9]{20,}'), "Clé secrète type OpenAI/Stripe"),
-    (re.compile(r'AKIA[0-9A-Z]{16}'), "Identifiant AWS Access Key"),
-    (re.compile(r'ghp_[a-zA-Z0-9]{36}'), "Token GitHub Personal Access"),
-    (re.compile(r'xox[baprs]-[0-9a-zA-Z]{10,48}'), "Token API Slack"),
-    (re.compile(r'(?:postgres|postgresql|mysql|mongodb\+srv):\/\/[^\s:]+:[^\s@]+@[^\s\/]+'), "Chaîne de connexion BDD avec mot de passe"),
-    (re.compile(r'(?i)(?:api_key|secret_key|private_key|auth_token)\s*=\s*["\'][a-zA-Z0-9_\-\.]{16,}["\']'), "Clé d'authentification codée en dur")
+    (re.compile(r'-----BEGIN (?:RSA |EC |DSA |OPENSSH )?PRIVATE KEY-----'), "Private Key (RSA/EC/SSH)"),
+    (re.compile(r'sk-[a-zA-Z0-9]{20,}'), "Secret Key (OpenAI/Stripe style)"),
+    (re.compile(r'AKIA[0-9A-Z]{16}'), "AWS Access Key ID"),
+    (re.compile(r'ghp_[a-zA-Z0-9]{36}'), "GitHub Personal Access Token"),
+    (re.compile(r'xox[baprs]-[0-9a-zA-Z]{10,48}'), "Slack API Token"),
+    (re.compile(r'(?:postgres|postgresql|mysql|mongodb\+srv):\/\/[^\s:]+:[^\s@]+@[^\s\/]+'), "Database URI with hardcoded password"),
+    (re.compile(r'(?i)(?:api_key|secret_key|private_key|auth_token)\s*=\s*["\'][a-zA-Z0-9_\-\.]{16,}["\']'), "Hardcoded Auth Secret")
 ]
 
 IGNORE_DIRS = {'.git', 'node_modules', '__pycache__', '.venv', 'venv', 'dist', 'build', '.next'}
@@ -37,14 +37,14 @@ def audit_gitignore() -> list[str]:
     issues = []
     gitignore = ROOT_DIR / ".gitignore"
     if not gitignore.exists():
-        issues.append("Fichier .gitignore manquant !")
+        issues.append("Missing .gitignore file!")
         return issues
 
     content = gitignore.read_text(encoding="utf-8", errors="replace")
     essential_rules = [".env", "*.pem", "*.key", "node_modules"]
     for rule in essential_rules:
         if rule not in content:
-            issues.append(f"Règle de sécurité manquante dans .gitignore : '{rule}'")
+            issues.append(f"Missing essential security rule in .gitignore: '{rule}'")
     return issues
 
 def audit_secrets() -> list[dict]:
@@ -53,7 +53,7 @@ def audit_secrets() -> list[dict]:
         if path.is_file():
             if any(part in IGNORE_DIRS for part in path.parts):
                 continue
-            # Ne pas s'auto-analyser sur les regex de ce fichier
+            # Avoid self-flagging on this audit script
             if path.name == "security_audit.py":
                 continue
             try:
@@ -71,45 +71,45 @@ def audit_secrets() -> list[dict]:
                 findings.append({
                     "file": str(path.relative_to(ROOT_DIR)),
                     "line": 0,
-                    "type": "Erreur lecture",
+                    "type": "Read Error",
                     "sample": str(e)
                 })
     return findings
 
 def run_security_audit() -> bool:
-    print("🔒 [RSI Security Audit] Lancement de l'audit de sécurité statique...")
+    print("🔒 [RSI Security Audit] Running static security and secret leak audit...")
     gitignore_issues = audit_gitignore()
     secret_findings = audit_secrets()
 
     success = True
     if gitignore_issues:
-        print("\n❌ Vulnérabilités de configuration .gitignore :")
+        print("\n❌ .gitignore configuration vulnerabilities:")
         for issue in gitignore_issues:
             print(f"  - {issue}")
         success = False
     else:
-        print("  ✅ Configuration .gitignore étanche et conforme.")
+        print("  ✅ .gitignore configuration is airtight and compliant.")
 
     if secret_findings:
-        print(f"\n❌ {len(secret_findings)} fuite(s) de secret potentielle(s) détectée(s) :")
+        print(f"\n❌ {len(secret_findings)} potential secret leak(s) detected:")
         for finding in secret_findings:
             print(f"  - [{finding['type']}] {finding['file']}:{finding['line']} -> {finding['sample']}")
         success = False
     else:
-        print("  ✅ Aucun secret, clé privée ou credential codé en dur détecté.")
+        print("  ✅ No exposed secrets, private keys, or credentials found.")
 
-    # Vérification présence de fichiers .env réels non ignorés
+    # Check for real uncommitted .env files
     env_files = list(ROOT_DIR.glob(".env*"))
     real_envs = [f.name for f in env_files if f.name != ".env.example"]
     if real_envs:
-        print(f"  ℹ️ Fichiers .env détectés en local : {real_envs} (doivent rester ignorés par git)")
+        print(f"  ℹ️ Local .env files present: {real_envs} (must stay ignored by git)")
     else:
-        print("  ✅ Aucun fichier .env non chiffré dans le répertoire.")
+        print("  ✅ No unencrypted plaintext .env files in directory.")
 
     if success:
-        print("\n🛡️ AUDIT DE SÉCURITÉ : SUCCÈS (0 faille critique détectée)")
+        print("\n🛡️ SECURITY AUDIT: SUCCESS (0 critical vulnerabilities detected)")
     else:
-        print("\n⚠️ AUDIT DE SÉCURITÉ : ÉCHEC")
+        print("\n⚠️ SECURITY AUDIT: FAILED")
 
     return success
 

@@ -1,5 +1,5 @@
 # ==============================================================================
-# Fichiers d'environnement & Secrets (Sécurité Maximale)
+# Environment Files & Secrets (High Security)
 # ==============================================================================
 .env
 .env*.local
@@ -9,7 +9,7 @@
 *.env
 !*.env.example
 
-# Clés de sécurité & Certificats
+# Security Keys & Certificates
 *.pem
 *.key
 *.crt
@@ -21,7 +21,7 @@ id_rsa.pub
 id_ed25519
 id_ed25519.pub
 
-# Dépendances Node & Caches
+# Node Dependencies & Caches
 node_modules/
 .pnp
 .pnp.js
@@ -31,7 +31,7 @@ node_modules/
 .yarn/install-state.gz
 .pnpm-store/
 
-# Builds & Sorties compilées
+# Builds & Compiled Output
 dist/
 build/
 .next/
@@ -40,7 +40,7 @@ out/
 *.tsbuildinfo
 next-env.d.ts
 
-# Dépendances & Environnements Python
+# Python Virtual Environments & Caches
 __pycache__/
 *.py[cod]
 *$py.class
@@ -66,7 +66,7 @@ wheels/
 .installed.cfg
 *.egg
 
-# Logs & Débogage
+# Logs & Debugging
 logs/
 *.log
 npm-debug.log*
@@ -75,12 +75,12 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Couverture de tests & Rapports
+# Test Coverage & Reports
 coverage/
 .nyc_output/
 reports/
 
-# Cache IDE & Outils système
+# IDE & Operating System Artifacts
 .idea/
 .vscode/*
 !.vscode/settings.json

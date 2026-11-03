@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Moteur de Résolution et d'Audit de la Mémoire Modulaire RSI
-- Indexation et chargement contextuel ciblé des sous-playbooks (.agents/rules/modules/)
-- Vérification anti-bloat (< 80 lignes par sous-module)
-- Entièrement générique et réutilisable pour tout projet
+RSI Modular Memory Resolution and Audit Engine
+- Targeted contextual indexing and loading of sub-playbooks (.agents/rules/modules/)
+- Anti-bloat verification (< 80 lines per sub-module)
+- Fully generic and reusable across projects
 """
 
 import sys
@@ -11,7 +11,7 @@ import os
 import argparse
 from pathlib import Path
 
-# UTF-8 pour Windows
+# UTF-8 for Windows console
 if sys.stdout.encoding != 'utf-8':
     try:
         sys.stdout.reconfigure(encoding='utf-8', errors='replace')
@@ -32,17 +32,17 @@ MODULE_TRIGGERS = {
 }
 
 def audit_memory_modules() -> bool:
-    """Vérifie que chaque module reste strictement sous le seuil maximal de lignes."""
+    """Verifies that each module strictly remains under the maximum line ceiling."""
     if not MODULES_DIR.exists():
-        print(f"⚠️ [RSI Memory Audit] Répertoire des modules introuvable à {MODULES_DIR}")
+        print(f"⚠️ [RSI Memory Audit] Modules directory not found at {MODULES_DIR}")
         return True
 
     modules = list(MODULES_DIR.glob("*.md"))
     if not modules:
-        print("ℹ️ [RSI Memory Audit] Aucun module trouvé.")
+        print("ℹ️ [RSI Memory Audit] No modules found.")
         return True
 
-    print(f"📊 [RSI Memory Audit] {len(modules)} modules détectés.")
+    print(f"📊 [RSI Memory Audit] {len(modules)} modules detected.")
     has_violation = False
 
     for mod in modules:
@@ -50,22 +50,22 @@ def audit_memory_modules() -> bool:
             content = mod.read_text(encoding="utf-8")
             line_count = len([line for line in content.splitlines() if line.strip()])
             if line_count > MAX_LINES_PER_MODULE:
-                print(f"  ❌ {mod.name} : {line_count}/{MAX_LINES_PER_MODULE} lignes (SEUIL DÉPASSÉ !)")
+                print(f"  ❌ {mod.name}: {line_count}/{MAX_LINES_PER_MODULE} lines (LIMIT EXCEEDED!)")
                 has_violation = True
             else:
-                print(f"  ✅ {mod.name} : {line_count}/{MAX_LINES_PER_MODULE} lignes")
+                print(f"  ✅ {mod.name}: {line_count}/{MAX_LINES_PER_MODULE} lines")
         except Exception as e:
-            print(f"  ⚠️ Erreur de lecture de {mod.name}: {e}")
+            print(f"  ⚠️ Error reading {mod.name}: {e}")
 
     if has_violation:
-        print("\n❌ ÉCHEC : Certains modules dépassent la limite autorisée. Synthétisez ou fractionnez !")
+        print("\n❌ FAILURE: Some modules exceed the maximum allowed line count. Summarize or split them!")
         return False
     else:
-        print("\n✅ Tous les modules respectent le plafond strict de compacité !")
+        print("\n✅ All modules comply with the strict compactness limit!")
         return True
 
 def resolve_context(files: list[str]) -> str:
-    """Détermine quels modules charger en fonction des fichiers passés en paramètre."""
+    """Determines which modules to load based on input file paths."""
     matched_modules = set()
     for f in files:
         f_lower = f.lower().replace("\\", "/")
@@ -74,7 +74,7 @@ def resolve_context(files: list[str]) -> str:
                 matched_modules.add(mod)
 
     if not matched_modules:
-        return "ℹ️ Aucun sous-playbook spécifique requis pour ces fichiers. Consultez fullstack_playbook.md si besoin."
+        return "ℹ️ No specific sub-playbook required for these files. Refer to fullstack_playbook.md if needed."
 
     output = ["🧠 [RSI Dynamic Memory Injection]"]
     for mod in sorted(matched_modules):
@@ -86,9 +86,9 @@ def resolve_context(files: list[str]) -> str:
     return "\n".join(output)
 
 def main():
-    parser = argparse.ArgumentParser(description="Moteur de Mémoire Modulaire RSI")
-    parser.add_argument("--audit", action="store_true", help="Vérifier la compacité des modules")
-    parser.add_argument("--inject", nargs="*", help="Injecter dynamiquement les modules pertinents pour les fichiers spécifiés")
+    parser = argparse.ArgumentParser(description="RSI Modular Memory Engine")
+    parser.add_argument("--audit", action="store_true", help="Verify module compactness ceiling")
+    parser.add_argument("--inject", nargs="*", help="Dynamically inject relevant rule modules for specified files")
     args = parser.parse_args()
 
     if args.audit:
@@ -97,7 +97,7 @@ def main():
 
     if args.inject is not None:
         if len(args.inject) == 0:
-            print("Usage: --inject [fichier1] [fichier2] ...")
+            print("Usage: --inject [file1] [file2] ...")
         else:
             print(resolve_context(args.inject))
         sys.exit(0)
@@ -106,4 +106,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

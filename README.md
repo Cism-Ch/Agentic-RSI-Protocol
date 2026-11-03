@@ -1,61 +1,62 @@
-# 🧬 Protocole RSI (Recursive Self-Improvement) — Template Standalone
+# 🧬 RSI Protocol (Recursive Self-Improvement) — Standalone Template
 
-Ce répertoire contient le **Protocole RSI**, un moteur d'ingénierie et d'auto-amélioration déterministe pour agents d'intelligence artificielle, totalement découplé de tout projet spécifique.
+This repository contains the **RSI Protocol**, an engineering engine and deterministic self-improvement framework for AI agents, completely decoupled from any specific project.
 
 ---
 
-## 📁 Architecture du Template
+## 📁 Template Architecture
 
 ```
-temp_rsi_protocol/
+Agentic-RSI-Protocol/
 ├── .agents/
 │   ├── prompts/
-│   │   └── meta_optimizer.md        # Rôle de réflexion et d'extraction de règles
+│   │   └── meta_optimizer.md        # Reflexive role for rule extraction and post-mortem optimization
 │   ├── rules/
-│   │   ├── system_core.md           # Règles immuables d'ingénierie
-│   │   ├── fullstack_playbook.md    # Index et routeur de la mémoire procédurale
-│   │   └── modules/                 # Sous-playbooks modulaires (< 80 lignes)
+│   │   ├── system_core.md           # Immutable core engineering rules
+│   │   ├── fullstack_playbook.md    # Index and routing layer for procedural memory
+│   │   └── modules/                 # Modular sub-playbooks (< 80 lines each)
 │   │       ├── api_backend.md
 │   │       ├── db.md
 │   │       ├── integration_ai.md
 │   │       ├── security_auth.md
 │   │       └── ui_frontend.md
 │   └── workflows/
-│       └── rsi-feature.md           # Workflow en 4 phases (Cadrage -> Éval -> Méta -> Clôture)
+│       └── rsi-feature.md           # 4-phase workflow (Scoping -> Eval -> Meta -> Closure)
 ├── evals/
-│   ├── memory_engine.py             # Résolution contextuelle & audit de compacité
-│   ├── run_fullstack_eval.py        # Juge déterministe agnostique (multi-gestionnaires)
-│   ├── stack_inspector.py           # Détection de stack & recommandation MCP/Skills
-│   ├── rsi_orchestrator.py          # Boucles de retry (max 3) et guardrails
-│   └── version_manager.py           # Incrémentation SemVer & scellement Changelog
+│   ├── memory_engine.py             # Contextual rule resolution & compactness auditor
+│   ├── run_fullstack_eval.py        # Agnostic deterministic judge (multi-package managers)
+│   ├── security_audit.py            # Static security scanner & leak detector
+│   ├── stack_inspector.py           # Stack detection & official MCP/Skills recommendations
+│   ├── rsi_orchestrator.py          # Retry loop controller (max 3) & integrity guardrails
+│   └── version_manager.py           # SemVer incrementation & Changelog sealing
 ├── docs/
-│   ├── TASKS.md                     # Registre SSOT avec plafond de 250 lignes
-│   └── archive/tasks/               # Dossier de rollover pour les tâches archivées
-├── CHANGELOG.md                     # Journal des modifications SemVer
-├── AGENTS.md                        # Charte officielle pour les agents IA
-└── README.md                        # Ce fichier de documentation
+│   ├── TASKS.md                     # SSOT registry with strict 250-line ceiling
+│   └── archive/tasks/               # Rollover directory for archived tasks
+├── CHANGELOG.md                     # SemVer change history
+├── AGENTS.md                        # Official charter & standards for AI agents
+└── README.md                        # Documentation and onboarding guide
 ```
 
 ---
 
-## 🚀 Comment l'utiliser dans un nouveau projet
+## 🚀 How to Use in a New Project
 
-1. **Déplacer le contenu :**
-   Copiez l'ensemble des dossiers `.agents/`, `evals/`, `docs/`, ainsi que `CHANGELOG.md` et `AGENTS.md` à la racine de votre nouveau projet.
+1. **Copy the Core Directories:**
+   Copy `.agents/`, `evals/`, `docs/`, `CHANGELOG.md`, and `AGENTS.md` into the root of your target project.
 
-2. **Ajouter les scripts dans votre `package.json` :**
+2. **Add Script Aliases to `package.json`:**
    ```json
    "scripts": {
      "eval:quick": "python evals/run_fullstack_eval.py --quick",
      "eval:fullstack": "python evals/run_fullstack_eval.py",
      "rsi:inspect": "python evals/stack_inspector.py",
-     "rsi:memory": "python evals/memory_engine.py --audit"
+     "rsi:memory": "python evals/memory_engine.py --audit",
+     "rsi:security": "python evals/security_audit.py"
    }
    ```
 
-3. **Exécuter le premier audit :**
+3. **Run the Initial Audit:**
    ```bash
    pnpm run rsi:inspect
    pnpm run eval:quick
    ```
-

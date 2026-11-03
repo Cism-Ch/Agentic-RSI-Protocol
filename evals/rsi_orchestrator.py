@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Orchestrateur RSI (Recursive Self-Improvement)
-Pilote les boucles réflexives (jusqu'à 3 tentatives) et vérifie les guardrails d'intégrité :
-- Vérification du score déterministe
-- Guardrails : intégrité des modules (< 80 lignes) et plafonds de TASKS.md (< 250 lignes)
+RSI Orchestrator (Recursive Self-Improvement)
+Drives reflexive retry loops (up to 3 attempts) and verifies integrity guardrails:
+- Deterministic score validation
+- Guardrails: rule modules compactness (< 80 lines) and TASKS.md ceiling (< 250 lines)
 """
 
 import sys
@@ -12,7 +12,7 @@ import json
 import argparse
 from pathlib import Path
 
-# UTF-8 pour Windows
+# UTF-8 for Windows console
 if sys.stdout.encoding != 'utf-8':
     try:
         sys.stdout.reconfigure(encoding='utf-8', errors='replace')
@@ -27,7 +27,7 @@ MAX_TASKS_LINES = 250
 MAX_MODULE_LINES = 80
 
 def run_evaluation(attempt: int, quick: bool = True) -> bool:
-    print(f"\n🔄 [RSI Loop] Lancement de l'évaluation déterministe — Tentative {attempt}/3...")
+    print(f"\n🔄 [RSI Loop] Launching deterministic evaluation — Attempt {attempt}/3...")
     eval_script = ROOT_DIR / "evals" / "run_fullstack_eval.py"
     cmd = [sys.executable, str(eval_script)]
     if quick:
@@ -37,43 +37,43 @@ def run_evaluation(attempt: int, quick: bool = True) -> bool:
     passed = res.returncode == 0
 
     if passed:
-        print(f"🎉 [RSI Loop] Succès déterministe validé (Score: 100/100) à la tentative {attempt} !")
+        print(f"🎉 [RSI Loop] Deterministic validation passed (Score: 100/100) on attempt {attempt}!")
         return True
     else:
-        print(f"⚠️ [RSI Loop] Échec de la tentative {attempt}. Consultez evals/logs/trajectory_latest.json.")
+        print(f"⚠️ [RSI Loop] Attempt {attempt} failed. Inspect evals/logs/trajectory_latest.json.")
         return False
 
 def check_guardrails() -> bool:
-    print("\n🛡️ [RSI Guardrails] Contrôle strict d'intégrité...")
+    print("\n🛡️ [RSI Guardrails] Running strict integrity check...")
     passed = True
 
-    # 1. Vérification de la compacité de TASKS.md
+    # 1. Compactness check for docs/TASKS.md
     if TASKS_PATH.exists():
         content = TASKS_PATH.read_text(encoding="utf-8")
         lines = len(content.splitlines())
         if lines > MAX_TASKS_LINES:
-            print(f"❌ [Guardrail Violé] docs/TASKS.md contient {lines} lignes (> {MAX_TASKS_LINES}). Exécutez un Rollover vers docs/archive/tasks/ !")
+            print(f"❌ [Guardrail Violated] docs/TASKS.md contains {lines} lines (> {MAX_TASKS_LINES}). Run rollover to docs/archive/tasks/!")
             passed = False
         else:
-            print(f"✅ docs/TASKS.md : {lines}/{MAX_TASKS_LINES} lignes")
+            print(f"✅ docs/TASKS.md: {lines}/{MAX_TASKS_LINES} lines")
 
-    # 2. Vérification des modules de règles
+    # 2. Compactness check for rule modules
     if MODULES_DIR.exists():
         for mod in MODULES_DIR.glob("*.md"):
             cnt = len([l for l in mod.read_text(encoding="utf-8").splitlines() if l.strip()])
             if cnt > MAX_MODULE_LINES:
-                print(f"❌ [Guardrail Violé] {mod.name} contient {cnt} lignes (> {MAX_MODULE_LINES}). Synthétisez !")
+                print(f"❌ [Guardrail Violated] {mod.name} contains {cnt} lines (> {MAX_MODULE_LINES}). Summarize it!")
                 passed = False
             else:
-                print(f"✅ {mod.name} : {cnt}/{MAX_MODULE_LINES} lignes")
+                print(f"✅ {mod.name}: {cnt}/{MAX_MODULE_LINES} lines")
 
     return passed
 
 def main():
-    parser = argparse.ArgumentParser(description="Orchestrateur du Protocole RSI")
-    parser.add_argument("--eval", action="store_true", help="Exécuter une évaluation réflexive")
-    parser.add_argument("--attempt", type=int, default=1, help="Numéro de tentative (1 à 3)")
-    parser.add_argument("--guardrail", action="store_true", help="Vérifier uniquement les guardrails")
+    parser = argparse.ArgumentParser(description="RSI Protocol Orchestrator")
+    parser.add_argument("--eval", action="store_true", help="Execute reflexive evaluation")
+    parser.add_argument("--attempt", type=int, default=1, help="Attempt number (1 to 3)")
+    parser.add_argument("--guardrail", action="store_true", help="Only verify integrity guardrails")
     args = parser.parse_args()
 
     if args.guardrail:
@@ -89,4 +89,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

@@ -1,12 +1,12 @@
 # Changelog
 
-Toutes les modifications notables apportées à ce projet seront documentées dans ce fichier.
+All notable changes to this project will be documented in this file.
 
-Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/),
-et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### Ajouté
-- Initialisation du socle applicatif avec le Protocole RSI.
-
+### Added
+- Core application foundation initialized with the RSI Protocol.
+- Git repository initialization with security audits and zero secret leaks.
