@@ -3,7 +3,8 @@
 Universal SemVer Versioning Manager
 Manages release version life cycles:
 - SemVer bumping (Major, Minor, Patch, pre-release tags)
-- package.json version updating
+- VERSION file updating (protocol specification baseline)
+- package.json version updating (optional, when application is present)
 - Sealing the [Unreleased] section in CHANGELOG.md with current date
 - Automatic Git tagging preparation
 """

@@ -10,3 +10,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Core application foundation initialized with the RSI Protocol.
 - Git repository initialization with security audits and zero secret leaks.
+- Universal pure ASCII logging and deterministic emoji guard.
+- Decoupled protocol engine specification with standalone `VERSION` tracking.

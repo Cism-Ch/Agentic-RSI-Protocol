@@ -203,12 +203,12 @@ Does the protocol really prevent agents from writing emojis? **Yes, mechanically
 
 ## Protocol Versioning Specification
 
-The Agentic RSI Protocol adheres to strict **Semantic Versioning (SemVer 2.0.0)** tracked across two coordinated Single Sources of Truth:
-- [`VERSION`](VERSION): Root plain text file indicating the exact protocol release.
-- [`package.json`](package.json): Package descriptor containing `"version"` and runnable script hooks.
+The Agentic RSI Protocol engine adheres to strict **Semantic Versioning (SemVer 2.0.0)** tracked independently from any application codebase:
+- [`VERSION`](VERSION): Single Source of Truth for the protocol specification and workflow version.
+- Application manifests (such as `package.json` for Node, `pyproject.toml` for Python, or `Cargo.toml` for Rust) are reserved strictly for the application layer created during project scaffolding (`TASK-INIT-01`).
 
 ### Version Management CLI
-To bump versions after closing a milestone:
+To bump protocol versions after closing a milestone:
 ```bash
 # Bump patch release (e.g., 0.1.0 -> 0.1.1)
 python evals/version_manager.py --bump patch
@@ -219,7 +219,7 @@ python evals/version_manager.py --bump minor
 # Bump with pre-release tag (e.g., 0.2.0 -> 0.3.0-beta)
 python evals/version_manager.py --bump minor --mention beta
 ```
-This automatically updates `VERSION`, `package.json`, and seals the `[Unreleased]` block in `CHANGELOG.md` with today's date.
+This updates `VERSION`, synchronizes `package.json` if an application is installed, and seals the `[Unreleased]` block in `CHANGELOG.md` with today's date.
 
 ---
 
@@ -321,7 +321,6 @@ Agentic-RSI-Protocol/
 |-- CHANGELOG.md                     # Keep-a-Changelog SemVer tracking
 |-- CONTRIBUTING.md                  # Open-source contribution standards (ASCII, tests, PRs)
 |-- LICENSE                          # MIT License
-|-- package.json                     # Protocol package descriptor & script aliases
 |-- VERSION                          # Protocol SemVer version indicator
 \-- README.md                        # Documentation & onboarding guide
 ```
