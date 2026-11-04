@@ -10,7 +10,7 @@ This framework is built upon strict engineering standards and deterministic guar
 
 1. **Zero Non-ASCII Characters in Core Scripts:**
    - All evaluation and automation scripts in `evals/` MUST use pure ASCII output.
-   - Do NOT use emojis, smart quotes (`"`, `'`), em-dashes (`—`), or Unicode arrows (`➔`).
+   - Do NOT use emojis, smart quotes, em-dashes, or Unicode arrows.
    - Use standard tags: `[OK]`, `[FAIL]`, `[WARN]`, `[INFO]`, `->`.
    - Reason: Preserves 100% compatibility across Windows CP1252, ISO-8859-1, and CI environments without `UnicodeEncodeError`.
 

@@ -1,4 +1,4 @@
-# 🏛️ Architecture Guide — Agentic RSI Protocol
+# Architecture Guide - Agentic RSI Protocol
 
 This document provides a deep architectural breakdown of the **Recursive Self-Improvement (RSI) Protocol**, explaining its operational loops, memory governance, and deterministic evaluation harness.
 
@@ -6,7 +6,7 @@ This document provides a deep architectural breakdown of the **Recursive Self-Im
 
 ## 1. Executive Overview
 
-The **Agentic RSI Protocol** bridges the gap between probabilistic AI generation and deterministic software engineering standards. It guarantees that an AI coding agent:
+The **Agentic RSI Protocol** bridges the gap between probabilistic AI code generation and deterministic software engineering standards. It guarantees that an autonomous coding agent (Cursor, Windsurf, Google Antigravity, Claude Code, Cline, etc.):
 1. **Never codes without an explicit contract** (SSOT in `docs/TASKS.md`).
 2. **Never accumulates context bloat** (Modular memory < 80 lines per file).
 3. **Never commits broken code** (Agnostic deterministic judge with 100/100 threshold).
@@ -37,7 +37,9 @@ flowchart TD
 ## 2. Core Architectural Pillars
 
 ### Pillar A: Memory Duality
-AI agents typically fail on long projects due to two memory extremes: context exhaustion (dumping entire guidelines in chat) or memory loss (forgetting rules between sessions).
+AI agents typically degrade on long, complex projects due to two memory extremes:
+- **Context saturation:** dumping hundreds of lines of static instructions into the chat prompt, causing attention dilution and forgotten constraints.
+- **Session amnesia:** losing hard-won debugging insights the moment a chat session is closed.
 
 The protocol resolves this via **Memory Duality**:
 - **Episodic Memory (IDE Artifacts):** Volatile session tracking, step-by-step scratchpads, and visual task progress. Created in the IDE Brain folder and kept out of prompt chat tokens.

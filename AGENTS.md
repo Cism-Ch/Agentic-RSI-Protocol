@@ -1,4 +1,4 @@
-# 🤖 AGENTS.md — AI Agent Reference & RSI Protocol
+# AGENTS.md - AI Agent Reference & RSI Protocol
 
 This document governs engineering guidelines, codebase governance, and the Recursive Self-Improvement (RSI) protocol.
 
@@ -7,7 +7,7 @@ This document governs engineering guidelines, codebase governance, and the Recur
 ### Inviolable Rules Summary
 
 1. **Architecture & Strict Typing:** Zero type errors, strong inference, and systematic runtime validation.
-2. **Task Tracking (Inviolable SSOT — `docs/TASKS.md`):**
+2. **Task Tracking (Inviolable SSOT - `docs/TASKS.md`):**
    - **No Unregistered Coding:** All work MUST be attached to a formalized task in `docs/TASKS.md` (`TASK-DOMAIN-XX`) with a description and checkable acceptance criteria.
    - **Real-Time Updates:** Mark `[-]` at start, `[x]` upon completion.
    - **Validation Before Closure:** Never mark a task completed without validating with the deterministic judge (`python evals/run_fullstack_eval.py`).

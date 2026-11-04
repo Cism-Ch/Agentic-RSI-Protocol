@@ -1,38 +1,50 @@
-# 📋 TASKS.md — Central Registry & Unified Task Tracker (RSI Template)
+# [SSOT] TASKS.md - Central Registry & Task Tracker
 
-> **Single Source of Truth (SSOT)** for orchestrating and tracking all technical and functional tasks.  
-> **Absolute rule for any AI Agent:** This document MUST be consulted before every task and updated immediately upon completion. Strict ceiling: **250 lines**.
-
----
-
-## 📌 Synthetic Kanban View
-
-```
-┌─────────────────────────┐  ┌─────────────────────────┐  ┌─────────────────────────┐
-│ 🚀 IN PROGRESS (SP 01)  │  │   ⏳ FUTURE BACKLOG     │  │       ✅ ARCHIVES       │
-├─────────────────────────┤  ├─────────────────────────┤  ├─────────────────────────┤
-│ [ ] TASK-INIT-01        │  │ [ ] Future task 1       │  │ [x] TASK-GIT-01         │
-│                         │  │                         │  │ [x] TASK-I18N-01        │
-│                         │  │                         │  │ [x] TASK-SCRIPTS-01     │
-│                         │  │                         │  │ [x] TASK-RSI-RESET-01   │
-│                         │  │                         │  │ [x] TASK-DOCS-01        │
-└─────────────────────────┘  └─────────────────────────┘  └─────────────────────────┘
-```
+> Single Source of Truth (SSOT) for orchestrating technical and functional tasks.
+> Absolute rule for AI Agents: Consult before every task, update immediately on completion.
+> Strict ceiling: 250 lines.
 
 ---
 
-## 🚀 Active Sprint 01: Project Setup & Initialization
+## Synthetic Kanban View
 
-- [x] **`TASK-RSI-RESET-01` — Standalone RSI Reset Engine & `/reset-rsi` Workflow**
-  - **Priority:** 🔴 HIGH
+```
++-------------------------+  +-------------------------+  +-------------------------+
+| [>] IN PROGRESS (SP 01) |  |   [?] FUTURE BACKLOG    |  |       [X] ARCHIVES      |
++-------------------------+  +-------------------------+  +-------------------------+
+| [ ] TASK-INIT-01        |  | [ ] Future task 1       |  | [x] TASK-GIT-01         |
+|                         |  |                         |  | [x] TASK-I18N-01        |
+|                         |  |                         |  | [x] TASK-SCRIPTS-01     |
+|                         |  |                         |  | [x] TASK-RSI-RESET-01   |
+|                         |  |                         |  | [x] TASK-DOCS-01        |
+|                         |  |                         |  | [x] TASK-DOCS-02        |
++-------------------------+  +-------------------------+  +-------------------------+
+```
+
+---
+
+## Active Sprint 01: Project Setup & Initialization
+
+- [x] **`TASK-DOCS-02` - Comprehensive Documentation Overhaul (No Emojis, Agentic IDEs, Mermaid)**
+  - **Priority:** HIGH
+  - **Target files:** `README.md`, `docs/ARCHITECTURE.md`, `AGENTS.md`, `docs/TASKS.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-DOCS-02.01`: Remove all emojis across `README.md` and related docs for clean, professional presentation.
+    - [x] `TASK-DOCS-02.02`: Frame context around modern agentic coding environments (Cursor, Windsurf, Google Antigravity, Claude Code, Copilot Workspace, Cline).
+    - [x] `TASK-DOCS-02.03`: Replace crude loop ASCII graph with a clean, high-clarity GitHub-native Mermaid diagram.
+    - [x] `TASK-DOCS-02.04`: Provide thorough, production-grade documentation of memory duality, dynamic injection, the 4-phase cycle, and deterministic evaluation.
+    - [x] `TASK-DOCS-02.05`: Validate deterministic evaluation (100/100 PASS) and guardrails.
+
+- [x] **`TASK-RSI-RESET-01` - Standalone RSI Reset Engine & `/reset-rsi` Workflow**
+  - **Priority:** HIGH
   - **Target files:** `evals/reset_rsi.py`, `.agents/workflows/reset-rsi.md`, `evals/run_fullstack_eval.py`
   - **Acceptance criteria:**
     - [x] `TASK-RSI-RESET-01.01`: Create `evals/reset_rsi.py` with pure ASCII output supporting `--dry-run`, `--hard`, `--keep-rules`, `--backup`.
     - [x] `TASK-RSI-RESET-01.02`: Create workflow `.agents/workflows/reset-rsi.md` for conversational agent execution (`/reset-rsi`).
     - [x] `TASK-RSI-RESET-01.03`: Deterministic validation and test execution.
 
-- [x] **`TASK-DOCS-01` — Comprehensive GitHub Documentation & Open Source Onboarding**
-  - **Priority:** 🔴 HIGH
+- [x] **`TASK-DOCS-01` - GitHub Documentation Suite & Open Source Readiness**
+  - **Priority:** HIGH
   - **Target files:** `README.md`, `docs/ARCHITECTURE.md`, `CONTRIBUTING.md`, `LICENSE`
   - **Acceptance criteria:**
     - [x] `TASK-DOCS-01.01`: Overhaul `README.md` with complete GitHub badges, quickstart, CLI reference, and architecture diagrams.
@@ -40,8 +52,8 @@
     - [x] `TASK-DOCS-01.03`: Add `CONTRIBUTING.md` and MIT `LICENSE` for public open-source usage.
     - [x] `TASK-DOCS-01.04`: Validate full deterministic evaluation (100/100 PASS) and guardrails.
 
-- [ ] **`TASK-INIT-01` — Project Scaffolding & Initial Setup**
-  - **Priority:** 🟡 MEDIUM
+- [ ] **`TASK-INIT-01` - Project Scaffolding & Initial Setup**
+  - **Priority:** MEDIUM
   - **Target files:** `package.json`, `README.md`
   - **Acceptance criteria:**
     - [ ] `TASK-INIT-01.01`: Technical baseline and dependency configuration.
@@ -49,7 +61,7 @@
 
 ---
 
-## 📜 Completed Tasks History
+## Completed Tasks History
 
 | Date | Task ID | Title & Description | Created / Modified Files |
 | :--- | :--- | :--- | :--- |
@@ -58,4 +70,4 @@
 | 2026-11-03 | TASK-SCRIPTS-01 | Clean Emojis & Pure ASCII Output in Scripts | `evals/memory_engine.py`, `evals/rsi_orchestrator.py`, `evals/security_audit.py`, `evals/stack_inspector.py`, `evals/version_manager.py`, `docs/TASKS.md` |
 | 2026-11-03 | TASK-RSI-RESET-01 | RSI Reset Engine & `/reset-rsi` Workflow | `evals/reset_rsi.py`, `.agents/workflows/reset-rsi.md`, `docs/TASKS.md` |
 | 2026-11-03 | TASK-DOCS-01 | GitHub Documentation Suite & Open Source Readiness | `README.md`, `docs/ARCHITECTURE.md`, `CONTRIBUTING.md`, `LICENSE`, `docs/TASKS.md` |
-
+| 2026-11-04 | TASK-DOCS-02 | Production-Grade Docs, Pure ASCII, Modern Agentic IDEs & Mermaid | `README.md`, `docs/ARCHITECTURE.md`, `AGENTS.md`, `CONTRIBUTING.md`, `.agents/**/*`, `docs/TASKS.md` |

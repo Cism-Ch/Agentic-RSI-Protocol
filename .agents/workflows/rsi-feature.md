@@ -9,7 +9,7 @@ Scrupulously follow these 4 sequential phases without skipping any:
 
 ---
 
-## 🚀 PHASE 1: Preparation & Initial Execution
+## PHASE 1: Preparation & Initial Execution
 
 1. **SSOT Task Check (`docs/TASKS.md`) & IDE Artifact:**
    - Ensure the task exists in `docs/TASKS.md` in the format `TASK-DOMAIN-XX`.
@@ -33,7 +33,7 @@ Scrupulously follow these 4 sequential phases without skipping any:
 
 ---
 
-## 🧪 PHASE 2: Deterministic Evaluation & Reflexive Loop (Max 3 Attempts)
+## PHASE 2: Deterministic Evaluation & Reflexive Loop (Max 3 Attempts)
 
 1. **Run Deterministic Judge (Milestone vs. Closure Cadence):**
    - **Mid-task / Milestone check:** Always run the compact quick mode:
@@ -64,7 +64,7 @@ Scrupulously follow these 4 sequential phases without skipping any:
 
 ---
 
-## 🧠 PHASE 3: Meta-Cognitive Mutation (Learning & Optimization)
+## PHASE 3: Meta-Cognitive Mutation (Learning & Optimization)
 
 This phase triggers whenever an error was resolved (> 1 attempt) OR a security audit/refactoring neutralized vulnerabilities or anti-patterns:
 
@@ -76,7 +76,7 @@ This phase triggers whenever an error was resolved (> 1 attempt) OR a security a
 
 ---
 
-## 🛡️ PHASE 4: Final Validation, Git Guardrail & Closure
+## PHASE 4: Final Validation, Git Guardrail & Closure
 
 1. **Verify Guardrails:**
    ```bash

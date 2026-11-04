@@ -1,4 +1,4 @@
-# 🎨 Module: Frontend & User Interfaces
+# Module: Frontend & User Interfaces
 
 > Anti-Bloat Rule: This module must NEVER exceed **80 lines**.
 

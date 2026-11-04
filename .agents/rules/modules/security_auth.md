@@ -1,4 +1,4 @@
-# 🔒 Module: Security, Auth & Sensitive Data
+# Module: Security, Auth & Sensitive Data
 
 > Anti-Bloat Rule: This module must NEVER exceed **80 lines**.
 

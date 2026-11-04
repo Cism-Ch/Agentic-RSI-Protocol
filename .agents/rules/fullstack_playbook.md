@@ -1,4 +1,4 @@
-# 🧠 Index & Router for RSI Procedural Memory
+# Index & Router for RSI Procedural Memory
 
 > This file serves as a catalog and routing index to the modular memory sub-playbooks located in `.agents/rules/modules/`.  
 > The AI agent uses the engine `evals/memory_engine.py --inject [files]` to dynamically load only the relevant domain rules.

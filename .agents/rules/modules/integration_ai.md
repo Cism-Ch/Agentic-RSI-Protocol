@@ -1,4 +1,4 @@
-# 🤖 Module: AI Integration, Agents & LLMs
+# Module: AI Integration, Agents & LLMs
 
 > Anti-Bloat Rule: This module must NEVER exceed **80 lines**.
 

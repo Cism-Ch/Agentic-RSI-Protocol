@@ -1,4 +1,4 @@
-# ⚡ Module: API & Backend
+# Module: API & Backend
 
 > Anti-Bloat Rule: This module must NEVER exceed **80 lines**.
 

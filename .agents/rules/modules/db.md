@@ -1,4 +1,4 @@
-# 🗄️ Module: Database & Persistence
+# Module: Database & Persistence
 
 > Anti-Bloat Rule: This module must NEVER exceed **80 lines**.
 

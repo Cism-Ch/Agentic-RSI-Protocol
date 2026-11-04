@@ -1,11 +1,11 @@
-# 🛡️ System Core Rules — Fundamental Project Engineering Rules
+# System Core Rules - Fundamental Project Engineering Rules
 
 > **STATUS: IMMUTABLE.** These rules constitute the non-negotiable technical contract of the project.  
 > Every AI agent MUST strictly comply with them before and during every task.
 
 ---
 
-## 1. ⚡ Fundamental Rules
+## 1. Fundamental Rules
 
 1. **Strict Typing:** Zero type compilation errors (`tsc --noEmit` or language equivalent).
 2. **Quality & Linting:** 0 warnings or errors on the official linting suite.
@@ -22,7 +22,7 @@
 
 ---
 
-## 2. 📋 Inviolable SSOT — Task Management (`docs/TASKS.md`)
+## 2. Inviolable SSOT - Task Management (`docs/TASKS.md`)
 
 - **No Unregistered Coding:** All work must correspond to a formalized entry (`TASK-DOMAIN-XX`) in `docs/TASKS.md`.
 - **Real-Time Tracking:** Mark `[-]` (In progress) upon starting; check `[x]` upon completion.
