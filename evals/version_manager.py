@@ -27,6 +27,7 @@ if sys.stdout.encoding != 'utf-8':
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 PACKAGE_JSON_PATH = ROOT_DIR / "package.json"
+VERSION_PATH = ROOT_DIR / "VERSION"
 CHANGELOG_PATH = ROOT_DIR / "CHANGELOG.md"
 
 def parse_semver(version_str: str) -> tuple[int, int, int, str | None]:
@@ -37,11 +38,13 @@ def parse_semver(version_str: str) -> tuple[int, int, int, str | None]:
     return int(match.group(1)), int(match.group(2)), int(match.group(3)), match.group(4)
 
 def get_current_version() -> str:
-    if not PACKAGE_JSON_PATH.exists():
-        return "0.1.0"
-    with open(PACKAGE_JSON_PATH, "r", encoding="utf-8") as f:
-        data = json.load(f)
-    return data.get("version", "0.1.0")
+    if VERSION_PATH.exists():
+        return VERSION_PATH.read_text(encoding="utf-8").strip()
+    if PACKAGE_JSON_PATH.exists():
+        with open(PACKAGE_JSON_PATH, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return data.get("version", "0.1.0")
+    return "0.1.0"
 
 def bump_semver(current_ver: str, bump_type: str, mention: str | None = None) -> str:
     major, minor, patch, _ = parse_semver(current_ver)
@@ -65,15 +68,17 @@ def bump_semver(current_ver: str, bump_type: str, mention: str | None = None) ->
         new_ver = f"{new_ver}-{clean_mention}"
     return new_ver
 
-def update_package_json(new_ver: str) -> None:
-    if not PACKAGE_JSON_PATH.exists():
-        return
-    with open(PACKAGE_JSON_PATH, "r", encoding="utf-8") as f:
-        data = json.load(f)
-    data["version"] = new_ver
-    with open(PACKAGE_JSON_PATH, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
-        f.write("\n")
+def update_version_files(new_ver: str) -> None:
+    if VERSION_PATH.exists():
+        VERSION_PATH.write_text(f"{new_ver}\n", encoding="utf-8")
+
+    if PACKAGE_JSON_PATH.exists():
+        with open(PACKAGE_JSON_PATH, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        data["version"] = new_ver
+        with open(PACKAGE_JSON_PATH, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+            f.write("\n")
 
 def update_changelog(new_ver: str) -> None:
     if not CHANGELOG_PATH.exists():
@@ -95,7 +100,7 @@ def main():
     next_ver = bump_semver(curr, args.bump, args.mention)
 
     print(f"[SemVer Bump] {curr} -> {next_ver}")
-    update_package_json(next_ver)
+    update_version_files(next_ver)
     update_changelog(next_ver)
     print("[OK] Version and CHANGELOG updated successfully.")
 

@@ -1,0 +1,14 @@
+{
+  "name": "agentic-rsi-protocol",
+  "version": "0.1.0",
+  "description": "Deterministic Recursive Self-Improvement Protocol for Autonomous AI Coding Agents",
+  "license": "MIT",
+  "scripts": {
+    "eval:quick": "python evals/run_fullstack_eval.py --quick",
+    "eval:fullstack": "python evals/run_fullstack_eval.py",
+    "rsi:inspect": "python evals/stack_inspector.py",
+    "rsi:memory": "python evals/memory_engine.py --audit",
+    "rsi:security": "python evals/security_audit.py",
+    "rsi:reset": "python evals/reset_rsi.py"
+  }
+}

@@ -3,6 +3,7 @@
 Static Security Audit & Secret Leak Detector
 - Checks for hardcoded API keys, tokens, private certificates, and secrets
 - Validates .gitignore airtightness (.env*, private keys, caches)
+- Enforces strict ASCII & Emoji Hygiene to prevent terminal/encoding crashes
 - Inspects permissions and conformance to RSI security guardrails
 """
 
@@ -76,10 +77,43 @@ def audit_secrets() -> list[dict]:
                 })
     return findings
 
+def audit_ascii_hygiene() -> list[dict]:
+    """Ensures that scripts, rules, and core docs are 100% pure ASCII to prevent terminal/CI encoding crashes."""
+    violations = []
+    check_patterns = ["evals/**/*.py", ".agents/**/*.md", "docs/**/*.md", "*.md"]
+    scanned_files = set()
+
+    for pat in check_patterns:
+        for path in ROOT_DIR.glob(pat):
+            if path.is_file() and path not in scanned_files:
+                if any(part in IGNORE_DIRS for part in path.parts):
+                    continue
+                scanned_files.add(path)
+                try:
+                    content = path.read_text(encoding="utf-8", errors="ignore")
+                    for idx, line in enumerate(content.splitlines(), start=1):
+                        non_ascii_chars = [ch for ch in line if ord(ch) > 127]
+                        if non_ascii_chars:
+                            violations.append({
+                                "file": str(path.relative_to(ROOT_DIR)),
+                                "line": idx,
+                                "type": "Non-ASCII / Emoji Character",
+                                "sample": line.strip()[:60]
+                            })
+                except Exception as e:
+                    violations.append({
+                        "file": str(path.relative_to(ROOT_DIR)),
+                        "line": 0,
+                        "type": "Read Error",
+                        "sample": str(e)
+                    })
+    return violations
+
 def run_security_audit() -> bool:
-    print("[RSI Security Audit] Running static security and secret leak audit...")
+    print("[RSI Security Audit] Running static security, secret leak, and ASCII guard audit...")
     gitignore_issues = audit_gitignore()
     secret_findings = audit_secrets()
+    ascii_violations = audit_ascii_hygiene()
 
     success = True
     if gitignore_issues:
@@ -98,6 +132,14 @@ def run_security_audit() -> bool:
     else:
         print("  [OK] No exposed secrets, private keys, or credentials found.")
 
+    if ascii_violations:
+        print(f"\n[FAIL] {len(ascii_violations)} non-ASCII / emoji violation(s) detected:")
+        for v in ascii_violations:
+            print(f"  - [{v['type']}] {v['file']}:{v['line']} -> {v['sample']}")
+        success = False
+    else:
+        print("  [OK] Pure ASCII & Emoji Hygiene: 0 non-ASCII or emoji characters found.")
+
     # Check for real uncommitted .env files
     env_files = list(ROOT_DIR.glob(".env*"))
     real_envs = [f.name for f in env_files if f.name != ".env.example"]
@@ -107,9 +149,9 @@ def run_security_audit() -> bool:
         print("  [OK] No unencrypted plaintext .env files in directory.")
 
     if success:
-        print("\n[SUCCESS] SECURITY AUDIT: PASSED (0 critical vulnerabilities detected)")
+        print("\n[SUCCESS] SECURITY & HYGIENE AUDIT: PASSED (0 issues detected)")
     else:
-        print("\n[FAIL] SECURITY AUDIT: FAILED")
+        print("\n[FAIL] SECURITY & HYGIENE AUDIT: FAILED")
 
     return success
 

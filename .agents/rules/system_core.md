@@ -19,6 +19,7 @@
 7. **Memory Duality (IDE Artifacts vs. Procedural Rules):**
    - *Episodic Memory:* Use IDE Artifacts for session tracking, complex plans, and reports without polluting conversation context.
    - *Procedural Memory:* Enrich exclusively the targeted modules in `.agents/rules/modules/` (< 80 lines per file).
+8. **Pure ASCII & Zero-Emoji Enforcement:** NEVER use emojis, smart quotes, or non-ASCII characters in scripts, evaluation logs, or CLI tools. All terminal output and script code must be pure ASCII to prevent UnicodeEncodeError crashes across heterogeneous platforms (Windows CP1252, Alpine Linux containers, CI runners).
 
 ---
 

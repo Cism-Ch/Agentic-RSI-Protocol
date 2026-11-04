@@ -1,20 +1,26 @@
 # Agentic RSI Protocol
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Protocol Version](https://img.shields.io/badge/Protocol-v0.1.0-blue.svg)](VERSION)
 [![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![Status](https://img.shields.io/badge/RSI%20Judge-100%2F100%20PASS-brightgreen.svg)]()
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)]()
 [![Encoding](https://img.shields.io/badge/Encoding-Pure%20ASCII%20Safe-success.svg)]()
 
-The **Recursive Self-Improvement (RSI) Protocol** is a language-agnostic engineering framework designed specifically for modern **Agentic Coding Environments** (such as Cursor, Windsurf, Google Antigravity, Claude Code, GitHub Copilot Workspace, and Cline / Roo Code).
+The **Recursive Self-Improvement (RSI) Protocol** is a language-agnostic engineering framework and deterministic runtime specification designed specifically for modern **Agentic Coding Environments** (such as Cursor, Windsurf, Google Antigravity, Claude Code, GitHub Copilot Workspace, and Cline / Roo Code).
 
-It establishes an inviolable contract between human developers and autonomous coding agents: eliminating context saturation, preventing unverified mutations, enforcing deterministic evaluation, and enabling agents to distill debugging lessons into durable procedural memory.
+It establishes an inviolable operational contract between human developers and autonomous coding agents: eliminating context saturation, preventing unverified mutations, enforcing deterministic evaluation, and enabling agents to distill debugging lessons into durable procedural memory.
 
 ---
 
 ## Table of Contents
 
 - [The Challenge with Modern Agentic Coding Environments](#the-challenge-with-modern-agentic-coding-environments)
+  - [Real-World Failure Scenario 1: The Monolithic Prompt Attention Dilution](#real-world-failure-scenario-1-the-monolithic-prompt-attention-dilution)
+  - [Real-World Failure Scenario 2: Multi-File Cascade Regression & Panic Edits](#real-world-failure-scenario-2-multi-file-cascade-regression--panic-edits)
+  - [Real-World Failure Scenario 3: Session Amnesia & The Repeated Trap](#real-world-failure-scenario-3-session-amnesia--the-repeated-trap)
+  - [Real-World Failure Scenario 4: Accidental Secret Leakage & Incomplete Gitignore](#real-world-failure-scenario-4-accidental-secret-leakage--incomplete-gitignore)
+  - [Real-World Failure Scenario 5: Terminal Charset Crash (Windows CP1252 & CI)](#real-world-failure-scenario-5-terminal-charset-crash-windows-cp1252--ci)
 - [The RSI Architectural Solution](#the-rsi-architectural-solution)
 - [How It Works: The 4-Phase Execution Cycle](#how-it-works-the-4-phase-execution-cycle)
 - [Operational Architecture Diagram](#operational-architecture-diagram)
@@ -25,7 +31,8 @@ It establishes an inviolable contract between human developers and autonomous co
   - [4. Adaptive Deterministic Judge](#4-adaptive-deterministic-judge)
   - [5. Meta-Cognitive Mutation Loop](#5-meta-cognitive-mutation-loop)
   - [6. Zero-Leak Security Audit](#6-zero-leak-security-audit)
-  - [7. Universal ASCII Terminal Compatibility](#7-universal-ascii-terminal-compatibility)
+  - [7. Deterministic Pure ASCII & Emoji Hygiene Enforcement](#7-deterministic-pure-ascii--emoji-hygiene-enforcement)
+- [Protocol Versioning Specification](#protocol-versioning-specification)
 - [Quick Start Guide](#quick-start-guide)
   - [Using as a GitHub Template](#using-as-a-github-template)
   - [Integrating into an Existing Codebase](#integrating-into-an-existing-codebase)
@@ -42,12 +49,35 @@ It establishes an inviolable contract between human developers and autonomous co
 
 ## The Challenge with Modern Agentic Coding Environments
 
-Autonomous coding agents (Cursor Agent, Windsurf Cascade, Google Antigravity, Claude Code, Cline) are capable of inspecting entire workspaces, generating multi-file edits, and running terminal commands. However, on non-trivial production projects, they consistently encounter critical failure modes:
+Autonomous coding agents (Cursor Agent, Windsurf Cascade, Google Antigravity, Claude Code, Cline) can inspect whole workspaces, edit multiple files simultaneously, and execute terminal commands. However, on production codebases, unconstrained agents consistently degrade across five documented failure patterns:
 
-1. **Context Window Exhaustion:** Developers often provide massive system prompts, 500-line `.cursorrules` files, or long markdown manuals. As conversation history grows, the agent's effective attention degrades, leading to hallucinated dependencies, regression bugs, and discarded architectural rules.
-2. **Session Amnesia:** When an agent spends several turns debugging a subtle issue (e.g., race conditions, ORM connection exhaustion, missing authentication middleware), the resolution vanishes when the chat session ends. In subsequent sessions, the agent makes the exact same mistake.
-3. **Unchecked Code Mutations:** Without a strict pre-commit test gate, agents generate broken imports, subtle type errors, or non-compiling schema changes that accumulate silently across tasks.
-4. **Platform Encoding Failures:** Evaluation and automation scripts using multi-byte emojis or decorative Unicode symbols frequently crash with `UnicodeEncodeError: 'charmap'` when run in standard Windows terminals (CP1252), Linux minimal containers, or CI runners.
+### Real-World Failure Scenario 1: The Monolithic Prompt Attention Dilution
+- **The Problem:** Teams frequently create a monolithic 800-line `.cursorrules` or system prompt containing all database, UI, Tailwind, API, and authentication rules.
+- **What happens:** After 10 conversation turns, the agent's attention window is flooded with conversational context. The agent suffers from **attention drift** and violates key rules. For example, it might instantiate `const prisma = new PrismaClient()` directly inside an edge serverless function rather than using a singleton client.
+- **Production impact:** In serverless architectures (Vercel, AWS Lambda), each invocation spawns a new connection pool, rapidly exhausting PostgreSQL connection limits (`FATAL: remaining connection slots are reserved`) and bringing down production.
+- **The RSI Fix:** Rules are decentralized into tiny, single-domain files in `.agents/rules/modules/` (< 80 lines each). `evals/memory_engine.py` dynamically injects only `db.md` when database files are touched, preserving 100% of the agent's attention on critical invariants.
+
+### Real-World Failure Scenario 2: Multi-File Cascade Regression & Panic Edits
+- **The Problem:** A developer asks an agent in Composer or Cascade mode to add a new field to a user profile form.
+- **What happens:** The agent modifies the TypeScript schema in `types/user.ts` and the frontend form in `ProfileForm.tsx`, but forgets to update the backend action validator in `actions/user.ts`. When running a quick test, it encounters a validation mismatch. In panic mode, the agent begins touching unrelated files, adding `@ts-ignore` comments, altering utility libraries, and introducing breaking changes across 10+ files.
+- **The RSI Fix:** The agent must adhere to the 3-tier Anti-Saturation Cadence. Micro-edits proceed freely, but milestone closure triggers `evals/run_fullstack_eval.py --quick`. The deterministic judge catches the exact schema error and logs at most 10 significant lines in `evals/logs/trajectory_latest.json`. The agent is constrained to a 3-attempt repair loop, preventing uncontrolled code mutations.
+
+### Real-World Failure Scenario 3: Session Amnesia & The Repeated Trap
+- **The Problem:** An agent spends 40 minutes diagnosing a subtle race condition in an asynchronous job queue. It finally identifies the solution (making the worker strictly idempotent and verifying the webhook signature).
+- **What happens:** The developer finishes the session. The next morning, a different developer (or the same developer in a new chat) asks the agent to implement another webhook handler. Having zero cross-session memory, the agent repeats the exact same vulnerability.
+- **The RSI Fix:** The Meta-Cognitive Mutation Loop (Phase 3). Whenever a task resolves an incident, the agent adopts `.agents/prompts/meta_optimizer.md` and distills the lesson into a permanent rule (e.g., `[R-API-04] Make asynchronous jobs strictly idempotent...`) committed to git. Future agents inherit the immunization automatically.
+
+### Real-World Failure Scenario 4: Accidental Secret Leakage & Incomplete Gitignore
+- **The Problem:** An agent creates a quick script to test a Stripe webhook or Supabase query, hardcoding a real API key or creating an untracked `.env.local` variant.
+- **What happens:** The developer runs `git commit -am "add test"` without reviewing every generated artifact. The private key or secret token is pushed to GitHub, triggering security revoke warnings or exposed cloud infrastructure.
+- **The RSI Fix:** [`evals/security_audit.py`](evals/security_audit.py) executes before every commit and build. It validates that `.gitignore` actively blocks `.env*`, `*.pem`, `*.key`, and dependencies, while scanning all files with regex patterns for AWS, OpenAI, GitHub, Slack, and database passwords.
+
+### Real-World Failure Scenario 5: Terminal Charset Crash (Windows CP1252 & CI)
+- **The Problem:** Developers or agents decorate terminal scripts and test outputs with emojis and Unicode symbols (`[PASS] <checkmark>`, `[FAIL] <cross>`, `Launching... <rocket>`).
+- **What happens:** When executed in default Windows PowerShell (CP1252 / ISO-8859-1) or in minimal Linux Docker containers without UTF-8 locale configuration, Python crashes abruptly:
+  `UnicodeEncodeError: 'charmap' codec can't encode characters in position 23-24: character maps to <undefined>`
+  The agent cannot read its own test results and gets trapped in an unresolvable loop trying to fix functional code that was never broken.
+- **The RSI Fix:** The protocol mechanically enforces **pure ASCII output**. The judge in `evals/security_audit.py` actively scans for any non-ASCII or emoji characters across all scripts, rules, and documentation, failing with an exit code 1 if any agent commits an emoji.
 
 ---
 
@@ -157,11 +187,39 @@ When an agent encounters a bug and resolves it, it runs **Phase 3**:
 - Detects unmasked database connection strings (`postgres://...`).
 - Verifies `.gitignore` blocks `.env*`, `.pem`, `.key`, and dependencies.
 
-### 7. Universal ASCII Terminal Compatibility
-All scripts in `evals/` output strictly pure ASCII:
-- Clean standard tags: `[OK]`, `[FAIL]`, `[WARN]`, `[INFO]`, `[SUCCESS]`.
-- Zero emojis and zero multi-byte Unicode typography (no em-dashes, no curly quotes).
-- Guaranteed to run without `UnicodeEncodeError` across Windows PowerShell (CP1252), Linux Docker containers, and CI pipelines.
+### 7. Deterministic Pure ASCII & Emoji Hygiene Enforcement
+Does the protocol really prevent agents from writing emojis? **Yes, mechanically.**
+- `evals/security_audit.py` includes a dedicated `audit_ascii_hygiene()` function that executes on every test run.
+- It scans all scripts (`evals/*.py`), rule modules (`.agents/**/*.md`), and documentation (`*.md`).
+- If an agent inserts an emoji (such as checkmarks, rocket icons, or smileys) or non-ASCII typography (such as em-dashes or smart quotes), the test fails deterministically with exit code 1:
+  ```
+  [FAIL] 1 non-ASCII / emoji violation(s) detected:
+    - [Non-ASCII / Emoji Character] evals/script.py:12 -> print("Done [emoji]")
+  [FAIL] SECURITY & HYGIENE AUDIT: FAILED
+  ```
+- Because the deterministic judge score drops below 100/100, the task CANNOT be closed until the agent replaces the emoji with standard ASCII tags (`[OK]`, `[FAIL]`, `[WARN]`, `[INFO]`).
+
+---
+
+## Protocol Versioning Specification
+
+The Agentic RSI Protocol adheres to strict **Semantic Versioning (SemVer 2.0.0)** tracked across two coordinated Single Sources of Truth:
+- [`VERSION`](VERSION): Root plain text file indicating the exact protocol release.
+- [`package.json`](package.json): Package descriptor containing `"version"` and runnable script hooks.
+
+### Version Management CLI
+To bump versions after closing a milestone:
+```bash
+# Bump patch release (e.g., 0.1.0 -> 0.1.1)
+python evals/version_manager.py --bump patch
+
+# Bump minor release (e.g., 0.1.0 -> 0.2.0)
+python evals/version_manager.py --bump minor
+
+# Bump with pre-release tag (e.g., 0.2.0 -> 0.3.0-beta)
+python evals/version_manager.py --bump minor --mention beta
+```
+This automatically updates `VERSION`, `package.json`, and seals the `[Unreleased]` block in `CHANGELOG.md` with today's date.
 
 ---
 
@@ -188,7 +246,7 @@ All scripts in `evals/` output strictly pure ASCII:
 
 Copy the core directories into your project root:
 ```bash
-cp -r .agents/ evals/ docs/ CHANGELOG.md AGENTS.md /path/to/target-project/
+cp -r .agents/ evals/ docs/ CHANGELOG.md AGENTS.md VERSION /path/to/target-project/
 ```
 
 Add these standard scripts to your `package.json`:
@@ -263,6 +321,8 @@ Agentic-RSI-Protocol/
 |-- CHANGELOG.md                     # Keep-a-Changelog SemVer tracking
 |-- CONTRIBUTING.md                  # Open-source contribution standards (ASCII, tests, PRs)
 |-- LICENSE                          # MIT License
+|-- package.json                     # Protocol package descriptor & script aliases
+|-- VERSION                          # Protocol SemVer version indicator
 \-- README.md                        # Documentation & onboarding guide
 ```
 
