@@ -1,0 +1,31 @@
+name: CI Deterministic Verification
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  verify:
+    name: RSI Deterministic Audit & Guardrails
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Static Security & Pure ASCII Audit
+        run: python evals/security_audit.py
+
+      - name: RSI Guardrails Integrity Verification
+        run: python evals/rsi_orchestrator.py --guardrail
+
+      - name: Run Full Deterministic Evaluation
+        run: python evals/run_fullstack_eval.py

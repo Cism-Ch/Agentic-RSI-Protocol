@@ -20,12 +20,22 @@
 |                         |  |                         |  | [x] TASK-DOCS-02        |
 |                         |  |                         |  | [x] TASK-RSI-SPEC-01    |
 |                         |  |                         |  | [x] TASK-DECOUPLE-01    |
+|                         |  |                         |  | [x] TASK-CI-01          |
 +-------------------------+  +-------------------------+  +-------------------------+
 ```
 
 ---
 
 ## Active Sprint 01: Project Setup & Initialization
+
+- [x] **`TASK-CI-01` - GitHub Actions CI & Automated Release Pipeline**
+  - **Priority:** HIGH
+  - **Target files:** `.github/workflows/ci.yml`, `.github/workflows/release.yml`, `docs/TASKS.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-CI-01.01`: Create `.github/workflows/ci.yml` for pull requests and branch validation.
+    - [x] `TASK-CI-01.02`: Create `.github/workflows/release.yml` triggered on tags (`v*`) with deterministic quality gate.
+    - [x] `TASK-CI-01.03`: Verify workflow files are tracked by Git and excluded from `.gitignore`.
+    - [x] `TASK-CI-01.04`: Validate full deterministic evaluation (100/100 PASS).
 
 - [x] **`TASK-DECOUPLE-01` - Decouple Workflow Protocol from Application Package.json**
   - **Priority:** HIGH
@@ -93,3 +103,4 @@
 | 2026-11-04 | TASK-DOCS-02 | Production-Grade Docs, Pure ASCII, Modern Agentic IDEs & Mermaid | `README.md`, `docs/ARCHITECTURE.md`, `AGENTS.md`, `CONTRIBUTING.md`, `.agents/**/*`, `docs/TASKS.md` |
 | 2026-11-04 | TASK-RSI-SPEC-01 | Protocol Versioning, Battle-Tested IDE Use Cases & Deterministic Emoji Guard | `VERSION`, `package.json`, `evals/security_audit.py`, `evals/version_manager.py`, `.agents/rules/system_core.md`, `README.md`, `docs/TASKS.md` |
 | 2026-11-04 | TASK-DECOUPLE-01 | Decouple Protocol from Application Layer, Remove Premature package.json | `VERSION`, `evals/version_manager.py`, `README.md`, `docs/TASKS.md` |
+| 2026-11-04 | TASK-CI-01 | GitHub Actions CI & Automated Release Pipelines | `.github/workflows/ci.yml`, `.github/workflows/release.yml`, `docs/TASKS.md` |
