@@ -21,12 +21,22 @@
 |                         |  |                         |  | [x] TASK-RSI-SPEC-01    |
 |                         |  |                         |  | [x] TASK-DECOUPLE-01    |
 |                         |  |                         |  | [x] TASK-CI-01          |
+|                         |  |                         |  | [x] TASK-CI-FIX-01      |
 +-------------------------+  +-------------------------+  +-------------------------+
 ```
 
 ---
 
 ## Active Sprint 01: Project Setup & Initialization
+
+- [x] **`TASK-CI-FIX-01` - Fix Linux CI Subprocess Execution in Deterministic Judge**
+  - **Priority:** HIGH
+  - **Target files:** `evals/run_fullstack_eval.py`, `docs/TASKS.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-CI-FIX-01.01`: Support list-based command execution in `run_cmd` to eliminate string quoting errors on Linux/Unix.
+    - [x] `TASK-CI-FIX-01.02`: Pass Python invocations as tokenized argument lists (`[py, str(path), ...]`).
+    - [x] `TASK-CI-FIX-01.03`: Enable cross-platform shell execution when shell string commands are passed.
+    - [x] `TASK-CI-FIX-01.04`: Validate full deterministic evaluation (100/100 PASS).
 
 - [x] **`TASK-CI-01` - GitHub Actions CI & Automated Release Pipeline**
   - **Priority:** HIGH
@@ -104,3 +114,4 @@
 | 2026-11-04 | TASK-RSI-SPEC-01 | Protocol Versioning, Battle-Tested IDE Use Cases & Deterministic Emoji Guard | `VERSION`, `package.json`, `evals/security_audit.py`, `evals/version_manager.py`, `.agents/rules/system_core.md`, `README.md`, `docs/TASKS.md` |
 | 2026-11-04 | TASK-DECOUPLE-01 | Decouple Protocol from Application Layer, Remove Premature package.json | `VERSION`, `evals/version_manager.py`, `README.md`, `docs/TASKS.md` |
 | 2026-11-04 | TASK-CI-01 | GitHub Actions CI & Automated Release Pipelines | `.github/workflows/ci.yml`, `.github/workflows/release.yml`, `docs/TASKS.md` |
+| 2026-11-04 | TASK-CI-FIX-01 | Fix Linux CI Subprocess Execution in Deterministic Judge | `evals/run_fullstack_eval.py`, `docs/TASKS.md` |

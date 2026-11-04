@@ -39,12 +39,13 @@ def detect_package_manager() -> str:
         return "npm"
     return "pnpm"
 
-def run_cmd(name: str, cmd_str: str, weight: int, timeout_sec: int = 180) -> dict:
-    is_windows = os.name == "nt"
+def run_cmd(name: str, cmd_or_list: str | list[str], weight: int, timeout_sec: int = 180) -> dict:
+    use_shell = isinstance(cmd_or_list, str)
+    cmd_repr = " ".join(cmd_or_list) if isinstance(cmd_or_list, list) else cmd_or_list
     try:
         res = subprocess.run(
-            cmd_str,
-            shell=True if is_windows else False,
+            cmd_or_list,
+            shell=use_shell,
             cwd=str(ROOT_DIR),
             capture_output=True,
             text=True,
@@ -71,7 +72,7 @@ def run_cmd(name: str, cmd_str: str, weight: int, timeout_sec: int = 180) -> dic
             "passed": False,
             "score": 0,
             "max_score": weight,
-            "error_log": f"Timeout exceeded ({timeout_sec}s) while executing: {cmd_str}"
+            "error_log": f"Timeout exceeded ({timeout_sec}s) while executing: {cmd_repr}"
         }
     except Exception as e:
         return {
@@ -122,7 +123,7 @@ def build_adaptive_checks(quick: bool) -> list[dict]:
     if prisma_schema.exists() and db_validator.exists():
         checks.append({
             "name": "prisma_hygiene",
-            "cmd": f'"{py}" "{db_validator}"',
+            "cmd": [py, str(db_validator)],
             "weight": 25 if quick else 15,
             "timeout": 60
         })
@@ -139,7 +140,7 @@ def build_adaptive_checks(quick: bool) -> list[dict]:
     if memory_engine.exists():
         checks.append({
             "name": "rsi_memory_hygiene",
-            "cmd": f'"{py}" "{memory_engine}" --audit',
+            "cmd": [py, str(memory_engine), "--audit"],
             "weight": 15 if quick else 10,
             "timeout": 30
         })
@@ -149,7 +150,7 @@ def build_adaptive_checks(quick: bool) -> list[dict]:
     if sec_audit.exists():
         checks.append({
             "name": "security_audit",
-            "cmd": f'"{py}" "{sec_audit}"',
+            "cmd": [py, str(sec_audit)],
             "weight": 15 if quick else 10,
             "timeout": 30
         })
