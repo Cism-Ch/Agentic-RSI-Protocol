@@ -6,3 +6,5 @@
 - [R-PAT-02] Structural Mimicry (O(1) Reuse): Never invent a new architectural pattern (auth wrapper, DB singleton, API error response) if one already exists in the codebase; locate and replicate the canonical reference pattern.
 - [R-PAT-03] Fast-Fail Diagnostic Reflex: Before manually debugging a test or CI failure, run `python evals/memory_engine.py --diagnose` to match known error signatures against deterministic 1-line fixes.
 - [R-PAT-04] Operational Anti-Pattern Blockade: Never expose secret keys in public frontend variables (`NEXT_PUBLIC_*`, `VITE_*`, `PUBLIC_*`), never instantiate ORM clients outside a dedicated singleton, and never execute dynamic code (`eval`, `new Function`).
+- [R-PAT-05] Topological & Blast Radius Awareness: Run `python evals/stack_inspector.py --map` to locate existing singletons before creating new helpers, and run `python evals/stack_inspector.py --impact [file]` before altering shared interfaces.
+- [R-PAT-06] Strict Scope Discipline: Modify only files declared in the active `[-]` task's `Target files` in `docs/TASKS.md`; verify working tree alignment via `python evals/rsi_orchestrator.py --scope`.

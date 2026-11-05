@@ -62,8 +62,8 @@ The protocol enforces a 3-tier cadence:
 
 ### Pillar D: Hybrid Pattern Recognition (Cognitive Compass + Reflex Nervous System)
 Rather than relying solely on passive markdown instructions or heavy post-facto scripts, the architecture pairs both mechanisms:
-1. **A Priori Cognitive Routing (`.agents/rules/modules/pattern_recognition.md`):** Guides the LLM before code generation using System 1/System 2 task classification (`[R-PAT-01]`) and $O(1)$ structural mimicry (`[R-PAT-02]`) so the agent reuses existing project singletons and wrappers instead of reinventing them.
-2. **A Posteriori Reflex Engine (`evals/memory_engine.py --diagnose` & `evals/security_audit.py`):** Provides `< 10ms` deterministic error signature matching on `evals/logs/trajectory_latest.json` (`--diagnose`) and mechanically blocks operational anti-patterns (public secret env vars, non-singleton ORM clients, and dynamic `eval()` execution).
+1. **A Priori Cognitive Routing (`.agents/rules/modules/pattern_recognition.md`):** Guides the LLM before code generation using System 1/System 2 task classification (`[R-PAT-01]`), $O(1)$ structural mimicry (`[R-PAT-02]`), topological awareness (`[R-PAT-05]`), and strict scope discipline (`[R-PAT-06]`).
+2. **A Posteriori Reflex Engine (`evals/memory_engine.py`, `evals/security_audit.py`, `evals/stack_inspector.py`, `evals/rsi_orchestrator.py`):** Provides `< 10ms` deterministic error signature matching (`--diagnose`), computes reverse-dependency Blast Radius (`--impact <file>`), enforces `Target files` scope alignment (`--scope`), and mechanically blocks operational anti-patterns (public secret env vars, non-singleton ORM clients, and dynamic `eval()` execution).
 
 ---
 
@@ -74,10 +74,10 @@ Rather than relying solely on passive markdown instructions or heavy post-facto 
 | `memory_engine.py` | Audits module limits, injects context rules, and diagnoses failure patterns (`--diagnose`). | Pure ASCII (`[OK]`, `[FAIL]`) |
 | `run_fullstack_eval.py` | Multi-package manager test runner (pnpm, bun, yarn, npm, python). | Structured JSON report |
 | `security_audit.py` | Detects hardcoded secrets, operational anti-patterns, ASCII violations, and `.gitignore` flaws. | Pure ASCII (`[SUCCESS]`) |
-| `stack_inspector.py` | Analyzes repo stack and recommends official MCP servers & skills. | Pure ASCII |
+| `stack_inspector.py` | Analyzes stack, generates $O(1)$ Topological Map (`--map`), and computes Blast Radius (`--impact`). | Pure ASCII |
 | `reset_rsi.py` | Resets tasks, logs, and changelog for starting fresh projects. | Pure ASCII + Zip backup |
 | `version_manager.py` | Bumps SemVer versions, updates `package.json`, and seals `CHANGELOG.md`. | Pure ASCII |
-| `rsi_orchestrator.py` | Orchestrates retry attempts (1 to 3) and validates guardrails. | Pure ASCII + Exit codes |
+| `rsi_orchestrator.py` | Orchestrates retries (1..3), validates guardrails, and checks task Scope Drift (`--scope`). | Pure ASCII + Exit codes |
 
 ---
 

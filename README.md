@@ -206,6 +206,8 @@ To prevent AI agents from wasting tokens on solved problems or introducing opera
 - **Cognitive Routing (`.agents/rules/modules/pattern_recognition.md`):** Instructs the agent to route routine boilerplate (`System 1`) to fast execution, reuse existing canonical patterns in $O(1)$ (`[R-PAT-02]`), and reserve deep reasoning (`System 2`) for security boundaries and state concurrency.
 - **Fast-Fail Diagnostic Reflex (`--diagnose`):** When an evaluation fails, `python evals/memory_engine.py --diagnose` inspects `evals/logs/trajectory_latest.json` in `< 10ms` and maps known error signatures directly to 1-line deterministic fixes before the agent burns tokens guessing.
 - **Operational Anti-Pattern Guard:** `evals/security_audit.py` scans application code to block public frontend secret exposure (`NEXT_PUBLIC_.*SECRET`, `VITE_.*SECRET`), non-singleton ORM instantiations (`new PrismaClient()`), and unsafe dynamic code execution (`eval`, `new Function`).
+- **Topological Awareness & Blast Radius (`--map` / `--impact`):** `python evals/stack_inspector.py --map` surfaces existing project singletons and core hubs in `O(1)`, while `--impact <file>` computes reverse dependencies and grades the Blast Radius (`LOW`, `MEDIUM`, `HIGH / CRITICAL`) before shared signatures are modified.
+- **Scope Drift Guard (`--scope` / `--strict-scope`):** `python evals/rsi_orchestrator.py --scope` cross-checks `git status` against the active `[-]` task's declared `Target files` in `docs/TASKS.md`, preventing unregistered coding and out-of-scope file modifications.
 
 ---
 
@@ -345,9 +347,9 @@ All tools are in `evals/` and require Python 3.10+:
 | `python evals/run_fullstack_eval.py` | Runs all deterministic checks (types, lint, security, db) | `--quick` (skips production build) |
 | `python evals/security_audit.py` | Scans repository for leaked secrets, operational anti-patterns, and ASCII hygiene | *(None)* |
 | `python evals/memory_engine.py` | Audits module limits, injects rules, or diagnoses failed trajectories | `--audit`, `--inject [files...]`, `--diagnose` |
-| `python evals/stack_inspector.py` | Detects tech stack and recommends official MCPs and Skills | *(None)* |
+| `python evals/stack_inspector.py` | Detects tech stack, builds O(1) topological map, and predicts Blast Radius | `--map`, `--impact <file>` |
 | `python evals/reset_rsi.py` | Resets task registry and changelog to a clean template baseline | `--dry-run`, `--force`, `--no-backup` |
-| `python evals/rsi_orchestrator.py` | Drives evaluation retry loop and checks guardrails | `--eval`, `--attempt 1..3`, `--guardrail` |
+| `python evals/rsi_orchestrator.py` | Drives evaluation retry loop, checks guardrails, and enforces task scope | `--eval`, `--attempt 1..3`, `--guardrail`, `--scope`, `--strict-scope` |
 | `python evals/version_manager.py` | Increments SemVer release and seals changelog entry | `--bump [major\|minor\|patch]` |
 
 ---

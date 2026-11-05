@@ -17,9 +17,10 @@ Scrupulously follow these 4 sequential phases without skipping any:
    - Update its status to `[-]` (In progress) in the Kanban and active section.
    - **Episodic Memory (IDE Artifact):** If the task requires multi-step planning or extended tracking, initialize a Markdown Artifact (`plan.md` or `task_tracking.md`) in the IDE's Brain directory. The artifact acts as an out-of-context visual board. Never dump full artifact contents into chat messages to conserve context tokens.
 
-2. **Stack Audit & Official Tooling (Skills & MCP):**
-   - Run `python evals/stack_inspector.py` (or `pnpm run rsi:inspect`).
-   - Confirm no official tooling (MCP servers, framework/ORM skills) is missing to avoid unguided coding.
+2. **Stack Audit, Topological Map & Blast Radius:**
+   - Run `python evals/stack_inspector.py` (or `pnpm run rsi:inspect`) to verify official tooling (MCP servers, framework/ORM skills).
+   - Run `python evals/stack_inspector.py --map` to inspect existing singletons and top dependency hubs in `O(1)` before creating new helpers.
+   - Before modifying a shared module or interface, run `python evals/stack_inspector.py --impact [file]` to evaluate its reverse-dependency Blast Radius.
 
 3. **Dynamic Contextual Memory Resolution:**
    - Run `python evals/memory_engine.py --inject [target_files]` to inject only the relevant atomic sub-playbooks (`.agents/rules/modules/`) without saturating the context window.
@@ -78,10 +79,11 @@ This phase triggers whenever an error was resolved (> 1 attempt) OR a security a
 
 ## PHASE 4: Final Validation, Git Guardrail & Closure
 
-1. **Verify Guardrails:**
+1. **Verify Guardrails & Scope Alignment:**
    ```bash
    python evals/rsi_orchestrator.py --guardrail
    ```
+   Confirm `docs/TASKS.md` (`< 250L`), modules (`< 80L`), and Scope Guard (`git status` aligned with `Target files` in `docs/TASKS.md`).
 2. **Double Deterministic Check:**
    - Typecheck (0 errors).
    - Linter (0 errors / warnings).
