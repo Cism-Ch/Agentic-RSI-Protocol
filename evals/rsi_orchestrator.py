@@ -352,6 +352,27 @@ def run_session_pulse() -> None:
         except Exception:
             pass
 
+    # 5. Ecosystem & Tooling check (Skills & MCP)
+    try:
+        from stack_inspector import get_missing_tools
+        missing_tools = get_missing_tools()
+        if missing_tools:
+            print("\n5. Tooling Action : Missing official Skills / MCP servers detected!")
+            print("   -> Prompt the user in conversation to install/configure these tools:")
+            for item in missing_tools:
+                line_parts = [f"*{item['tech'].upper()}*"]
+                if item["missing_skill"]:
+                    line_parts.append(f"Skill: '{item['missing_skill']}'")
+                if item["missing_mcp"]:
+                    line_parts.append(f"MCP: '{item['missing_mcp']}'")
+                print(f"      - {' | '.join(line_parts)}")
+                if item.get("mcp_setup"):
+                    print(f"        Setup: {item['mcp_setup']}")
+        else:
+            print("5. Tooling Action : [OK] Official Skills & MCP configuration complete.")
+    except Exception:
+        pass
+
 def main():
     parser = argparse.ArgumentParser(description="RSI Protocol Orchestrator")
     parser.add_argument("--pulse", action="store_true", help="1-command Cold-Start Cockpit Briefing (<50ms)")

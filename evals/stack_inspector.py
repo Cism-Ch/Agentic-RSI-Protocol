@@ -8,6 +8,7 @@ Technical Stack, Topological Map & Blast Radius Auditor
 """
 
 import sys
+import os
 import re
 import json
 import argparse
@@ -40,7 +41,8 @@ ECOSYSTEM_CATALOG = {
         "files": ["components.json"],
         "skill": "shadcn",
         "mcp_server": None,
-        "purpose": "Accessible and styled UI component primitives"
+        "purpose": "Accessible and styled UI component primitives",
+        "install_guide": "Add shadcn skill to .agents/skills/shadcn or use IDE plugin."
     },
     "prisma": {
         "deps": ["@prisma/client", "prisma"],
@@ -48,14 +50,17 @@ ECOSYSTEM_CATALOG = {
         "skill": "prisma-management",
         "skill_keywords": ["prisma"],
         "mcp_server": None,
-        "purpose": "Database schema management and validation"
+        "purpose": "Database schema management and validation",
+        "install_guide": "Add prisma skill to .agents/skills/prisma-management or use IDE plugin."
     },
     "upstash": {
         "deps": ["@upstash/redis", "@upstash/qstash", "@upstash/ratelimit"],
         "files": [],
         "skill": "upstash",
         "mcp_server": "upstash",
-        "purpose": "Asynchronous job queue, rate limiting, and distributed cache"
+        "purpose": "Asynchronous job queue, rate limiting, and distributed cache",
+        "mcp_setup": "Add to .mcp.json: npx -y @upstash/mcp-server (requires UPSTASH_REDIS_REST_URL/TOKEN)",
+        "install_guide": "Configure 'upstash' in .mcp.json and install upstash skill."
     },
     "tigris": {
         "deps": ["@aws-sdk/client-s3", "@aws-sdk/s3-request-presigner"],
@@ -64,7 +69,8 @@ ECOSYSTEM_CATALOG = {
         "skill": "file-storage",
         "skill_keywords": ["tigris", "storage"],
         "mcp_server": None,
-        "purpose": "Zero-egress S3-compatible high-performance object storage"
+        "purpose": "Zero-egress S3-compatible high-performance object storage",
+        "install_guide": "Add file-storage skill to .agents/skills/file-storage."
     },
     "playwright": {
         "deps": ["@playwright/test", "playwright"],
@@ -72,7 +78,8 @@ ECOSYSTEM_CATALOG = {
         "skill": "playwright-skill",
         "skill_keywords": ["playwright"],
         "mcp_server": None,
-        "purpose": "Deterministic E2E testing and browser automation"
+        "purpose": "Deterministic E2E testing and browser automation",
+        "install_guide": "Add playwright-skill to .agents/skills/playwright-skill."
     }
 }
 
@@ -157,20 +164,37 @@ def detect_stack() -> dict:
                 "has_skill": skill_found,
                 "recommended_skill": target_skill,
                 "has_mcp": mcp_found,
-                "recommended_mcp": target_mcp
+                "recommended_mcp": target_mcp,
+                "mcp_setup": meta.get("mcp_setup"),
+                "install_guide": meta.get("install_guide")
             }
 
     return detected
 
+def get_missing_tools() -> list[dict]:
+    """Returns a list of missing official tools with actionable instructions for conversational request."""
+    stack = detect_stack()
+    missing = []
+    for tech, info in stack.items():
+        if not info["has_skill"] or not info["has_mcp"]:
+            missing.append({
+                "tech": tech,
+                "purpose": info["purpose"],
+                "missing_skill": info["recommended_skill"] if not info["has_skill"] else None,
+                "missing_mcp": info["recommended_mcp"] if not info["has_mcp"] else None,
+                "mcp_setup": info.get("mcp_setup"),
+                "install_guide": info.get("install_guide")
+            })
+    return missing
+
 def iter_source_files() -> list[Path]:
     files = []
-    for path in ROOT_DIR.rglob("*"):
-        if not path.is_file():
-            continue
-        if any(part in IGNORE_DIRS for part in path.parts):
-            continue
-        if path.suffix in CODE_EXTENSIONS:
-            files.append(path)
+    for root, dirs, filenames in os.walk(ROOT_DIR):
+        dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
+        for fname in filenames:
+            path = Path(root) / fname
+            if path.suffix in CODE_EXTENSIONS:
+                files.append(path)
     return sorted(files)
 
 def build_dependency_graph(files: list[Path]) -> dict[str, set[str]]:
@@ -256,10 +280,13 @@ def analyze_blast_radius(target_file: str) -> None:
     norm_target = target_file.replace("\\", "/").lstrip("./")
     files = iter_source_files()
     # Also scan markdown workflows/docs for script invocations
-    all_scan_files = files + [
-        p for p in ROOT_DIR.rglob("*.md")
-        if p.is_file() and not any(part in IGNORE_DIRS for part in p.parts)
-    ]
+    md_files = []
+    for root, dirs, filenames in os.walk(ROOT_DIR):
+        dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
+        for fname in filenames:
+            if fname.endswith(".md"):
+                md_files.append(Path(root) / fname)
+    all_scan_files = files + md_files
 
     target_path = Path(norm_target)
     target_stem = target_path.stem

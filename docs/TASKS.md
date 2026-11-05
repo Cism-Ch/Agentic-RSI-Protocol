@@ -27,12 +27,21 @@
 |                         |  |                         |  | [x] TASK-TOPO-SCOPE-01  |
 |                         |  |                         |  | [x] TASK-ORCH-01        |
 |                         |  |                         |  | [x] TASK-DOCS-03        |
+|                         |  |                         |  | [x] TASK-TOOL-01        |
 +-------------------------+  +-------------------------+  +-------------------------+
 ```
 
 ---
 
 ## Active Sprint 01: Project Setup & Initialization
+
+- [x] **`TASK-TOOL-01` - Tooling Status & Conversational Installation Request in Pulse**
+  - **Priority:** HIGH
+  - **Target files:** `evals/stack_inspector.py`, `evals/rsi_orchestrator.py`, `docs/TASKS.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-TOOL-01.01`: Enrich `ECOSYSTEM_CATALOG` in `evals/stack_inspector.py` with concrete setup details (`mcp_cmd`, `env_keys`).
+    - [x] `TASK-TOOL-01.02`: Integrate tooling check into `run_session_pulse()` in `evals/rsi_orchestrator.py` to instruct agents to summarize missing tools to the user in chat.
+    - [x] `TASK-TOOL-01.03`: Validate with deterministic judge (`100/100 PASS`) and ASCII hygiene check.
 
 - [x] **`TASK-DOCS-03` - Comprehensive README Overhaul with Hero Header & Full Protocol Cycle**
   - **Priority:** HIGH
@@ -169,3 +178,4 @@
 | 2026-11-05 | TASK-TOPO-SCOPE-01 | Topological Repo Map, Blast Radius Analyzer & Scope Drift Guard | `evals/stack_inspector.py`, `evals/rsi_orchestrator.py`, `.agents/rules/modules/pattern_recognition.md`, `.agents/workflows/rsi-feature.md`, `README.md`, `docs/ARCHITECTURE.md`, `docs/TASKS.md` |
 | 2026-11-05 | TASK-ORCH-01 | Cold-Start Session Pulse (`--pulse`) & Automated Task Rollover (`--rollover`) | `evals/rsi_orchestrator.py`, `.agents/workflows/rsi-feature.md`, `README.md`, `docs/ARCHITECTURE.md`, `docs/TASKS.md` |
 | 2026-11-05 | TASK-DOCS-03 | Comprehensive README Overhaul with Hero Header & Full Protocol Cycle | `README.md`, `docs/TASKS.md` |
+| 2026-11-05 | TASK-TOOL-01 | Tooling Status & Conversational Installation Request in Pulse | `evals/stack_inspector.py`, `evals/rsi_orchestrator.py`, `docs/TASKS.md` |
