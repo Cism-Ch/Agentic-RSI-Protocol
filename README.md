@@ -1,11 +1,24 @@
 # Agentic RSI Protocol
 
+```
+    ___                    __  _         ____  _____ ____     ____             __                  __
+   /   | ____ ____  ____  / /_(_)____   / __ \/ ___//  _/    / __ \_________  / /_____  _________  / /
+  / /| |/ __ `/ _ \/ __ \/ __/ / ___/  / /_/ /\__ \ / /     / /_/ / ___/ __ \/ __/ __ \/ ___/ __ \/ / 
+ / ___ / /_/ /  __/ / / / /_/ / /__   / _, _/___/ // /     / ____/ /  / /_/ / /_/ /_/ / /__/ /_/ / /  
+/_/  |_\__, /\___/_/ /_/\__/_/\___/  /_/ |_|/____/___/    /_/   /_/   \____/\__/\____/\___/\____/_/   
+      /____/                                                                                          
+```
+
+> **A deterministic runtime specification, cognitive compass, and closed feedback loop designed for modern autonomous coding agents.**
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Protocol Version](https://img.shields.io/badge/Protocol-v0.1.0-blue.svg)](VERSION)
 [![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![Status](https://img.shields.io/badge/RSI%20Judge-100%2F100%20PASS-brightgreen.svg)]()
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)]()
 [![Encoding](https://img.shields.io/badge/Encoding-Pure%20ASCII%20Safe-success.svg)]()
+
+---
 
 The **Recursive Self-Improvement (RSI) Protocol** is a language-agnostic engineering framework and deterministic runtime specification designed specifically for modern **Agentic Coding Environments** (such as Cursor, Windsurf, Google Antigravity, Claude Code, GitHub Copilot Workspace, and Cline / Roo Code).
 
@@ -16,14 +29,15 @@ It establishes an inviolable operational contract between human developers and a
 ## Table of Contents
 
 - [The Challenge with Modern Agentic Coding Environments](#the-challenge-with-modern-agentic-coding-environments)
-  - [Real-World Failure Scenario 1: The Monolithic Prompt Attention Dilution](#real-world-failure-scenario-1-the-monolithic-prompt-attention-dilution)
+  - [Real-World Failure Scenario 1: Monolithic Prompt Attention Dilution](#real-world-failure-scenario-1-monolithic-prompt-attention-dilution)
   - [Real-World Failure Scenario 2: Multi-File Cascade Regression & Panic Edits](#real-world-failure-scenario-2-multi-file-cascade-regression--panic-edits)
   - [Real-World Failure Scenario 3: Session Amnesia & The Repeated Trap](#real-world-failure-scenario-3-session-amnesia--the-repeated-trap)
   - [Real-World Failure Scenario 4: Accidental Secret Leakage & Incomplete Gitignore](#real-world-failure-scenario-4-accidental-secret-leakage--incomplete-gitignore)
   - [Real-World Failure Scenario 5: Terminal Charset Crash (Windows CP1252 & CI)](#real-world-failure-scenario-5-terminal-charset-crash-windows-cp1252--ci)
+  - [Real-World Failure Scenario 6: Uncontrolled Scope Drift & Over-Zealous Refactoring](#real-world-failure-scenario-6-uncontrolled-scope-drift--over-zealous-refactoring)
+  - [Real-World Failure Scenario 7: Reinventing the Wheel & Singleton Fragmentation](#real-world-failure-scenario-7-reinventing-the-wheel--singleton-fragmentation)
 - [The RSI Architectural Solution](#the-rsi-architectural-solution)
-- [How It Works: The 4-Phase Execution Cycle](#how-it-works-the-4-phase-execution-cycle)
-- [Operational Architecture Diagram](#operational-architecture-diagram)
+- [End-to-End Operational Lifecycle Diagram](#end-to-end-operational-lifecycle-diagram)
 - [Key Guarantees and Capabilities](#key-guarantees-and-capabilities)
   - [1. Inviolable Single Source of Truth](#1-inviolable-single-source-of-truth-ssot)
   - [2. Memory Duality and Anti-Bloat Guardrails](#2-memory-duality-and-anti-bloat-guardrails)
@@ -32,6 +46,9 @@ It establishes an inviolable operational contract between human developers and a
   - [5. Meta-Cognitive Mutation Loop](#5-meta-cognitive-mutation-loop)
   - [6. Zero-Leak Security Audit](#6-zero-leak-security-audit)
   - [7. Deterministic Pure ASCII & Emoji Hygiene Enforcement](#7-deterministic-pure-ascii--emoji-hygiene-enforcement)
+  - [8. Hybrid Pattern Recognition & Fast-Fail Diagnostic Reflex](#8-hybrid-pattern-recognition--fast-fail-diagnostic-reflex)
+  - [9. Topological Repo Map & Predictive Blast Radius](#9-topological-repo-map--predictive-blast-radius)
+  - [10. Scope Drift Guard & Automated Task Rollover](#10-scope-drift-guard--automated-task-rollover)
 - [Protocol Versioning Specification](#protocol-versioning-specification)
 - [Quick Start Guide](#quick-start-guide)
   - [Using as a GitHub Template](#using-as-a-github-template)
@@ -49,9 +66,9 @@ It establishes an inviolable operational contract between human developers and a
 
 ## The Challenge with Modern Agentic Coding Environments
 
-Autonomous coding agents (Cursor Agent, Windsurf Cascade, Google Antigravity, Claude Code, Cline) can inspect whole workspaces, edit multiple files simultaneously, and execute terminal commands. However, on production codebases, unconstrained agents consistently degrade across five documented failure patterns:
+Autonomous coding agents (Cursor Agent, Windsurf Cascade, Google Antigravity, Claude Code, Cline) can inspect whole workspaces, edit multiple files simultaneously, and execute terminal commands. However, on production codebases, unconstrained agents consistently degrade across seven documented failure patterns:
 
-### Real-World Failure Scenario 1: The Monolithic Prompt Attention Dilution
+### Real-World Failure Scenario 1: Monolithic Prompt Attention Dilution
 - **The Problem:** Teams frequently create a monolithic 800-line `.cursorrules` or system prompt containing all database, UI, Tailwind, API, and authentication rules.
 - **What happens:** After 10 conversation turns, the agent's attention window is flooded with conversational context. The agent suffers from **attention drift** and violates key rules. For example, it might instantiate `const prisma = new PrismaClient()` directly inside an edge serverless function rather than using a singleton client.
 - **Production impact:** In serverless architectures (Vercel, AWS Lambda), each invocation spawns a new connection pool, rapidly exhausting PostgreSQL connection limits (`FATAL: remaining connection slots are reserved`) and bringing down production.
@@ -79,6 +96,16 @@ Autonomous coding agents (Cursor Agent, Windsurf Cascade, Google Antigravity, Cl
   The agent cannot read its own test results and gets trapped in an unresolvable loop trying to fix functional code that was never broken.
 - **The RSI Fix:** The protocol mechanically enforces **pure ASCII output**. The judge in `evals/security_audit.py` actively scans for any non-ASCII or emoji characters across all scripts, rules, and documentation, failing with an exit code 1 if any agent commits an emoji.
 
+### Real-World Failure Scenario 6: Uncontrolled Scope Drift & Over-Zealous Refactoring
+- **The Problem:** An agent is asked to fix a typo or add a small validation rule in a controller. While reading adjacent code, the agent decides to refactor utility files, change function names in unrelated modules, and rewrite tests.
+- **What happens:** A simple 1-line change turns into a 15-file pull request, invalidating open PRs, triggering regression bugs, and requiring massive manual review.
+- **The RSI Fix:** The **Scope Drift Guard** (`python evals/rsi_orchestrator.py --scope`). The orchestrator matches `git status --porcelain` against the declared `Target files:` in `docs/TASKS.md`. Any modification outside the task scope is detected immediately and blocked.
+
+### Real-World Failure Scenario 7: Reinventing the Wheel & Singleton Fragmentation
+- **The Problem:** An agent needing to execute a Redis query or interact with S3 object storage writes a new helper file (`src/utils/myRedis.ts`), creating an unpooled client connection that duplicates an existing, properly configured singleton in `src/lib/redis.ts`.
+- **What happens:** The codebase fragments into multiple competing client wrappers with inconsistent configurations, missing environment variable validations, and connection leakages.
+- **The RSI Fix:** The **Topological Repo Map** (`python evals/stack_inspector.py --map`). In $O(1)$ and under 25 lines, the agent inspects canonical singletons, core infrastructure, and top hubs before writing code, strictly obeying rule `[R-PAT-02]` (Structural Mimicry).
+
 ---
 
 ## The RSI Architectural Solution
@@ -86,37 +113,40 @@ Autonomous coding agents (Cursor Agent, Windsurf Cascade, Google Antigravity, Cl
 The **Agentic RSI Protocol** introduces a deterministic, self-contained closed feedback loop for coding agents:
 
 - **Strict Task Governance:** The agent cannot write or edit code without an explicit task registered in `docs/TASKS.md`.
+- **Instant Situational Awareness:** A 1-command cold-start cockpit briefing (`evals/rsi_orchestrator.py --pulse`) delivers repo health, active tasks, git status, and matched rules in `< 50ms`.
+- **Topological Discovery & Blast Radius:** Identifies singletons in $O(1)$ (`--map`) and computes reverse-dependency impact (`--impact <file>`) before altering shared interfaces.
 - **Dynamic Context Injection:** Rather than loading all engineering rules into every prompt, rules are split into modular sub-playbooks (`< 80 lines` each) in `.agents/rules/modules/`. The engine inspects target files and injects only relevant rules.
-- **Deterministic Judge:** A lightweight evaluation harness (`evals/run_fullstack_eval.py`) validates typecheck, linters, schemas, security leaks, and memory compactness.
-- **Reflexive Auto-Correction:** If the evaluation score is below 100/100, the agent has up to 3 automated retry attempts, reading compact failure logs.
-- **Meta-Cognitive Learning:** After resolving an unexpected defect or security finding, the agent distills the fix into an actionable, permanent rule in the appropriate module.
+- **Deterministic Judge & Fast-Fail Reflex:** A lightweight evaluation harness (`evals/run_fullstack_eval.py`) validates typecheck, linters, schemas, and security. On failure, `--diagnose` maps known error signatures to 1-line fixes in `< 10ms`.
+- **Scope Discipline & Automated Rollover:** Changes must match the active task's `Target files` (`--scope`), and completed tasks are archived deterministically (`--rollover`) to maintain `docs/TASKS.md` under 250 lines.
 
 ---
 
-## Operational Architecture Diagram
+## End-to-End Operational Lifecycle Diagram
 
 ```mermaid
 flowchart TD
-    UserReq["User Request / Goal"] --> TaskCheck{"Task Registered in\ndocs/TASKS.md?"}
+    ColdStart["0. Cold-Start Session Pulse\nrsi_orchestrator.py --pulse (< 50ms)"] --> TaskCheck{"Task Registered in\ndocs/TASKS.md?"}
     
-    TaskCheck -->|No| RegisterTask["Phase 1: Formalize TASK-DOMAIN-XX\nSet Status to In Progress [-]"]
+    TaskCheck -->|No| RegisterTask["Phase 1: Formalize TASK-DOMAIN-XX\nDeclare Target files: and Set Status to [-]"]
     TaskCheck -->|Yes| RegisterTask
     
-    RegisterTask --> InjectRules["Resolve Context via memory_engine.py\nInject targeted < 80L modules"]
+    RegisterTask --> TopoCheck["Topological Discovery & Impact\nstack_inspector.py --map & --impact <file>"]
+    TopoCheck --> InjectRules["Dynamic Contextual Injection\nmemory_engine.py --inject <files> (< 80L modules)"]
     InjectRules --> Implement["Phase 1: Implementation\nAnti-Saturation Cadence (Micro-edits)"]
     
     Implement --> FastEval["Phase 2: Deterministic Judge\nrun_fullstack_eval.py --quick"]
     
     FastEval --> ScoreCheck{"Evaluation Score\n100 / 100?"}
     
-    ScoreCheck -->|Fail < 100| RetryCount{"Attempt Count\n<= 3?"}
-    RetryCount -->|Yes| ReadTrajectory["Inspect Trajectory Log\nevals/logs/trajectory_latest.json"]
-    ReadTrajectory --> PatchCode["Targeted Code Fix"]
+    ScoreCheck -->|Fail < 100| DiagnoseReflex["Fast-Fail Diagnostic Reflex\nmemory_engine.py --diagnose (< 10ms)"]
+    DiagnoseReflex --> RetryCount{"Attempt Count\n<= 3?"}
+    RetryCount -->|Yes| PatchCode["Targeted Deterministic Fix"]
     PatchCode --> FastEval
     
     RetryCount -->|No| HumanEscalation["Halt & Report Roadblock\nRequest Human Guidance"]
     
-    ScoreCheck -->|Pass 100| IncidentCheck{"Bug Fixed or\nSecurity Finding?"}
+    ScoreCheck -->|Pass 100| ScopeGuard["Scope Drift Guard Verification\nrsi_orchestrator.py --scope"]
+    ScopeGuard --> IncidentCheck{"Bug Fixed or\nSecurity Finding?"}
     
     IncidentCheck -->|Yes| MetaCognition["Phase 3: Meta-Cognitive Mutation\nAssume meta_optimizer.md role"]
     MetaCognition --> DistillRule["Extract Actionable [R-DOM-XX] Rule\nUpdate module (< 80 lines ceiling)"]
@@ -127,7 +157,10 @@ flowchart TD
     GuardrailCheck --> FullEval["Full Verification Suite\nrun_fullstack_eval.py (Mode: FULL)"]
     FullEval --> SemVerBump["SemVer Auto-Bump\nversion_manager.py --bump patch"]
     SemVerBump --> TaskClose["Close Task in docs/TASKS.md [x]\nMove to Completed History"]
-    TaskClose --> FinalReport["Report Deliverables to Developer"]
+    TaskClose --> RolloverCheck{"docs/TASKS.md\n> 250 Lines?"}
+    RolloverCheck -->|Yes| Rollover["rsi_orchestrator.py --rollover\nArchive [x] tasks to docs/archive/tasks/"]
+    RolloverCheck -->|No| FinalReport["Report Deliverables to Developer"]
+    Rollover --> FinalReport
 ```
 
 ---
@@ -136,8 +169,8 @@ flowchart TD
 
 ### 1. Inviolable Single Source of Truth (SSOT)
 - Tracked strictly in `docs/TASKS.md`.
-- Tasks must specify an identifier (`TASK-DOMAIN-XX`), priority, target files, and checkable acceptance criteria (`[ ]`).
-- Strict ceiling: `docs/TASKS.md` must never exceed **250 lines**. Completed sprints are archived into `docs/archive/tasks/`.
+- Tasks must specify an identifier (`TASK-DOMAIN-XX`), priority, target files (`Target files: `), and checkable acceptance criteria (`[ ]`).
+- Strict ceiling: `docs/TASKS.md` must never exceed **250 lines**. Completed sprints are archived automatically via `python evals/rsi_orchestrator.py --rollover` into `docs/archive/tasks/`.
 
 ### 2. Memory Duality and Anti-Bloat Guardrails
 - **Episodic Memory (IDE Artifacts):** Volatile scratchpads, task checklists, and architectural outlines remain in IDE Brain artifacts rather than chat messages, saving token context.
@@ -171,7 +204,7 @@ The evaluation engine (`evals/run_fullstack_eval.py`) automatically discovers pr
 - TypeScript static analysis (`tsc --noEmit`).
 - Code style and linting (invokes project `lint` script).
 - ORM and database verification (Prisma schema validation, Drizzle checks).
-- Security audits (secret leakage and `.gitignore` airtightness).
+- Security audits (secret leakage, operational anti-patterns, and `.gitignore` airtightness).
 - Compact failure filtering: captures and outputs at most 10 significant lines per failed step to avoid overflowing prompt context.
 
 ### 5. Meta-Cognitive Mutation Loop
@@ -201,14 +234,20 @@ Does the protocol really prevent agents from writing emojis? **Yes, mechanically
   ```
 - Because the deterministic judge score drops below 100/100, the task CANNOT be closed until the agent replaces the emoji with standard ASCII tags (`[OK]`, `[FAIL]`, `[WARN]`, `[INFO]`).
 
-### 8. Hybrid Pattern Recognition & Fast-Fail Reflexes
+### 8. Hybrid Pattern Recognition & Fast-Fail Diagnostic Reflex
 To prevent AI agents from wasting tokens on solved problems or introducing operational vulnerabilities, the protocol combines an *a priori* **Cognitive Compass** with an *a posteriori* **Reflex Nervous System**:
 - **Cognitive Routing (`.agents/rules/modules/pattern_recognition.md`):** Instructs the agent to route routine boilerplate (`System 1`) to fast execution, reuse existing canonical patterns in $O(1)$ (`[R-PAT-02]`), and reserve deep reasoning (`System 2`) for security boundaries and state concurrency.
 - **Fast-Fail Diagnostic Reflex (`--diagnose`):** When an evaluation fails, `python evals/memory_engine.py --diagnose` inspects `evals/logs/trajectory_latest.json` in `< 10ms` and maps known error signatures directly to 1-line deterministic fixes before the agent burns tokens guessing.
 - **Operational Anti-Pattern Guard:** `evals/security_audit.py` scans application code to block public frontend secret exposure (`NEXT_PUBLIC_.*SECRET`, `VITE_.*SECRET`), non-singleton ORM instantiations (`new PrismaClient()`), and unsafe dynamic code execution (`eval`, `new Function`).
-- **Topological Awareness & Blast Radius (`--map` / `--impact`):** `python evals/stack_inspector.py --map` surfaces existing project singletons and core hubs in `O(1)`, while `--impact <file>` computes reverse dependencies and grades the Blast Radius (`LOW`, `MEDIUM`, `HIGH / CRITICAL`) before shared signatures are modified.
-- **Scope Drift Guard (`--scope` / `--strict-scope`):** `python evals/rsi_orchestrator.py --scope` cross-checks `git status` against the active `[-]` task's declared `Target files` in `docs/TASKS.md`, preventing unregistered coding and out-of-scope file modifications.
-- **Cold-Start Pulse & Auto-Rollover (`--pulse` / `--rollover`):** `python evals/rsi_orchestrator.py --pulse` delivers a `< 50ms` session cockpit briefing (health score, active task, modified files, matched rule modules), while `--rollover` deterministically archives completed `[x]` sprint blocks to `docs/archive/tasks/` so `docs/TASKS.md` never exceeds 250 lines.
+
+### 9. Topological Repo Map & Predictive Blast Radius
+- **$O(1)$ Topological Map (`--map`):** `python evals/stack_inspector.py --map` scans the codebase and outputs existing singletons (ORM, Supabase, Auth, Redis, Storage) and top dependency hubs in `< 25 lines`. The agent immediately knows where existing building blocks live without performing 15 blind `grep` searches.
+- **Predictive Blast Radius (`--impact <file>`):** `python evals/stack_inspector.py --impact <file>` computes reverse dependencies across JS/TS and Python files, classifying the edit as `LOW` (0-2 dependents), `MEDIUM` (3-7 dependents), or `HIGH / CRITICAL` (8+ dependents), alerting the agent to exercise System 2 reasoning before changing shared signatures.
+
+### 10. Scope Drift Guard & Automated Task Rollover
+- **Scope Drift Guard (`--scope` / `--strict-scope`):** `python evals/rsi_orchestrator.py --scope` cross-checks `git status --porcelain` against the active `[-]` task's declared `Target files:` in `docs/TASKS.md`. Any uncommitted modifications to undeclared files are flagged immediately, preventing over-zealous refactoring.
+- **Cold-Start Pulse (`--pulse`):** `python evals/rsi_orchestrator.py --pulse` gives any new agent session an instant cockpit briefing (< 50ms) detailing protocol version, judge health, active task, git workspace status, and auto-resolved rule modules.
+- **Automated Rollover (`--rollover`):** When `docs/TASKS.md` nears 250 lines, `python evals/rsi_orchestrator.py --rollover` archives completed `[x]` sprint tasks to `docs/archive/tasks/sprint_archive_YYYY_MM.md` while leaving active tasks and historical tables completely intact.
 
 ---
 
@@ -248,7 +287,11 @@ This updates `VERSION`, synchronizes `package.json` if an application is install
    ```bash
    python evals/reset_rsi.py --force
    ```
-4. Verify baseline health:
+4. Check immediate repository pulse:
+   ```bash
+   python evals/rsi_orchestrator.py --pulse
+   ```
+5. Verify baseline health:
    ```bash
    python evals/run_fullstack_eval.py --quick
    ```
@@ -266,7 +309,9 @@ Add these standard scripts to your `package.json`:
   "scripts": {
     "eval:quick": "python evals/run_fullstack_eval.py --quick",
     "eval:fullstack": "python evals/run_fullstack_eval.py",
-    "rsi:inspect": "python evals/stack_inspector.py",
+    "rsi:pulse": "python evals/rsi_orchestrator.py --pulse",
+    "rsi:map": "python evals/stack_inspector.py --map",
+    "rsi:scope": "python evals/rsi_orchestrator.py --scope",
     "rsi:memory": "python evals/memory_engine.py --audit",
     "rsi:security": "python evals/security_audit.py",
     "rsi:reset": "python evals/reset_rsi.py"
@@ -280,11 +325,11 @@ Add these standard scripts to your `package.json`:
 
 ### `/rsi-feature` - End-to-End Feature Development
 Triggers the structured 4-phase engineering cycle:
-1. **Preparation:** Checks `docs/TASKS.md`, sets status to `[-]`, inspects stack, and injects context rules.
+1. **Preparation:** Runs `python evals/rsi_orchestrator.py --pulse`, registers the task in `docs/TASKS.md` with declared `Target files:`, sets status to `[-]`, checks the topological map (`--map`), and injects context rules (`--inject`).
 2. **Implementation:** Micro-edits without global check bloat, followed by `python evals/run_fullstack_eval.py --quick`.
-3. **Reflexive Loop:** Up to 3 attempts with failure log diagnostics (`evals/logs/trajectory_latest.json`).
+3. **Reflexive Loop:** Up to 3 attempts with failure log diagnostics (`memory_engine.py --diagnose`).
 4. **Meta-Optimization:** Extracts lessons learned into rule modules if an incident occurred.
-5. **Closure:** Verifies guardrails, runs full evaluation (100/100 PASS required), bumps SemVer patch, and seals `docs/TASKS.md`.
+5. **Closure:** Verifies scope alignment (`--scope`) and guardrails (`--guardrail`), runs full evaluation (100/100 PASS required), bumps SemVer patch, and seals `docs/TASKS.md` (triggering `--rollover` if > 250 lines).
 
 ### `/reset-rsi` - Starting a Fresh Project
 Resets the template state so you can begin work without carrying over past task archives:
@@ -317,12 +362,12 @@ Agentic-RSI-Protocol/
 |       |-- rsi-feature.md           # 4-phase feature development workflow
 |       \-- reset-rsi.md             # Clean-slate project reset workflow
 |-- evals/
-|   |-- memory_engine.py             # Memory compactness auditor & contextual rule injector
+|   |-- memory_engine.py             # Memory auditor, rule injector & --diagnose reflex
 |   |-- reset_rsi.py                 # Pure ASCII task & changelog reset engine
-|   |-- rsi_orchestrator.py          # Retry loop controller (max 3) & guardrail checker
+|   |-- rsi_orchestrator.py          # Session pulse, scope guard, retries & auto-rollover
 |   |-- run_fullstack_eval.py        # Adaptive deterministic judge (multi-package managers)
-|   |-- security_audit.py            # Static secret scanner & .gitignore leak validator
-|   |-- stack_inspector.py           # Ecosystem detector & official tooling advisor
+|   |-- security_audit.py            # Static secret scanner, operational audit & ASCII guard
+|   |-- stack_inspector.py           # O(1) topological map & predictive blast radius analyzer
 |   \-- version_manager.py           # SemVer version bump & changelog sealer
 |-- docs/
 |   |-- ARCHITECTURE.md              # In-depth architectural guide & diagrams
@@ -350,7 +395,7 @@ All tools are in `evals/` and require Python 3.10+:
 | `python evals/memory_engine.py` | Audits module limits, injects rules, or diagnoses failed trajectories | `--audit`, `--inject [files...]`, `--diagnose` |
 | `python evals/stack_inspector.py` | Detects tech stack, builds O(1) topological map, and predicts Blast Radius | `--map`, `--impact <file>` |
 | `python evals/reset_rsi.py` | Resets task registry and changelog to a clean template baseline | `--dry-run`, `--force`, `--no-backup` |
-| `python evals/rsi_orchestrator.py` | Session pulse, evaluation retry loop, guardrails, scope guard, and task rollover | `--pulse`, `--eval`, `--guardrail`, `--scope`, `--strict-scope`, `--rollover` |
+| `python evals/rsi_orchestrator.py` | Session pulse, evaluation retry loop, guardrails, scope guard, and task rollover | `--pulse`, `--eval`, `--guardrail`, `--scope`, `--strict-scope`, `--rollover`, `--dry-run` |
 | `python evals/version_manager.py` | Increments SemVer release and seals changelog entry | `--bump [major\|minor\|patch]` |
 
 ---
@@ -359,10 +404,10 @@ All tools are in `evals/` and require Python 3.10+:
 
 All AI agents interacting with this repository must strictly adhere to the guidelines codified in [`AGENTS.md`](AGENTS.md):
 
-1. **No Unregistered Coding:** Every modification must correspond to a formalized task in `docs/TASKS.md` with explicit criteria.
+1. **No Unregistered Coding:** Every modification must correspond to a formalized task in `docs/TASKS.md` with explicit criteria and declared `Target files`.
 2. **Deterministic Validation Before Closure:** No task may be marked completed `[x]` without achieving a 100/100 score on `run_fullstack_eval.py`.
 3. **Strict Size Ceilings:** `docs/TASKS.md` must not exceed **250 lines**; sub-modules in `.agents/rules/modules/` must not exceed **80 lines**.
-4. **Universal ASCII Output:** All scripts must produce pure ASCII terminal logs to avoid charset encoding failures on Windows or headless CI environments.
+4. **Universal ASCII Output:** All scripts and documents must produce pure ASCII output to avoid charset encoding failures on Windows or headless CI environments.
 5. **Absolute Secret Protection:** Never commit or unmask environment variables, tokens, private keys, or credentials.
 
 ---
