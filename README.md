@@ -141,7 +141,9 @@ flowchart TD
 
 ### 2. Memory Duality and Anti-Bloat Guardrails
 - **Episodic Memory (IDE Artifacts):** Volatile scratchpads, task checklists, and architectural outlines remain in IDE Brain artifacts rather than chat messages, saving token context.
-- **Procedural Memory (Modular Rules):** Permanent engineering rules live in `.agents/rules/modules/`. Each module is strictly limited to **< 80 lines**. If a file nears this limit, overlapping rules must be synthesized.
+- **Procedural Memory (Modular Rules):** Permanent engineering rules live in `.agents/rules/modules/`. Each module is strictly limited to **< 80 lines** to prevent LLM attention dilution (*"Lost in the Middle"* effect) and append-only rule rot. When a module nears this ceiling, the agent follows a **2-step lossless consolidation strategy**:
+  1. **Synthesize (Merge):** Consolidate only redundant or overlapping directives without sacrificing technical precision (never water down distinct rules into vague generalizations).
+  2. **Split (Modularize):** If all rules are distinct and atomic, split the module into finer domain sub-modules (e.g., splitting `api_backend.md` into `api_routes.md` and `async_queues.md`) and register the new triggers in `evals/memory_engine.py` and `.agents/rules/fullstack_playbook.md`.
 
 ### 3. Dynamic Contextual Injection
 Instead of overwhelming the LLM with generic manuals, `evals/memory_engine.py` maps file paths to domain rules:
@@ -177,7 +179,7 @@ When an agent encounters a bug and resolves it, it runs **Phase 3**:
 1. Adopts the `.agents/prompts/meta_optimizer.md` persona.
 2. Identifies the root architectural failure.
 3. Distills a concise, imperative rule (`[R-DOM-XX] Always...`).
-4. Updates the matching file in `.agents/rules/modules/` ensuring the file stays under 80 lines.
+4. Updates the matching file in `.agents/rules/modules/` ensuring the file stays under 80 lines (merging redundant rules or splitting into finer domain sub-modules when full).
 5. In subsequent sessions, any agent touching related files will receive the distilled rule, preventing regression.
 
 ### 6. Zero-Leak Security Audit

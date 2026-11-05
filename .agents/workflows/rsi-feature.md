@@ -71,7 +71,7 @@ This phase triggers whenever an error was resolved (> 1 attempt) OR a security a
 1. Assume the persona defined in `.agents/prompts/meta_optimizer.md`.
 2. Pinpoint the affected layer (DB, Server Action, UI, Types, Security).
 3. Formulate a general, preventive 1-2 line rule (e.g., `[R-DOM-XX] Always...`).
-4. **Anti-Bloat & Modularity:** Ensure the target sub-module in `.agents/rules/modules/` remains under 80 lines. Merge semantically overlapping rules if needed. If introducing a new domain, create a new modular file `[domain].md`.
+4. **Anti-Bloat & Modularity (< 80 lines):** Ensure the target sub-module in `.agents/rules/modules/` remains strictly under 80 lines using a 2-step lossless strategy: first merge semantically overlapping or redundant rules without losing technical specificity; second, if all rules are distinct and the file is full, split the module into finer domain sub-modules (`[sub_domain].md`) and register the new triggers in `evals/memory_engine.py` and `.agents/rules/fullstack_playbook.md`.
 5. Update the target sub-module in `.agents/rules/modules/` and keep `.agents/rules/fullstack_playbook.md` synchronized.
 
 ---

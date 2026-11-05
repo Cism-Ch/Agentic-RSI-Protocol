@@ -43,7 +43,7 @@ AI agents typically degrade on long, complex projects due to two memory extremes
 
 The protocol resolves this via **Memory Duality**:
 - **Episodic Memory (IDE Artifacts):** Volatile session tracking, step-by-step scratchpads, and visual task progress. Created in the IDE Brain folder and kept out of prompt chat tokens.
-- **Procedural Memory (Modular Rules):** Permanent engineering rules stored in `.agents/rules/modules/`. Each module is strictly capped at **< 80 lines** to maintain ultra-fast inference and zero bloat.
+- **Procedural Memory (Modular Rules):** Permanent engineering rules stored in `.agents/rules/modules/`. Each module is strictly capped at **< 80 lines** to maintain ultra-fast inference and prevent LLM attention dilution (*"Lost in the Middle"*). When a module nears this ceiling, the agent applies a 2-step lossless consolidation strategy: first merging redundant or overlapping rules without losing technical precision, and second, splitting the module into finer domain sub-modules (and updating `MODULE_TRIGGERS` in `evals/memory_engine.py`) if all rules are distinct.
 
 ### Pillar B: The 4-Phase RSI Feedback Loop
 Every non-trivial engineering task follows the `/rsi-feature` lifecycle:
