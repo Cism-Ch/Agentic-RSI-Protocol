@@ -14,3 +14,4 @@
 | **Frontend & UI** | [ui_frontend.md](modules/ui_frontend.md) | Components, accessibility, styling, mobile-first, 4-state management. |
 | **Security & Auth** | [security_auth.md](modules/security_auth.md) | Authentication, sessions, roles, encryption, sanitization. |
 | **AI Integration** | [integration_ai.md](modules/integration_ai.md) | LLM models, prompts, API key management, structured parsing. |
+| **Pattern Recognition** | [pattern_recognition.md](modules/pattern_recognition.md) | Cognitive routing (System 1/2), structural mimicry, fast-fail reflexes. |

@@ -201,6 +201,12 @@ Does the protocol really prevent agents from writing emojis? **Yes, mechanically
   ```
 - Because the deterministic judge score drops below 100/100, the task CANNOT be closed until the agent replaces the emoji with standard ASCII tags (`[OK]`, `[FAIL]`, `[WARN]`, `[INFO]`).
 
+### 8. Hybrid Pattern Recognition & Fast-Fail Reflexes
+To prevent AI agents from wasting tokens on solved problems or introducing operational vulnerabilities, the protocol combines an *a priori* **Cognitive Compass** with an *a posteriori* **Reflex Nervous System**:
+- **Cognitive Routing (`.agents/rules/modules/pattern_recognition.md`):** Instructs the agent to route routine boilerplate (`System 1`) to fast execution, reuse existing canonical patterns in $O(1)$ (`[R-PAT-02]`), and reserve deep reasoning (`System 2`) for security boundaries and state concurrency.
+- **Fast-Fail Diagnostic Reflex (`--diagnose`):** When an evaluation fails, `python evals/memory_engine.py --diagnose` inspects `evals/logs/trajectory_latest.json` in `< 10ms` and maps known error signatures directly to 1-line deterministic fixes before the agent burns tokens guessing.
+- **Operational Anti-Pattern Guard:** `evals/security_audit.py` scans application code to block public frontend secret exposure (`NEXT_PUBLIC_.*SECRET`, `VITE_.*SECRET`), non-singleton ORM instantiations (`new PrismaClient()`), and unsafe dynamic code execution (`eval`, `new Function`).
+
 ---
 
 ## Protocol Versioning Specification
@@ -301,6 +307,7 @@ Agentic-RSI-Protocol/
 |   |       |-- api_backend.md       # API design, async jobs, caching, idempotency
 |   |       |-- db.md                # ORM validation, connection pooling, migrations
 |   |       |-- integration_ai.md    # LLM inference, structured output, fallbacks
+|   |       |-- pattern_recognition.md # Cognitive routing (System 1/2) & O(1) mimicry
 |   |       |-- security_auth.md     # Secrets, sessions, permissions, encryption
 |   |       \-- ui_frontend.md       # Responsive UI, accessibility, 4 visual states
 |   \-- workflows/
@@ -336,8 +343,8 @@ All tools are in `evals/` and require Python 3.10+:
 | Command | Purpose | Flags / Options |
 | :--- | :--- | :--- |
 | `python evals/run_fullstack_eval.py` | Runs all deterministic checks (types, lint, security, db) | `--quick` (skips production build) |
-| `python evals/security_audit.py` | Scans repository for leaked secrets and .gitignore flaws | *(None)* |
-| `python evals/memory_engine.py` | Checks module line limits or dynamically injects rules | `--audit`, `--inject [files...]` |
+| `python evals/security_audit.py` | Scans repository for leaked secrets, operational anti-patterns, and ASCII hygiene | *(None)* |
+| `python evals/memory_engine.py` | Audits module limits, injects rules, or diagnoses failed trajectories | `--audit`, `--inject [files...]`, `--diagnose` |
 | `python evals/stack_inspector.py` | Detects tech stack and recommends official MCPs and Skills | *(None)* |
 | `python evals/reset_rsi.py` | Resets task registry and changelog to a clean template baseline | `--dry-run`, `--force`, `--no-backup` |
 | `python evals/rsi_orchestrator.py` | Drives evaluation retry loop and checks guardrails | `--eval`, `--attempt 1..3`, `--guardrail` |

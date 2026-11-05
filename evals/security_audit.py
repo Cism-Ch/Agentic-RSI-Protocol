@@ -109,11 +109,70 @@ def audit_ascii_hygiene() -> list[dict]:
                     })
     return violations
 
+OPERATIONAL_ANTI_PATTERNS = [
+    (
+        re.compile(r'(?:NEXT_PUBLIC_|VITE_|PUBLIC_|REACT_APP_)[A-Z0-9_]*(?:SECRET|PRIVATE_KEY|SERVICE_ROLE|DATABASE_URL)'),
+        "Public Frontend Secret Exposure ([R-PAT-04])"
+    ),
+    (
+        re.compile(r'new\s+PrismaClient\s*\('),
+        "Non-Singleton PrismaClient Instantiation ([R-DB-02] / [R-PAT-04])"
+    ),
+    (
+        re.compile(r'\b(?:eval|new\s+Function)\s*\('),
+        "Unsafe Dynamic Code Execution ([R-PAT-04])"
+    )
+]
+
+SINGLETON_ALLOWED_FILES = {"db.ts", "db.js", "prisma.ts", "prisma.js", "client.ts", "client.js"}
+APP_CODE_EXTENSIONS = {".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".py"}
+
+def audit_operational_patterns() -> list[dict]:
+    """Detects operational security anti-patterns (public secret vars, non-singleton DB clients, dynamic eval)."""
+    violations = []
+    for path in ROOT_DIR.rglob("*"):
+        if not path.is_file():
+            continue
+        if any(part in IGNORE_DIRS for part in path.parts):
+            continue
+        # Skip RSI evaluation harness scripts to avoid self-flagging on regex definitions
+        if "evals" in path.parts:
+            continue
+        is_env = path.name.startswith(".env")
+        if path.suffix not in APP_CODE_EXTENSIONS and not is_env:
+            continue
+
+        try:
+            lines = path.read_text(encoding="utf-8", errors="ignore").splitlines()
+            for idx, line in enumerate(lines, start=1):
+                stripped = line.strip()
+                if stripped.startswith("//") or stripped.startswith("#"):
+                    continue
+                for pattern, label in OPERATIONAL_ANTI_PATTERNS:
+                    if "PrismaClient" in label and path.name in SINGLETON_ALLOWED_FILES:
+                        continue
+                    if pattern.search(line):
+                        violations.append({
+                            "file": str(path.relative_to(ROOT_DIR)),
+                            "line": idx,
+                            "type": label,
+                            "sample": stripped[:60]
+                        })
+        except Exception as e:
+            violations.append({
+                "file": str(path.relative_to(ROOT_DIR)),
+                "line": 0,
+                "type": "Read Error",
+                "sample": str(e)
+            })
+    return violations
+
 def run_security_audit() -> bool:
-    print("[RSI Security Audit] Running static security, secret leak, and ASCII guard audit...")
+    print("[RSI Security Audit] Running static security, secret leak, operational pattern, and ASCII guard audit...")
     gitignore_issues = audit_gitignore()
     secret_findings = audit_secrets()
     ascii_violations = audit_ascii_hygiene()
+    operational_violations = audit_operational_patterns()
 
     success = True
     if gitignore_issues:
@@ -131,6 +190,14 @@ def run_security_audit() -> bool:
         success = False
     else:
         print("  [OK] No exposed secrets, private keys, or credentials found.")
+
+    if operational_violations:
+        print(f"\n[FAIL] {len(operational_violations)} operational anti-pattern(s) detected:")
+        for ov in operational_violations:
+            print(f"  - [{ov['type']}] {ov['file']}:{ov['line']} -> {ov['sample']}")
+        success = False
+    else:
+        print("  [OK] Operational Pattern Guard: 0 runtime anti-patterns found.")
 
     if ascii_violations:
         print(f"\n[FAIL] {len(ascii_violations)} non-ASCII / emoji violation(s) detected:")

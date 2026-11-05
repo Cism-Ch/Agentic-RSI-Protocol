@@ -60,15 +60,20 @@ The protocol enforces a 3-tier cadence:
 - **Level 2 (Milestone checkpoint):** Fast compact evaluation (`--quick`), evaluating only critical components and truncating outputs.
 - **Level 3 (Task closure):** Full deterministic verification (Typecheck + Linter + Security + Database Schema + Memory Hygiene).
 
+### Pillar D: Hybrid Pattern Recognition (Cognitive Compass + Reflex Nervous System)
+Rather than relying solely on passive markdown instructions or heavy post-facto scripts, the architecture pairs both mechanisms:
+1. **A Priori Cognitive Routing (`.agents/rules/modules/pattern_recognition.md`):** Guides the LLM before code generation using System 1/System 2 task classification (`[R-PAT-01]`) and $O(1)$ structural mimicry (`[R-PAT-02]`) so the agent reuses existing project singletons and wrappers instead of reinventing them.
+2. **A Posteriori Reflex Engine (`evals/memory_engine.py --diagnose` & `evals/security_audit.py`):** Provides `< 10ms` deterministic error signature matching on `evals/logs/trajectory_latest.json` (`--diagnose`) and mechanically blocks operational anti-patterns (public secret env vars, non-singleton ORM clients, and dynamic `eval()` execution).
+
 ---
 
 ## 3. Tooling Ecosystem (`evals/`)
 
 | Script | Purpose | Output Guarantee |
 | :--- | :--- | :--- |
-| `memory_engine.py` | Audits module line limits and injects context rules on demand. | Pure ASCII (`[OK]`, `[FAIL]`) |
+| `memory_engine.py` | Audits module limits, injects context rules, and diagnoses failure patterns (`--diagnose`). | Pure ASCII (`[OK]`, `[FAIL]`) |
 | `run_fullstack_eval.py` | Multi-package manager test runner (pnpm, bun, yarn, npm, python). | Structured JSON report |
-| `security_audit.py` | Detects hardcoded secrets, private keys, and verifies `.gitignore`. | Pure ASCII (`[SUCCESS]`) |
+| `security_audit.py` | Detects hardcoded secrets, operational anti-patterns, ASCII violations, and `.gitignore` flaws. | Pure ASCII (`[SUCCESS]`) |
 | `stack_inspector.py` | Analyzes repo stack and recommends official MCP servers & skills. | Pure ASCII |
 | `reset_rsi.py` | Resets tasks, logs, and changelog for starting fresh projects. | Pure ASCII + Zip backup |
 | `version_manager.py` | Bumps SemVer versions, updates `package.json`, and seals `CHANGELOG.md`. | Pure ASCII |
