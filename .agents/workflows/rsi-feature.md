@@ -11,9 +11,11 @@ Scrupulously follow these 4 sequential phases without skipping any:
 
 ## PHASE 1: Preparation & Initial Execution
 
-1. **SSOT Task Check (`docs/TASKS.md`) & IDE Artifact:**
+1. **Cold-Start Pulse & SSOT Task Check (`docs/TASKS.md`):**
+   - Run `python evals/rsi_orchestrator.py --pulse` to get an instant briefing on repository health, active tasks, git workspace, and recommended rule modules.
    - Ensure the task exists in `docs/TASKS.md` in the format `TASK-DOMAIN-XX`.
-   - If missing, formalize it immediately with ID, priority, description, and checkable criteria `[ ]`.
+   - If `docs/TASKS.md` approaches 250 lines, run `python evals/rsi_orchestrator.py --rollover` to archive completed `[x]` sprint blocks into `docs/archive/tasks/`.
+   - If the task is missing, formalize it immediately with ID, priority, `Target files`, and checkable criteria `[ ]`.
    - Update its status to `[-]` (In progress) in the Kanban and active section.
    - **Episodic Memory (IDE Artifact):** If the task requires multi-step planning or extended tracking, initialize a Markdown Artifact (`plan.md` or `task_tracking.md`) in the IDE's Brain directory. The artifact acts as an out-of-context visual board. Never dump full artifact contents into chat messages to conserve context tokens.
 

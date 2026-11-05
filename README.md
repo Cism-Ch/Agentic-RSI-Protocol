@@ -208,6 +208,7 @@ To prevent AI agents from wasting tokens on solved problems or introducing opera
 - **Operational Anti-Pattern Guard:** `evals/security_audit.py` scans application code to block public frontend secret exposure (`NEXT_PUBLIC_.*SECRET`, `VITE_.*SECRET`), non-singleton ORM instantiations (`new PrismaClient()`), and unsafe dynamic code execution (`eval`, `new Function`).
 - **Topological Awareness & Blast Radius (`--map` / `--impact`):** `python evals/stack_inspector.py --map` surfaces existing project singletons and core hubs in `O(1)`, while `--impact <file>` computes reverse dependencies and grades the Blast Radius (`LOW`, `MEDIUM`, `HIGH / CRITICAL`) before shared signatures are modified.
 - **Scope Drift Guard (`--scope` / `--strict-scope`):** `python evals/rsi_orchestrator.py --scope` cross-checks `git status` against the active `[-]` task's declared `Target files` in `docs/TASKS.md`, preventing unregistered coding and out-of-scope file modifications.
+- **Cold-Start Pulse & Auto-Rollover (`--pulse` / `--rollover`):** `python evals/rsi_orchestrator.py --pulse` delivers a `< 50ms` session cockpit briefing (health score, active task, modified files, matched rule modules), while `--rollover` deterministically archives completed `[x]` sprint blocks to `docs/archive/tasks/` so `docs/TASKS.md` never exceeds 250 lines.
 
 ---
 
@@ -349,7 +350,7 @@ All tools are in `evals/` and require Python 3.10+:
 | `python evals/memory_engine.py` | Audits module limits, injects rules, or diagnoses failed trajectories | `--audit`, `--inject [files...]`, `--diagnose` |
 | `python evals/stack_inspector.py` | Detects tech stack, builds O(1) topological map, and predicts Blast Radius | `--map`, `--impact <file>` |
 | `python evals/reset_rsi.py` | Resets task registry and changelog to a clean template baseline | `--dry-run`, `--force`, `--no-backup` |
-| `python evals/rsi_orchestrator.py` | Drives evaluation retry loop, checks guardrails, and enforces task scope | `--eval`, `--attempt 1..3`, `--guardrail`, `--scope`, `--strict-scope` |
+| `python evals/rsi_orchestrator.py` | Session pulse, evaluation retry loop, guardrails, scope guard, and task rollover | `--pulse`, `--eval`, `--guardrail`, `--scope`, `--strict-scope`, `--rollover` |
 | `python evals/version_manager.py` | Increments SemVer release and seals changelog entry | `--bump [major\|minor\|patch]` |
 
 ---

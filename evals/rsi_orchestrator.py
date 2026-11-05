@@ -12,6 +12,7 @@ import fnmatch
 import subprocess
 import json
 import argparse
+from datetime import datetime
 from pathlib import Path
 
 # UTF-8 for Windows console
@@ -24,7 +25,10 @@ if sys.stdout.encoding != 'utf-8':
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 TASKS_PATH = ROOT_DIR / "docs" / "TASKS.md"
+ARCHIVE_DIR = ROOT_DIR / "docs" / "archive" / "tasks"
 MODULES_DIR = ROOT_DIR / ".agents" / "rules" / "modules"
+TRAJECTORY_FILE = ROOT_DIR / "evals" / "logs" / "trajectory_latest.json"
+VERSION_FILE = ROOT_DIR / "VERSION"
 MAX_TASKS_LINES = 250
 MAX_MODULE_LINES = 80
 ALWAYS_ALLOWED_GOVERNANCE_FILES = {"docs/TASKS.md", "CHANGELOG.md", "VERSION"}
@@ -211,14 +215,162 @@ def check_guardrails(strict_scope: bool = False) -> bool:
 
     return passed
 
+def rollover_tasks(dry_run: bool = False) -> bool:
+    """Deterministically archives completed [x] blocks from Active Sprint in docs/TASKS.md to docs/archive/tasks/."""
+    if not TASKS_PATH.exists():
+        print("[WARN] [RSI Rollover] docs/TASKS.md not found.")
+        return False
+
+    lines = TASKS_PATH.read_text(encoding="utf-8", errors="ignore").splitlines()
+    before_count = len(lines)
+
+    kept_lines = []
+    archived_blocks = []
+    current_archived_block = []
+    in_active_sprint = False
+    archiving_task = False
+
+    task_closed_re = re.compile(r'^-\s*\[[xX]\]\s*\*\*`?(TASK-[A-Z0-9\-]+)`?')
+    any_top_task_re = re.compile(r'^-\s*\[[ xX\-]\]\s*\*\*`?(TASK-[A-Z0-9\-]+)`?')
+
+    for line in lines:
+        if line.startswith("## Active Sprint"):
+            in_active_sprint = True
+            archiving_task = False
+            kept_lines.append(line)
+            continue
+
+        if line.startswith("## ") and not line.startswith("## Active Sprint"):
+            if current_archived_block:
+                archived_blocks.append("\n".join(current_archived_block).rstrip())
+                current_archived_block = []
+            in_active_sprint = False
+            archiving_task = False
+            kept_lines.append(line)
+            continue
+
+        if in_active_sprint:
+            if task_closed_re.match(line):
+                if current_archived_block:
+                    archived_blocks.append("\n".join(current_archived_block).rstrip())
+                current_archived_block = [line]
+                archiving_task = True
+                continue
+            elif any_top_task_re.match(line) or line.strip() == "---":
+                if current_archived_block:
+                    archived_blocks.append("\n".join(current_archived_block).rstrip())
+                    current_archived_block = []
+                archiving_task = False
+                kept_lines.append(line)
+                continue
+            elif archiving_task:
+                current_archived_block.append(line)
+                continue
+
+        kept_lines.append(line)
+
+    if current_archived_block:
+        archived_blocks.append("\n".join(current_archived_block).rstrip())
+
+    if not archived_blocks:
+        print(f"[INFO] [RSI Rollover] 0 completed [x] task blocks found in Active Sprint ({before_count}/{MAX_TASKS_LINES} lines).")
+        return True
+
+    archive_filename = f"sprint_archive_{datetime.now().strftime('%Y_%m')}.md"
+    archive_path = ARCHIVE_DIR / archive_filename
+    after_count = len(kept_lines)
+
+    if dry_run:
+        print(f"[INFO] [RSI Rollover Dry-Run] Would archive {len(archived_blocks)} completed task block(s) to docs/archive/tasks/{archive_filename}.")
+        print(f"       Line count reduction: {before_count} -> {after_count}/{MAX_TASKS_LINES} lines.")
+        return True
+
+    ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
+    header = f"# Archived Sprint Tasks ({datetime.now().strftime('%Y-%m')})\n\n"
+    existing = archive_path.read_text(encoding="utf-8") if archive_path.exists() else header
+    if not existing.endswith("\n\n"):
+        existing = existing.rstrip() + "\n\n"
+    updated_archive = existing + "\n\n".join(archived_blocks) + "\n"
+    archive_path.write_text(updated_archive, encoding="utf-8")
+
+    TASKS_PATH.write_text("\n".join(kept_lines) + "\n", encoding="utf-8")
+    print(f"[OK] [RSI Rollover] Archived {len(archived_blocks)} completed task block(s) -> docs/archive/tasks/{archive_filename}")
+    print(f"     docs/TASKS.md compacted: {before_count} -> {after_count}/{MAX_TASKS_LINES} lines.")
+    return True
+
+def run_session_pulse() -> None:
+    """Outputs a <25 line Cold-Start Cockpit Briefing for instant agent situational awareness."""
+    version = VERSION_FILE.read_text(encoding="utf-8").strip() if VERSION_FILE.exists() else "0.1.0"
+    tasks_lines = len(TASKS_PATH.read_text(encoding="utf-8", errors="ignore").splitlines()) if TASKS_PATH.exists() else 0
+
+    eval_status = "UNINITIALIZED"
+    if TRAJECTORY_FILE.exists():
+        try:
+            tdata = json.loads(TRAJECTORY_FILE.read_text(encoding="utf-8"))
+            eval_status = f"{tdata.get('status', 'UNKNOWN')} ({tdata.get('total_score', 0)}/100, mode={tdata.get('mode', 'FULL')})"
+        except Exception:
+            eval_status = "PARSE_ERROR"
+
+    print(f"=== [RSI SESSION PULSE | Protocol v{version}] ===")
+    print(f"1. Health & Judge : {eval_status} | TASKS.md capacity: {tasks_lines}/{MAX_TASKS_LINES} lines")
+
+    # Active & pending tasks
+    active = parse_active_tasks()
+    if active:
+        for t in active:
+            t_files = ", ".join(t["targets"][:5]) if t["targets"] else "None declared"
+            print(f"2. Active Task    : {t['id']} -> Targets: {t_files}")
+    else:
+        print("2. Active Task    : None marked [-]. Mark a task [-] in docs/TASKS.md before editing code.")
+
+    # Working tree & scope status
+    mod_files = get_modified_workspace_files()
+    if mod_files:
+        print(f"3. Git Workspace  : {len(mod_files)} modified file(s): {', '.join(mod_files[:5])}")
+    else:
+        print("3. Git Workspace  : Clean working tree (0 uncommitted changes)")
+
+    check_scope_drift(strict=False)
+
+    # Auto-resolve relevant rule modules for active target files + modified files
+    candidate_files = list(mod_files)
+    for t in active:
+        candidate_files.extend(t["targets"])
+    if candidate_files:
+        try:
+            from memory_engine import MODULE_TRIGGERS
+            matched_mods = set()
+            for cf in candidate_files:
+                cf_low = cf.lower().replace("\\", "/")
+                for mod, kw_list in MODULE_TRIGGERS.items():
+                    if any(k in cf_low for k in kw_list):
+                        matched_mods.add(mod)
+            if matched_mods:
+                print(f"4. Rule Modules   : {', '.join(sorted(matched_mods))} (run 'memory_engine.py --inject' to load)")
+            else:
+                print("4. Rule Modules   : system_core.md (default invariant rules)")
+        except Exception:
+            pass
+
 def main():
     parser = argparse.ArgumentParser(description="RSI Protocol Orchestrator")
+    parser.add_argument("--pulse", action="store_true", help="1-command Cold-Start Cockpit Briefing (<50ms)")
     parser.add_argument("--eval", action="store_true", help="Execute reflexive evaluation")
     parser.add_argument("--attempt", type=int, default=1, help="Attempt number (1 to 3)")
     parser.add_argument("--guardrail", action="store_true", help="Verify integrity guardrails and task scope")
     parser.add_argument("--scope", action="store_true", help="Verify working tree alignment with active [-] task Target files")
     parser.add_argument("--strict-scope", action="store_true", help="Fail with exit code 1 on any scope drift or unregistered coding")
+    parser.add_argument("--rollover", action="store_true", help="Archive completed [x] sprint blocks from docs/TASKS.md to docs/archive/tasks/")
+    parser.add_argument("--dry-run", action="store_true", help="Preview --rollover without modifying files")
     args = parser.parse_args()
+
+    if args.pulse:
+        run_session_pulse()
+        sys.exit(0)
+
+    if args.rollover:
+        ok = rollover_tasks(dry_run=args.dry_run)
+        sys.exit(0 if ok else 1)
 
     if args.scope or args.strict_scope:
         ok = check_scope_drift(strict=args.strict_scope)

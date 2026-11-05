@@ -77,7 +77,7 @@ Rather than relying solely on passive markdown instructions or heavy post-facto 
 | `stack_inspector.py` | Analyzes stack, generates $O(1)$ Topological Map (`--map`), and computes Blast Radius (`--impact`). | Pure ASCII |
 | `reset_rsi.py` | Resets tasks, logs, and changelog for starting fresh projects. | Pure ASCII + Zip backup |
 | `version_manager.py` | Bumps SemVer versions, updates `package.json`, and seals `CHANGELOG.md`. | Pure ASCII |
-| `rsi_orchestrator.py` | Orchestrates retries (1..3), validates guardrails, and checks task Scope Drift (`--scope`). | Pure ASCII + Exit codes |
+| `rsi_orchestrator.py` | Cold-start session pulse (`--pulse`), retries (1..3), guardrails, Scope Drift (`--scope`), and task rollover (`--rollover`). | Pure ASCII + Exit codes |
 
 ---
 
