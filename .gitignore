@@ -66,8 +66,12 @@ wheels/
 .installed.cfg
 *.egg
 
-# Logs & Debugging
+# Logs, Backups & Debugging
 logs/
+evals/logs/
+backups/
+evals/backups/
+*.bak
 *.log
 npm-debug.log*
 yarn-debug.log*

@@ -148,6 +148,66 @@ def matches_target_pattern(file_path: str, patterns: list[str]) -> bool:
             return True
     return False
 
+def classify_task_scope(targets: list[str]) -> dict:
+    """Computes task Scope size [Scope: XS / S / M / L / XL] and cumulative Blast Radius for declared Target files."""
+    if not targets:
+        return {
+            "scope_badge": "[Scope: XS]",
+            "max_tier": "LOW",
+            "high_count": 0,
+            "medium_count": 0,
+            "target_impacts": [],
+            "directive": "System 1 fast execution"
+        }
+
+    target_impacts = []
+    high_count = 0
+    medium_count = 0
+    try:
+        from stack_inspector import compute_blast_radius
+        for tf in targets:
+            if "*" in tf:
+                continue
+            info = compute_blast_radius(tf)
+            target_impacts.append(info)
+            if info["tier"] == "HIGH":
+                high_count += 1
+            elif info["tier"] == "MEDIUM":
+                medium_count += 1
+    except Exception:
+        pass
+
+    num_targets = len(targets)
+    if num_targets >= 9 or high_count >= 2:
+        badge = "[Scope: XL]"
+        max_tier = "HIGH / CRITICAL"
+        directive = "OVERSIZED TASK WARNING: Consider splitting into sub-tasks (TASK-DOM-XXa/b); System 2 required"
+    elif num_targets >= 6 or high_count == 1:
+        badge = "[Scope: L]"
+        max_tier = "HIGH" if high_count else "MEDIUM"
+        directive = "System 2 architectural reasoning required; verify consumer contracts"
+    elif num_targets >= 4 or medium_count >= 1:
+        badge = "[Scope: M]"
+        max_tier = "MEDIUM" if medium_count else "LOW"
+        directive = "Run --quick milestone checkpoint midway"
+    elif num_targets >= 2:
+        badge = "[Scope: S]"
+        max_tier = "LOW"
+        directive = "Localized System 1 feature edit"
+    else:
+        badge = "[Scope: XS]"
+        max_tier = "LOW"
+        directive = "Fast System 1 micro-edit"
+
+    return {
+        "scope_badge": badge,
+        "max_tier": max_tier,
+        "high_count": high_count,
+        "medium_count": medium_count,
+        "target_impacts": target_impacts,
+        "directive": directive
+    }
+
 def check_scope_drift(strict: bool = False) -> bool:
     """Verifies that git working tree changes align with an active [-] task in docs/TASKS.md."""
     modified_files = [
@@ -173,15 +233,21 @@ def check_scope_drift(strict: bool = False) -> bool:
         task_ids.append(t["id"])
         all_targets.extend(t["targets"])
 
+    sizing = classify_task_scope(all_targets)
     out_of_scope = [f for f in modified_files if not matches_target_pattern(f, all_targets)]
     if out_of_scope:
         tag = "[FAIL]" if strict else "[WARN]"
-        print(f"{tag} [Scope Drift] {len(out_of_scope)} modified file(s) outside declared Target files for {', '.join(task_ids)}:")
+        print(f"{tag} [Scope Drift] {sizing['scope_badge']} {len(out_of_scope)} modified file(s) outside declared Target files for {', '.join(task_ids)}:")
         for oof in out_of_scope:
             print(f"  - {oof} (Declare in docs/TASKS.md Target files or revert)")
         return not strict
 
-    print(f"[OK] Scope Guard: All {len(modified_files)} modified file(s) align with active task(s) ({', '.join(task_ids)}).")
+    print(
+        f"[OK] Scope Guard: {sizing['scope_badge']} (Blast Radius: {sizing['max_tier']}) - "
+        f"All {len(modified_files)} modified file(s) align with {', '.join(task_ids)}."
+    )
+    if sizing["scope_badge"] == "[Scope: XL]":
+        print(f"     [WARN] {sizing['directive']}")
     return True
 
 def check_guardrails(strict_scope: bool = False) -> bool:
@@ -314,12 +380,18 @@ def run_session_pulse() -> None:
     print(f"=== [RSI SESSION PULSE | Protocol v{version}] ===")
     print(f"1. Health & Judge : {eval_status} | TASKS.md capacity: {tasks_lines}/{MAX_TASKS_LINES} lines")
 
-    # Active & pending tasks
+    # Active & pending tasks with automatic [Scope: XS..XL] & Blast Radius
     active = parse_active_tasks()
     if active:
         for t in active:
-            t_files = ", ".join(t["targets"][:5]) if t["targets"] else "None declared"
-            print(f"2. Active Task    : {t['id']} -> Targets: {t_files}")
+            sizing = classify_task_scope(t["targets"])
+            impact_summary = []
+            for imp in sizing["target_impacts"][:5]:
+                impact_summary.append(f"{imp['target']} ({imp['tier']}:{imp['count']})")
+            t_display = ", ".join(impact_summary) if impact_summary else "None declared"
+            print(f"2. Active Task    : {t['id']} {sizing['scope_badge']} | Blast Radius: {sizing['max_tier']}")
+            print(f"   |-- Targets    : {t_display}")
+            print(f"   \\-- Directive  : {sizing['directive']}")
     else:
         print("2. Active Task    : None marked [-]. Mark a task [-] in docs/TASKS.md before editing code.")
 

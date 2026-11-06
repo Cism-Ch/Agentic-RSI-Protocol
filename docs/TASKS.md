@@ -28,12 +28,22 @@
 |                         |  |                         |  | [x] TASK-ORCH-01        |
 |                         |  |                         |  | [x] TASK-DOCS-03        |
 |                         |  |                         |  | [x] TASK-TOOL-01        |
+|                         |  |                         |  | [x] TASK-PRUNE-SCOPE-01 |
 +-------------------------+  +-------------------------+  +-------------------------+
 ```
 
 ---
 
 ## Active Sprint 01: Project Setup & Initialization
+
+- [x] **`TASK-PRUNE-SCOPE-01` - Autonomous Stack Profiler, Lossless Skill Pruning & `[Scope: XS..XL]` Sizing**
+  - **Priority:** HIGH
+  - **Target files:** `evals/stack_inspector.py`, `evals/rsi_orchestrator.py`, `.gitignore`, `README.md`, `docs/ARCHITECTURE.md`, `docs/TASKS.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-PRUNE-SCOPE-01.01`: Implement autonomous `discover_project_profile()` and `compute_blast_radius()` in `evals/stack_inspector.py`.
+    - [x] `TASK-PRUNE-SCOPE-01.02`: Implement 4-step lossless skill pruner (`--prune-skills`, `.bak` ZIP + `unpacked/`, `PRUNED_SKILLS.log`, `RESTORE_MANIFEST.json`, `restore_skill.py`) in `evals/stack_inspector.py`.
+    - [x] `TASK-PRUNE-SCOPE-01.03`: Implement `[Scope: XS / S / M / L / XL]` task sizing and automatic target Blast Radius display in `evals/rsi_orchestrator.py`.
+    - [x] `TASK-PRUNE-SCOPE-01.04`: Update `.gitignore`, `README.md`, and `docs/ARCHITECTURE.md`, and validate with `python evals/run_fullstack_eval.py` (`100/100 PASS`).
 
 - [x] **`TASK-TOOL-01` - Tooling Status & Conversational Installation Request in Pulse**
   - **Priority:** HIGH
@@ -179,3 +189,4 @@
 | 2026-11-05 | TASK-ORCH-01 | Cold-Start Session Pulse (`--pulse`) & Automated Task Rollover (`--rollover`) | `evals/rsi_orchestrator.py`, `.agents/workflows/rsi-feature.md`, `README.md`, `docs/ARCHITECTURE.md`, `docs/TASKS.md` |
 | 2026-11-05 | TASK-DOCS-03 | Comprehensive README Overhaul with Hero Header & Full Protocol Cycle | `README.md`, `docs/TASKS.md` |
 | 2026-11-05 | TASK-TOOL-01 | Tooling Status & Conversational Installation Request in Pulse | `evals/stack_inspector.py`, `evals/rsi_orchestrator.py`, `docs/TASKS.md` |
+| 2026-11-06 | TASK-PRUNE-SCOPE-01 | Autonomous Stack Profiler, Lossless Skill Pruning & `[Scope: XS..XL]` Sizing | `evals/stack_inspector.py`, `evals/rsi_orchestrator.py`, `.gitignore`, `README.md`, `docs/ARCHITECTURE.md`, `docs/TASKS.md` |

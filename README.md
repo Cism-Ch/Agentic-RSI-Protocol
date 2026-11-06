@@ -240,13 +240,15 @@ To prevent AI agents from wasting tokens on solved problems or introducing opera
 - **Fast-Fail Diagnostic Reflex (`--diagnose`):** When an evaluation fails, `python evals/memory_engine.py --diagnose` inspects `evals/logs/trajectory_latest.json` in `< 10ms` and maps known error signatures directly to 1-line deterministic fixes before the agent burns tokens guessing.
 - **Operational Anti-Pattern Guard:** `evals/security_audit.py` scans application code to block public frontend secret exposure (`NEXT_PUBLIC_.*SECRET`, `VITE_.*SECRET`), non-singleton ORM instantiations (`new PrismaClient()`), and unsafe dynamic code execution (`eval`, `new Function`).
 
-### 9. Topological Repo Map & Predictive Blast Radius
+### 9. Topological Repo Map, Autonomous Stack Profiler & Lossless Skill Pruning
 - **$O(1)$ Topological Map (`--map`):** `python evals/stack_inspector.py --map` scans the codebase and outputs existing singletons (ORM, Supabase, Auth, Redis, Storage) and top dependency hubs in `< 25 lines`. The agent immediately knows where existing building blocks live without performing 15 blind `grep` searches.
-- **Predictive Blast Radius (`--impact <file>`):** `python evals/stack_inspector.py --impact <file>` computes reverse dependencies across JS/TS and Python files, classifying the edit as `LOW` (0-2 dependents), `MEDIUM` (3-7 dependents), or `HIGH / CRITICAL` (8+ dependents), alerting the agent to exercise System 2 reasoning before changing shared signatures.
+- **Predictive Blast Radius (`--impact <file>`):** `python evals/stack_inspector.py --impact <file>` computes reverse dependencies across source files, classifying the edit as `LOW` (0-2 dependents), `MEDIUM` (3-7 dependents), or `HIGH / CRITICAL` (8+ dependents), alerting the agent to exercise System 2 reasoning before changing shared signatures.
+- **Autonomous Stack Profiler & 4-Step Lossless Skill Pruner (`--profile` / `--prune-skills`):** `evals/stack_inspector.py` autonomously discovers the project's active languages, frameworks, bundlers, and installed packages from root manifests and source files. Running `python evals/stack_inspector.py --prune-skills` filters `.agents/skills/` against the real stack (removing unused language SDKs, incompatible bundler scaffolds, unused cloud sub-products, out-of-scope marketing docs, and upstream maintainer metadata while preserving every `SKILL.md` entrypoint). All pruned files are backed up losslessly in `backups/skills/skills_pruned.bak` (ZIP) and `backups/skills/unpacked/` ($O(1)$ mirror), alongside `PRUNED_SKILLS.log`, `RESTORE_MANIFEST.json`, and an auto-generated `backups/skills/restore_skill.py` utility (`--list`, `--find`, `--restore`, `--restore-all`).
 
-### 10. Scope Drift Guard & Automated Task Rollover
+### 10. `[Scope: XS..XL]` Sizing, Scope Drift Guard & Automated Task Rollover
+- **Automatic `[Scope: XS / S / M / L / XL]` Sizing & Blast Radius:** Both `--pulse` and `--scope` automatically compute the Blast Radius of all declared `Target files:` and assign a task scope badge (`XS`, `S`, `M`, `L`, or `XL`). Tasks reaching `[Scope: XL]` (9+ target files or 2+ `HIGH` Blast Radius hubs) trigger an automatic warning advising the agent to split the task into smaller sub-tasks (`TASK-DOM-XXa/b`).
 - **Scope Drift Guard (`--scope` / `--strict-scope`):** `python evals/rsi_orchestrator.py --scope` cross-checks `git status --porcelain` against the active `[-]` task's declared `Target files:` in `docs/TASKS.md`. Any uncommitted modifications to undeclared files are flagged immediately, preventing over-zealous refactoring.
-- **Cold-Start Pulse (`--pulse`):** `python evals/rsi_orchestrator.py --pulse` gives any new agent session an instant cockpit briefing (< 50ms) detailing protocol version, judge health, active task, git workspace status, and auto-resolved rule modules.
+- **Cold-Start Pulse (`--pulse`):** `python evals/rsi_orchestrator.py --pulse` gives any new agent session an instant cockpit briefing (< 50ms) detailing protocol version, judge health, active task with `[Scope: XS..XL]` and Blast Radius, git workspace status, auto-resolved rule modules, and missing official tooling.
 - **Automated Rollover (`--rollover`):** When `docs/TASKS.md` nears 250 lines, `python evals/rsi_orchestrator.py --rollover` archives completed `[x]` sprint tasks to `docs/archive/tasks/sprint_archive_YYYY_MM.md` while leaving active tasks and historical tables completely intact.
 
 ---
@@ -393,7 +395,7 @@ All tools are in `evals/` and require Python 3.10+:
 | `python evals/run_fullstack_eval.py` | Runs all deterministic checks (types, lint, security, db) | `--quick` (skips production build) |
 | `python evals/security_audit.py` | Scans repository for leaked secrets, operational anti-patterns, and ASCII hygiene | *(None)* |
 | `python evals/memory_engine.py` | Audits module limits, injects rules, or diagnoses failed trajectories | `--audit`, `--inject [files...]`, `--diagnose` |
-| `python evals/stack_inspector.py` | Detects tech stack, builds O(1) topological map, and predicts Blast Radius | `--map`, `--impact <file>` |
+| `python evals/stack_inspector.py` | Autonomous stack profiler, O(1) topological map, Blast Radius, and lossless skill pruner | `--map`, `--impact <file>`, `--profile`, `--prune-skills`, `--dry-run` |
 | `python evals/reset_rsi.py` | Resets task registry and changelog to a clean template baseline | `--dry-run`, `--force`, `--no-backup` |
 | `python evals/rsi_orchestrator.py` | Session pulse, evaluation retry loop, guardrails, scope guard, and task rollover | `--pulse`, `--eval`, `--guardrail`, `--scope`, `--strict-scope`, `--rollover`, `--dry-run` |
 | `python evals/version_manager.py` | Increments SemVer release and seals changelog entry | `--bump [major\|minor\|patch]` |

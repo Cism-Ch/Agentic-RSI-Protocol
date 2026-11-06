@@ -74,10 +74,10 @@ Rather than relying solely on passive markdown instructions or heavy post-facto 
 | `memory_engine.py` | Audits module limits, injects context rules, and diagnoses failure patterns (`--diagnose`). | Pure ASCII (`[OK]`, `[FAIL]`) |
 | `run_fullstack_eval.py` | Multi-package manager test runner (pnpm, bun, yarn, npm, python). | Structured JSON report |
 | `security_audit.py` | Detects hardcoded secrets, operational anti-patterns, ASCII violations, and `.gitignore` flaws. | Pure ASCII (`[SUCCESS]`) |
-| `stack_inspector.py` | Analyzes stack, generates $O(1)$ Topological Map (`--map`), and computes Blast Radius (`--impact`). | Pure ASCII |
+| `stack_inspector.py` | Autonomous stack profiler (`--profile`), $O(1)$ Topological Map (`--map`), Blast Radius (`--impact`), and 4-step lossless skill pruner (`--prune-skills`). | Pure ASCII |
 | `reset_rsi.py` | Resets tasks, logs, and changelog for starting fresh projects. | Pure ASCII + Zip backup |
 | `version_manager.py` | Bumps SemVer versions, updates `package.json`, and seals `CHANGELOG.md`. | Pure ASCII |
-| `rsi_orchestrator.py` | Cold-start session pulse (`--pulse`), retries (1..3), guardrails, Scope Drift (`--scope`), and task rollover (`--rollover`). | Pure ASCII + Exit codes |
+| `rsi_orchestrator.py` | Cold-start session pulse (`--pulse`), `[Scope: XS..XL]` sizing, retries (1..3), guardrails, Scope Drift (`--scope`), and task rollover (`--rollover`). | Pure ASCII + Exit codes |
 
 ---
 
