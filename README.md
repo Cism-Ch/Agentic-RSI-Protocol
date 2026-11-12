@@ -47,8 +47,9 @@ It establishes an inviolable operational contract between human developers and a
   - [6. Zero-Leak Security Audit](#6-zero-leak-security-audit)
   - [7. Deterministic Pure ASCII & Emoji Hygiene Enforcement](#7-deterministic-pure-ascii--emoji-hygiene-enforcement)
   - [8. Hybrid Pattern Recognition & Fast-Fail Diagnostic Reflex](#8-hybrid-pattern-recognition--fast-fail-diagnostic-reflex)
-  - [9. Topological Repo Map & Predictive Blast Radius](#9-topological-repo-map--predictive-blast-radius)
-  - [10. Scope Drift Guard & Automated Task Rollover](#10-scope-drift-guard--automated-task-rollover)
+  - [9. Topological Repo Map & Predictive Blast Radius](#9-topological-repo-map-autonomous-stack-profiler--lossless-skill-pruning)
+  - [10. Scope Sizing, Drift Guard & Task Rollover](#10-scope-xsxl-sizing-scope-drift-guard--automated-task-rollover)
+  - [11. Telemetry-Native Execution & Observability](#11-telemetry-native-execution--zero-estimation-observability)
 - [Protocol Versioning Specification](#protocol-versioning-specification)
 - [Quick Start Guide](#quick-start-guide)
   - [Using as a GitHub Template](#using-as-a-github-template)
@@ -116,8 +117,9 @@ The **Agentic RSI Protocol** introduces a deterministic, self-contained closed f
 - **Instant Situational Awareness:** A 1-command cold-start cockpit briefing (`evals/rsi_orchestrator.py --pulse`) delivers repo health, active tasks, git status, and matched rules in `< 50ms`.
 - **Topological Discovery & Blast Radius:** Identifies singletons in $O(1)$ (`--map`) and computes reverse-dependency impact (`--impact <file>`) before altering shared interfaces.
 - **Dynamic Context Injection:** Rather than loading all engineering rules into every prompt, rules are split into modular sub-playbooks (`< 80 lines` each) in `.agents/rules/modules/`. The engine inspects target files and injects only relevant rules.
-- **Deterministic Judge & Fast-Fail Reflex:** A lightweight evaluation harness (`evals/run_fullstack_eval.py`) validates typecheck, linters, schemas, and security. On failure, `--diagnose` maps known error signatures to 1-line fixes in `< 10ms`.
+- **Deterministic Judge & Fast-Fail Reflex:** A lightweight evaluation harness (`evals/run_fullstack_eval.py`) validates typecheck, linters, schemas, and security while timing every check (`duration_ms`). On failure, `--diagnose` maps known error signatures to 1-line fixes in `< 10ms`.
 - **Scope Discipline & Automated Rollover:** Changes must match the active task's `Target files` (`--scope`), and completed tasks are archived deterministically (`--rollover`) to maintain `docs/TASKS.md` under 250 lines.
+- **Telemetry-Native Observability & Rule ROI:** Tracks injected rule IDs in `.agents/telemetry/active_session.json`, persists structured `scope_report` metrics, credits `prevented_errors_count` when rules hold on passing runs, and extracts real token/tool counts from local IDE session transcripts (`evals/telemetry_hook.py`) with an autonomous `cognitive_state.json` fallback.
 
 ---
 
@@ -145,8 +147,9 @@ flowchart TD
     
     RetryCount -->|No| HumanEscalation["Halt & Report Roadblock\nRequest Human Guidance"]
     
-    ScoreCheck -->|Pass 100| ScopeGuard["Scope Drift Guard Verification\nrsi_orchestrator.py --scope"]
-    ScopeGuard --> IncidentCheck{"Bug Fixed or\nSecurity Finding?"}
+    ScoreCheck -->|Pass 100| ScopeGuard["Scope Drift Guard Verification\nrsi_orchestrator.py --scope -> scope_report"]
+    ScopeGuard --> TelemetryHook["Telemetry Extraction & Rule ROI\ntelemetry_hook.py (LIVE_TRANSCRIPT / cognitive_state.json)"]
+    TelemetryHook --> IncidentCheck{"Bug Fixed or\nSecurity Finding?"}
     
     IncidentCheck -->|Yes| MetaCognition["Phase 3: Meta-Cognitive Mutation\nAssume meta_optimizer.md role"]
     MetaCognition --> DistillRule["Extract Actionable [R-DOM-XX] Rule\nUpdate module (< 80 lines ceiling)"]
@@ -205,6 +208,7 @@ The evaluation engine (`evals/run_fullstack_eval.py`) automatically discovers pr
 - Code style and linting (invokes project `lint` script).
 - ORM and database verification (Prisma schema validation, Drizzle checks).
 - Security audits (secret leakage, operational anti-patterns, and `.gitignore` airtightness).
+- Granular per-step timing: measures `duration_ms` per check (`checks`) and wall-clock `total_duration_ms` in `evals/logs/trajectory_latest.json`.
 - Compact failure filtering: captures and outputs at most 10 significant lines per failed step to avoid overflowing prompt context.
 
 ### 5. Meta-Cognitive Mutation Loop
@@ -247,9 +251,15 @@ To prevent AI agents from wasting tokens on solved problems or introducing opera
 
 ### 10. `[Scope: XS..XL]` Sizing, Scope Drift Guard & Automated Task Rollover
 - **Automatic `[Scope: XS / S / M / L / XL]` Sizing & Blast Radius:** Both `--pulse` and `--scope` automatically compute the Blast Radius of all declared `Target files:` and assign a task scope badge (`XS`, `S`, `M`, `L`, or `XL`). Tasks reaching `[Scope: XL]` (9+ target files or 2+ `HIGH` Blast Radius hubs) trigger an automatic warning advising the agent to split the task into smaller sub-tasks (`TASK-DOM-XXa/b`).
-- **Scope Drift Guard (`--scope` / `--strict-scope`):** `python evals/rsi_orchestrator.py --scope` cross-checks `git status --porcelain` against the active `[-]` task's declared `Target files:` in `docs/TASKS.md`. Any uncommitted modifications to undeclared files are flagged immediately, preventing over-zealous refactoring.
-- **Cold-Start Pulse (`--pulse`):** `python evals/rsi_orchestrator.py --pulse` gives any new agent session an instant cockpit briefing (< 50ms) detailing protocol version, judge health, active task with `[Scope: XS..XL]` and Blast Radius, git workspace status, auto-resolved rule modules, and missing official tooling.
+- **Scope Drift Guard (`--scope` / `--strict-scope`):** `python evals/rsi_orchestrator.py --scope` cross-checks `git status --porcelain` against the active `[-]` task's declared `Target files:` in `docs/TASKS.md` and exposes `get_scope_drift_report()`. Use `--guardrail --strict-scope` to enforce line ceilings and strict scope alignment together.
+- **Cold-Start Pulse (`--pulse`):** `python evals/rsi_orchestrator.py --pulse` gives any new agent session an instant cockpit briefing (< 50ms) detailing protocol version, judge health, active task with `[Scope: XS..XL]`, sprint ID, Blast Radius, git workspace status, auto-resolved rule modules, and missing official tooling, while initializing `.agents/telemetry/active_session.json`.
 - **Automated Rollover (`--rollover`):** When `docs/TASKS.md` nears 250 lines, `python evals/rsi_orchestrator.py --rollover` archives completed `[x]` sprint tasks to `docs/archive/tasks/sprint_archive_YYYY_MM.md` while leaving active tasks and historical tables completely intact.
+
+### 11. Telemetry-Native Execution & Zero-Estimation Observability
+To prevent ephemeral runtime telemetry from disappearing into terminal scrollback, the protocol records deterministic telemetry across every phase:
+- **Active Session Tracking (`.agents/telemetry/active_session.json`):** `rsi_orchestrator.py --pulse` initializes `task_id`, `task_title`, `sprint_id`, and `session_started_at`; `memory_engine.py --inject` records queried files, loaded modules, and extracted `[R-DOM-XX]` rule IDs; `--diagnose` logs error rule matches in `last_diagnosis_matches`. Passing runs automatically reset `active_session.json` for the next task.
+- **Orchestrated Trajectory Enrichment (`--eval --attempt <N>`):** After running `run_fullstack_eval.py --quick --no-telemetry`, `rsi_orchestrator.py` enriches `evals/logs/trajectory_latest.json` with `attempt`, `task_id`, `task_title`, `sprint_id`, `scope_report`, `injected_rule_ids`, and `task_elapsed_sec` before invoking the telemetry hook once.
+- **Live Transcript Extraction & Autonomous Fallback (`evals/telemetry_hook.py`):** Inspects local IDE session logs (`transcript.jsonl` / `transcript_full.jsonl`) to extract real `prompt_tokens` (`input_tokens + cache_read_tokens`), `cached_tokens`, `output_tokens`, `useful_actions`, `wasted_actions`, and the active LLM model (`"telemetry_source": "LIVE_TRANSCRIPT"`). In headless CI or external terminals, it marks `"telemetry_source": "ESTIMATED_FALLBACK"` explicitly. It forwards telemetry to `cognitive-rsi-ops` CLI when available or autonomously updates `.agents/telemetry/cognitive_state.json` and increments `prevented_errors_count` on injected rules when runs pass.
 
 ---
 
@@ -360,9 +370,10 @@ Agentic-RSI-Protocol/
 |   |       |-- pattern_recognition.md # Cognitive routing (System 1/2) & O(1) mimicry
 |   |       |-- security_auth.md     # Secrets, sessions, permissions, encryption
 |   |       \-- ui_frontend.md       # Responsive UI, accessibility, 4 visual states
-|   \-- workflows/
-|       |-- rsi-feature.md           # 4-phase feature development workflow
-|       \-- reset-rsi.md             # Clean-slate project reset workflow
+|   |-- workflows/
+|   |   |-- rsi-feature.md           # 4-phase feature development workflow
+|   |   \-- reset-rsi.md             # Clean-slate project reset workflow
+|   \-- telemetry/                   # Active session state & cognitive KPIs (runtime)
 |-- evals/
 |   |-- memory_engine.py             # Memory auditor, rule injector & --diagnose reflex
 |   |-- reset_rsi.py                 # Pure ASCII task & changelog reset engine
@@ -370,6 +381,7 @@ Agentic-RSI-Protocol/
 |   |-- run_fullstack_eval.py        # Adaptive deterministic judge (multi-package managers)
 |   |-- security_audit.py            # Static secret scanner, operational audit & ASCII guard
 |   |-- stack_inspector.py           # O(1) topological map & predictive blast radius analyzer
+|   |-- telemetry_hook.py            # Live transcript extractor & standalone ROI recorder
 |   \-- version_manager.py           # SemVer version bump & changelog sealer
 |-- docs/
 |   |-- ARCHITECTURE.md              # In-depth architectural guide & diagrams
@@ -392,12 +404,13 @@ All tools are in `evals/` and require Python 3.10+:
 
 | Command | Purpose | Flags / Options |
 | :--- | :--- | :--- |
-| `python evals/run_fullstack_eval.py` | Runs all deterministic checks (types, lint, security, db) | `--quick` (skips production build) |
+| `python evals/run_fullstack_eval.py` | Runs all deterministic checks with per-step `duration_ms` timing | `--quick` (skips prod build), `--no-telemetry` |
 | `python evals/security_audit.py` | Scans repository for leaked secrets, operational anti-patterns, and ASCII hygiene | *(None)* |
-| `python evals/memory_engine.py` | Audits module limits, injects rules, or diagnoses failed trajectories | `--audit`, `--inject [files...]`, `--diagnose` |
+| `python evals/memory_engine.py` | Audits module limits, injects rules (+ session trace), or diagnoses failures | `--audit`, `--inject [files...]`, `--diagnose` |
 | `python evals/stack_inspector.py` | Autonomous stack profiler, O(1) topological map, Blast Radius, and lossless skill pruner | `--map`, `--impact <file>`, `--profile`, `--prune-skills`, `--dry-run` |
 | `python evals/reset_rsi.py` | Resets task registry and changelog to a clean template baseline | `--dry-run`, `--force`, `--no-backup` |
-| `python evals/rsi_orchestrator.py` | Session pulse, evaluation retry loop, guardrails, scope guard, and task rollover | `--pulse`, `--eval`, `--guardrail`, `--scope`, `--strict-scope`, `--rollover`, `--dry-run` |
+| `python evals/rsi_orchestrator.py` | Session pulse, evaluation retry loop, guardrails, scope guard, and task rollover | `--pulse`, `--eval`, `--attempt N`, `--guardrail`, `--scope`, `--strict-scope`, `--rollover`, `--dry-run` |
+| `python evals/telemetry_hook.py` | Records latest trajectory telemetry, real transcript tokens, and rule ROI | *(None)* |
 | `python evals/version_manager.py` | Increments SemVer release and seals changelog entry | `--bump [major\|minor\|patch]` |
 
 ---

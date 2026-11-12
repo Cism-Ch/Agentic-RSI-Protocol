@@ -30,12 +30,21 @@
 |                         |  |                         |  | [x] TASK-TOOL-01        |
 |                         |  |                         |  | [x] TASK-PRUNE-SCOPE-01 |
 |                         |  |                         |  | [x] TASK-TELEM-01       |
+|                         |  |                         |  | [x] TASK-DOCS-04        |
 +-------------------------+  +-------------------------+  +-------------------------+
 ```
 
 ---
 
 ## Active Sprint 01: Project Setup & Initialization
+
+- [x] **`TASK-DOCS-04` - Update README for v2.1 Telemetry-Native Capabilities**
+  - **Priority:** MEDIUM
+  - **Target files:** `README.md`, `docs/TASKS.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-DOCS-04.01`: Document active session tracking, per-step `duration_ms`, live transcript extraction (`evals/telemetry_hook.py`), and rule ROI in `README.md`.
+    - [x] `TASK-DOCS-04.02`: Update Table of Contents, Mermaid lifecycle diagram, Repository Layout, and CLI Tooling Reference in `README.md` (pure ASCII).
+    - [x] `TASK-DOCS-04.03`: Validate with `python evals/run_fullstack_eval.py` (`100/100 PASS`) and `python evals/rsi_orchestrator.py --guardrail --strict-scope`.
 
 - [x] **`TASK-TELEM-01` - Telemetry-Native Execution & Real Transcript Extraction (v2.1)**
   - **Priority:** HIGH
@@ -201,3 +210,4 @@
 | 2026-11-05 | TASK-TOOL-01 | Tooling Status & Conversational Installation Request in Pulse | `evals/stack_inspector.py`, `evals/rsi_orchestrator.py`, `docs/TASKS.md` |
 | 2026-11-06 | TASK-PRUNE-SCOPE-01 | Autonomous Stack Profiler, Lossless Skill Pruning & `[Scope: XS..XL]` Sizing | `evals/stack_inspector.py`, `evals/rsi_orchestrator.py`, `.gitignore`, `README.md`, `docs/ARCHITECTURE.md`, `docs/TASKS.md` |
 | 2026-11-12 | TASK-TELEM-01 | Telemetry-Native Execution & Real Transcript Extraction (v2.1) | `evals/memory_engine.py`, `evals/run_fullstack_eval.py`, `evals/rsi_orchestrator.py`, `evals/telemetry_hook.py`, `.gitignore`, `docs/TASKS.md` |
+| 2026-11-12 | TASK-DOCS-04 | Update README for v2.1 Telemetry-Native Capabilities | `README.md`, `docs/TASKS.md` |
