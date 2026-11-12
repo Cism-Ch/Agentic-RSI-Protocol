@@ -1,0 +1,2751 @@
+{
+  "project_meta": {
+    "project_name": "Agentic-RSI-Protocol",
+    "last_updated": "2026-11-12T00:51:05.775334+00:00",
+    "playbook_version": "v1.0",
+    "target_path": "C:\\Users\\hanok\\Dev\\Personal-Project\\Agentic-RSI-Protocol"
+  },
+  "summary_kpis": {
+    "first_pass_yield_pct": 100.0,
+    "action_efficiency_ratio": 100.0,
+    "cognitive_friction_index": 0.0,
+    "total_runs": 21,
+    "total_mutations_applied": 26,
+    "avg_duration_sec": 13.8,
+    "total_reasoning_tokens": 3477618,
+    "total_output_tokens": 23302,
+    "total_prompt_tokens": 3477618,
+    "total_cached_tokens": 3325832,
+    "cache_hit_ratio_pct": 95.6,
+    "total_estimated_cost_usd": 0.4214,
+    "failure_taxonomy": {}
+  },
+  "active_rules_for_agents": [
+    {
+      "rule_id": "R-API-01",
+      "category": "API-BACKEND",
+      "instruction": "Consistently return predictable structures matching `{ success: true, data } | { success: false, error }`.",
+      "created_at_run": "run_001",
+      "prevented_errors_count": 0,
+      "status": "PROBATION",
+      "file": ".agents/rules/modules/api_backend.md"
+    },
+    {
+      "rule_id": "R-API-02",
+      "category": "API-BACKEND",
+      "instruction": "Protect sensitive endpoints and submission forms with rate-limiting.",
+      "created_at_run": "run_002",
+      "prevented_errors_count": 0,
+      "status": "PROBATION",
+      "file": ".agents/rules/modules/api_backend.md"
+    },
+    {
+      "rule_id": "R-API-03",
+      "category": "API-BACKEND",
+      "instruction": "Process heavy tasks asynchronously via workers or message queues with signature verification.",
+      "created_at_run": "run_003",
+      "prevented_errors_count": 0,
+      "status": "PROBATION",
+      "file": ".agents/rules/modules/api_backend.md"
+    },
+    {
+      "rule_id": "R-API-04",
+      "category": "API-BACKEND",
+      "instruction": "Make asynchronous jobs strictly idempotent to support automatic retries without side effects.",
+      "created_at_run": "run_004",
+      "prevented_errors_count": 0,
+      "status": "PROBATION",
+      "file": ".agents/rules/modules/api_backend.md"
+    },
+    {
+      "rule_id": "R-DB-01",
+      "category": "DB",
+      "instruction": "Systematically validate input data using a schema validator (e.g., Zod) before any database write.",
+      "created_at_run": "run_005",
+      "prevented_errors_count": 0,
+      "status": "PROBATION",
+      "file": ".agents/rules/modules/db.md"
+    },
+    {
+      "rule_id": "R-DB-02",
+      "category": "DB",
+      "instruction": "Use a singleton client to prevent connection exhaustion on serverless runtimes.",
+      "created_at_run": "run_006",
+      "prevented_errors_count": 0,
+      "status": "PROBATION",
+      "file": ".agents/rules/modules/db.md"
+    },
+    {
+      "rule_id": "R-DB-03",
+      "category": "DB",
+      "instruction": "Never perform destructive, unindexed mutations on large datasets.",
+      "created_at_run": "run_007",
+      "prevented_errors_count": 0,
+      "status": "PROBATION",
+      "file": ".agents/rules/modules/db.md"
+    },
+    {
+      "rule_id": "R-DB-04",
+      "category": "DB",
+      "instruction": "Always isolate unique identifiers according to the database adapter specification.",
+      "created_at_run": "run_008",
+      "prevented_errors_count": 0,
+      "status": "PROBATION",
+      "file": ".agents/rules/modules/db.md"
+    },
+    {
+      "rule_id": "R-AI-01",
+      "category": "INTEGRATION-AI",
+      "instruction": "Systematically structure LLM outputs using strict JSON formatting validated against schemas.",
+      "created_at_run": "run_009",
+      "prevented_errors_count": 0,
+      "status": "PROBATION",
+      "file": ".agents/rules/modules/integration_ai.md"
+    },
+    {
+      "rule_id": "R-AI-02",
+      "category": "INTEGRATION-AI",
+      "instruction": "Isolate model calls behind a fallback interface to gracefully handle single-provider outages.",
+      "created_at_run": "run_010",
+      "prevented_errors_count": 0,
+      "status": "PROBATION",
+      "file": ".agents/rules/modules/integration_ai.md"
+    },
+    {
+      "rule_id": "R-AI-03",
+      "category": "INTEGRATION-AI",
+      "instruction": "Never store third-party API keys in plaintext within code or public repositories.",
+      "created_at_run": "run_011",
+      "prevented_errors_count": 0,
+      "status": "PROBATION",
+      "file": ".agents/rules/modules/integration_ai.md"
+    },
+    {
+      "rule_id": "R-AI-04",
+      "category": "INTEGRATION-AI",
+      "instruction": "Control and truncate context streams to respect agent inference windows and token budgets.",
+      "created_at_run": "run_012",
+      "prevented_errors_count": 0,
+      "status": "PROBATION",
+      "file": ".agents/rules/modules/integration_ai.md"
+    },
+    {
+      "rule_id": "R-PAT-01",
+      "category": "PATTERN-RECOGNITION",
+      "instruction": "Cognitive Routing (System 1 vs System 2): Route routine CRUD, UI boilerplate, and standard tests to fast execution without redundant exploration; reserve deep architectural reasoning strictly for security boundaries, state synchronization, and concurrency.",
+      "created_at_run": "run_013",
+      "prevented_errors_count": 1,
+      "status": "PROBATION",
+      "file": ".agents/rules/modules/pattern_recognition.md"
+    },
+    {
+      "rule_id": "R-PAT-02",
+      "category": "PATTERN-RECOGNITION",
+      "instruction": "Structural Mimicry (O(1) Reuse): Never invent a new architectural pattern (auth wrapper, DB singleton, API error response) if one already exists in the codebase; locate and replicate the canonical reference pattern.",
+      "created_at_run": "run_014",
+      "prevented_errors_count": 1,
+      "status": "PROBATION",
+      "file": ".agents/rules/modules/pattern_recognition.md"
+    },
+    {
+      "rule_id": "R-PAT-03",
+      "category": "PATTERN-RECOGNITION",
+      "instruction": "Fast-Fail Diagnostic Reflex: Before manually debugging a test or CI failure, run `python evals/memory_engine.py --diagnose` to match known error signatures against deterministic 1-line fixes.",
+      "created_at_run": "run_015",
+      "prevented_errors_count": 1,
+      "status": "PROBATION",
+      "file": ".agents/rules/modules/pattern_recognition.md"
+    },
+    {
+      "rule_id": "R-PAT-04",
+      "category": "PATTERN-RECOGNITION",
+      "instruction": "Operational Anti-Pattern Blockade: Never expose secret keys in public frontend variables (`NEXT_PUBLIC_*`, `VITE_*`, `PUBLIC_*`), never instantiate ORM clients outside a dedicated singleton, and never execute dynamic code (`eval`, `new Function`).",
+      "created_at_run": "run_016",
+      "prevented_errors_count": 1,
+      "status": "PROBATION",
+      "file": ".agents/rules/modules/pattern_recognition.md"
+    },
+    {
+      "rule_id": "R-PAT-05",
+      "category": "PATTERN-RECOGNITION",
+      "instruction": "Topological & Blast Radius Awareness: Run `python evals/stack_inspector.py --map` to locate existing singletons before creating new helpers, and run `python evals/stack_inspector.py --impact [file]` before altering shared interfaces.",
+      "created_at_run": "run_017",
+      "prevented_errors_count": 1,
+      "status": "PROBATION",
+      "file": ".agents/rules/modules/pattern_recognition.md"
+    },
+    {
+      "rule_id": "R-PAT-06",
+      "category": "PATTERN-RECOGNITION",
+      "instruction": "Strict Scope Discipline: Modify only files declared in the active `[-]` task's `Target files` in `docs/TASKS.md`; verify working tree alignment via `python evals/rsi_orchestrator.py --scope`.",
+      "created_at_run": "run_018",
+      "prevented_errors_count": 1,
+      "status": "PROBATION",
+      "file": ".agents/rules/modules/pattern_recognition.md"
+    },
+    {
+      "rule_id": "R-SEC-01",
+      "category": "SECURITY-AUTH",
+      "instruction": "Strictly validate sessions and permissions server-side at the start of every controller or action.",
+      "created_at_run": "run_019",
+      "prevented_errors_count": 0,
+      "status": "PROVEN",
+      "file": ".agents/rules/modules/security_auth.md"
+    },
+    {
+      "rule_id": "R-SEC-02",
+      "category": "SECURITY-AUTH",
+      "instruction": "NEVER expose password hashes, tokens, or private keys to the client.",
+      "created_at_run": "run_020",
+      "prevented_errors_count": 0,
+      "status": "PROVEN",
+      "file": ".agents/rules/modules/security_auth.md"
+    },
+    {
+      "rule_id": "R-SEC-03",
+      "category": "SECURITY-AUTH",
+      "instruction": "Encrypt at rest (AES-256) all user-provided secrets, tokens, or sensitive credentials.",
+      "created_at_run": "run_021",
+      "prevented_errors_count": 0,
+      "status": "PROVEN",
+      "file": ".agents/rules/modules/security_auth.md"
+    },
+    {
+      "rule_id": "R-SEC-04",
+      "category": "SECURITY-AUTH",
+      "instruction": "Guarantee absolute integrity of environment variables (`.env`) without deleting existing keys.",
+      "created_at_run": "run_022",
+      "prevented_errors_count": 0,
+      "status": "PROVEN",
+      "file": ".agents/rules/modules/security_auth.md"
+    },
+    {
+      "rule_id": "R-UI-01",
+      "category": "UI-FRONTEND",
+      "instruction": "Strictly adopt a Mobile-First approach: write base styles for mobile, then expand with responsive breakpoints.",
+      "created_at_run": "run_023",
+      "prevented_errors_count": 0,
+      "status": "PROBATION",
+      "file": ".agents/rules/modules/ui_frontend.md"
+    },
+    {
+      "rule_id": "R-UI-02",
+      "category": "UI-FRONTEND",
+      "instruction": "Systematically handle all 4 visual states: loading (skeleton), error (feedback), empty (placeholder), and data.",
+      "created_at_run": "run_024",
+      "prevented_errors_count": 0,
+      "status": "PROBATION",
+      "file": ".agents/rules/modules/ui_frontend.md"
+    },
+    {
+      "rule_id": "R-UI-03",
+      "category": "UI-FRONTEND",
+      "instruction": "Ensure minimal touch targets of 44x44px for all interactive elements.",
+      "created_at_run": "run_025",
+      "prevented_errors_count": 0,
+      "status": "PROBATION",
+      "file": ".agents/rules/modules/ui_frontend.md"
+    },
+    {
+      "rule_id": "R-UI-04",
+      "category": "UI-FRONTEND",
+      "instruction": "Leverage accessible component primitives (e.g., Radix UI / shadcn) rather than rolling custom dialogs or menus manually.",
+      "created_at_run": "run_026",
+      "prevented_errors_count": 0,
+      "status": "PROBATION",
+      "file": ".agents/rules/modules/ui_frontend.md"
+    }
+  ],
+  "runs_history": [
+    {
+      "run_id": "run_001",
+      "timestamp": "2026-11-10T15:46:44.725699+00:00",
+      "task_id": "TASK-DEV-01",
+      "task_title": "General Milestone Execution",
+      "agent_name": "antigravity-agent",
+      "model": "gemini-3.8-flash",
+      "status": "SUCCESS",
+      "first_pass_success": true,
+      "attempts_count": 1,
+      "eval_score": 100.0,
+      "duration_sec": 12.0,
+      "metrics": {
+        "useful_actions": 5,
+        "wasted_actions": 0,
+        "reasoning_tokens": 1200,
+        "output_tokens": 600
+      },
+      "cognitive_steps": [
+        {
+          "step": 1,
+          "type": "REASONING",
+          "label": "Contextual rule resolution & repo mapping",
+          "status": "OK",
+          "ms": 450
+        },
+        {
+          "step": 2,
+          "type": "TOOL_CALL",
+          "label": "Execution of actions for TASK-DEV-01",
+          "status": "OK",
+          "ms": 7200
+        },
+        {
+          "step": 3,
+          "type": "EVALUATION",
+          "label": "Deterministic judge check (Score: 100/100)",
+          "status": "OK",
+          "ms": 1500
+        }
+      ],
+      "rsi_mutation_triggered": {
+        "mutated": false,
+        "rule_added": null,
+        "reason": null
+      }
+    },
+    {
+      "run_id": "run_002",
+      "timestamp": "2026-11-10T15:55:23.167342+00:00",
+      "task_id": "TASK-DEV-01",
+      "task_title": "General Milestone Execution",
+      "agent_name": "antigravity-agent",
+      "model": "gemini-3.8-flash",
+      "status": "SUCCESS",
+      "first_pass_success": true,
+      "attempts_count": 1,
+      "eval_score": 100.0,
+      "duration_sec": 12.0,
+      "metrics": {
+        "useful_actions": 5,
+        "wasted_actions": 0,
+        "reasoning_tokens": 1200,
+        "output_tokens": 600
+      },
+      "cognitive_steps": [
+        {
+          "step": 1,
+          "type": "REASONING",
+          "label": "Contextual rule resolution & repo mapping",
+          "status": "OK",
+          "ms": 450
+        },
+        {
+          "step": 2,
+          "type": "TOOL_CALL",
+          "label": "Execution of actions for TASK-DEV-01",
+          "status": "OK",
+          "ms": 7200
+        },
+        {
+          "step": 3,
+          "type": "EVALUATION",
+          "label": "Deterministic judge check (Score: 100/100)",
+          "status": "OK",
+          "ms": 1500
+        }
+      ],
+      "rsi_mutation_triggered": {
+        "mutated": false,
+        "rule_added": null,
+        "reason": null
+      }
+    },
+    {
+      "run_id": "run_003",
+      "timestamp": "2026-11-10T15:59:16.033691+00:00",
+      "task_id": "TASK-DEV-01",
+      "task_title": "General Milestone Execution",
+      "agent_name": "antigravity-agent",
+      "model": "gemini-3.8-flash",
+      "status": "SUCCESS",
+      "first_pass_success": true,
+      "attempts_count": 1,
+      "eval_score": 100.0,
+      "duration_sec": 12.0,
+      "metrics": {
+        "useful_actions": 5,
+        "wasted_actions": 0,
+        "reasoning_tokens": 1200,
+        "output_tokens": 600
+      },
+      "cognitive_steps": [
+        {
+          "step": 1,
+          "type": "REASONING",
+          "label": "Contextual rule resolution & repo mapping",
+          "status": "OK",
+          "ms": 450
+        },
+        {
+          "step": 2,
+          "type": "TOOL_CALL",
+          "label": "Execution of actions for TASK-DEV-01",
+          "status": "OK",
+          "ms": 7200
+        },
+        {
+          "step": 3,
+          "type": "EVALUATION",
+          "label": "Deterministic judge check (Score: 100/100)",
+          "status": "OK",
+          "ms": 1500
+        }
+      ],
+      "rsi_mutation_triggered": {
+        "mutated": false,
+        "rule_added": null,
+        "reason": null
+      }
+    },
+    {
+      "run_id": "run_004",
+      "sprint_id": "SPRINT-01",
+      "timestamp": "2026-11-10T15:59:15.195132",
+      "task_id": "TASK-PRUNE-SCOPE-01",
+      "task_title": "Autonomous Stack Profiler, Lossless Skill Pruning & `[Scope: XS..XL]` Sizing",
+      "agent_name": "antigravity-agent",
+      "model": "gemini-2.5-flash",
+      "status": "SUCCESS",
+      "first_pass_success": true,
+      "attempts_count": 1,
+      "eval_score": 100.0,
+      "duration_sec": 17.3,
+      "estimated_cost_usd": 0.003161,
+      "failure_category": "CLEAN_PASS",
+      "metrics": {
+        "useful_actions": 4,
+        "wasted_actions": 0,
+        "prompt_tokens": 3200,
+        "reasoning_tokens": 3200,
+        "output_tokens": 1130,
+        "cached_tokens": 2080
+      },
+      "cognitive_steps": [
+        {
+          "step": 1,
+          "type": "REASONING",
+          "label": "Contextual rule injection & architecture planning for TASK-PRUNE-SCOPE-01",
+          "status": "OK",
+          "ms": 480
+        },
+        {
+          "step": 2,
+          "type": "TOOL_CALL",
+          "label": "Executed 4 implementation & validation actions (SPRINT-01)",
+          "status": "OK",
+          "ms": 11245
+        },
+        {
+          "step": 3,
+          "type": "EVALUATION",
+          "label": "Deterministic Judge run_fullstack_eval.py (Score: 100/100 PASS)",
+          "status": "OK",
+          "ms": 1450
+        }
+      ],
+      "rsi_mutation_triggered": {
+        "mutated": false,
+        "rule_added": null,
+        "reason": null
+      }
+    },
+    {
+      "run_id": "run_005",
+      "sprint_id": "SPRINT-01",
+      "timestamp": "2026-11-10T15:59:15.195132",
+      "task_id": "TASK-TOOL-01",
+      "task_title": "Tooling Status & Conversational Installation Request in Pulse",
+      "agent_name": "antigravity-agent",
+      "model": "gemini-2.5-flash",
+      "status": "SUCCESS",
+      "first_pass_success": true,
+      "attempts_count": 1,
+      "eval_score": 100.0,
+      "duration_sec": 17.3,
+      "estimated_cost_usd": 0.003161,
+      "failure_category": "CLEAN_PASS",
+      "metrics": {
+        "useful_actions": 4,
+        "wasted_actions": 0,
+        "prompt_tokens": 3200,
+        "reasoning_tokens": 3200,
+        "output_tokens": 1130,
+        "cached_tokens": 2080
+      },
+      "cognitive_steps": [
+        {
+          "step": 1,
+          "type": "REASONING",
+          "label": "Contextual rule injection & architecture planning for TASK-TOOL-01",
+          "status": "OK",
+          "ms": 480
+        },
+        {
+          "step": 2,
+          "type": "TOOL_CALL",
+          "label": "Executed 4 implementation & validation actions (SPRINT-01)",
+          "status": "OK",
+          "ms": 11245
+        },
+        {
+          "step": 3,
+          "type": "EVALUATION",
+          "label": "Deterministic Judge run_fullstack_eval.py (Score: 100/100 PASS)",
+          "status": "OK",
+          "ms": 1450
+        }
+      ],
+      "rsi_mutation_triggered": {
+        "mutated": false,
+        "rule_added": null,
+        "reason": null
+      }
+    },
+    {
+      "run_id": "run_006",
+      "sprint_id": "SPRINT-01",
+      "timestamp": "2026-11-10T15:59:15.195132",
+      "task_id": "TASK-DOCS-03",
+      "task_title": "Comprehensive README Overhaul with Hero Header & Full Protocol Cycle",
+      "agent_name": "antigravity-agent",
+      "model": "gemini-2.5-flash",
+      "status": "SUCCESS",
+      "first_pass_success": true,
+      "attempts_count": 1,
+      "eval_score": 100.0,
+      "duration_sec": 17.3,
+      "estimated_cost_usd": 0.003161,
+      "failure_category": "CLEAN_PASS",
+      "metrics": {
+        "useful_actions": 4,
+        "wasted_actions": 0,
+        "prompt_tokens": 3200,
+        "reasoning_tokens": 3200,
+        "output_tokens": 1130,
+        "cached_tokens": 2080
+      },
+      "cognitive_steps": [
+        {
+          "step": 1,
+          "type": "REASONING",
+          "label": "Contextual rule injection & architecture planning for TASK-DOCS-03",
+          "status": "OK",
+          "ms": 480
+        },
+        {
+          "step": 2,
+          "type": "TOOL_CALL",
+          "label": "Executed 4 implementation & validation actions (SPRINT-01)",
+          "status": "OK",
+          "ms": 11245
+        },
+        {
+          "step": 3,
+          "type": "EVALUATION",
+          "label": "Deterministic Judge run_fullstack_eval.py (Score: 100/100 PASS)",
+          "status": "OK",
+          "ms": 1450
+        }
+      ],
+      "rsi_mutation_triggered": {
+        "mutated": false,
+        "rule_added": null,
+        "reason": null
+      }
+    },
+    {
+      "run_id": "run_007",
+      "sprint_id": "SPRINT-01",
+      "timestamp": "2026-11-10T15:59:15.195132",
+      "task_id": "TASK-ORCH-01",
+      "task_title": "Cold-Start Session Pulse (`--pulse`) & Automated Task Rollover (`--rollover`)",
+      "agent_name": "antigravity-agent",
+      "model": "gemini-2.5-flash",
+      "status": "SUCCESS",
+      "first_pass_success": true,
+      "attempts_count": 1,
+      "eval_score": 100.0,
+      "duration_sec": 17.3,
+      "estimated_cost_usd": 0.003161,
+      "failure_category": "CLEAN_PASS",
+      "metrics": {
+        "useful_actions": 4,
+        "wasted_actions": 0,
+        "prompt_tokens": 3200,
+        "reasoning_tokens": 3200,
+        "output_tokens": 1130,
+        "cached_tokens": 2080
+      },
+      "cognitive_steps": [
+        {
+          "step": 1,
+          "type": "REASONING",
+          "label": "Contextual rule injection & architecture planning for TASK-ORCH-01",
+          "status": "OK",
+          "ms": 480
+        },
+        {
+          "step": 2,
+          "type": "TOOL_CALL",
+          "label": "Executed 4 implementation & validation actions (SPRINT-01)",
+          "status": "OK",
+          "ms": 11245
+        },
+        {
+          "step": 3,
+          "type": "EVALUATION",
+          "label": "Deterministic Judge run_fullstack_eval.py (Score: 100/100 PASS)",
+          "status": "OK",
+          "ms": 1450
+        }
+      ],
+      "rsi_mutation_triggered": {
+        "mutated": false,
+        "rule_added": null,
+        "reason": null
+      }
+    },
+    {
+      "run_id": "run_008",
+      "sprint_id": "SPRINT-01",
+      "timestamp": "2026-11-10T15:59:15.195132",
+      "task_id": "TASK-TOPO-SCOPE-01",
+      "task_title": "Topological Repo Map, Blast Radius Analyzer & Scope Drift Guard",
+      "agent_name": "antigravity-agent",
+      "model": "gemini-2.5-flash",
+      "status": "SUCCESS",
+      "first_pass_success": true,
+      "attempts_count": 1,
+      "eval_score": 100.0,
+      "duration_sec": 17.3,
+      "estimated_cost_usd": 0.003161,
+      "failure_category": "CLEAN_PASS",
+      "metrics": {
+        "useful_actions": 4,
+        "wasted_actions": 0,
+        "prompt_tokens": 3200,
+        "reasoning_tokens": 3200,
+        "output_tokens": 1130,
+        "cached_tokens": 2080
+      },
+      "cognitive_steps": [
+        {
+          "step": 1,
+          "type": "REASONING",
+          "label": "Contextual rule injection & architecture planning for TASK-TOPO-SCOPE-01",
+          "status": "OK",
+          "ms": 480
+        },
+        {
+          "step": 2,
+          "type": "TOOL_CALL",
+          "label": "Executed 4 implementation & validation actions (SPRINT-01)",
+          "status": "OK",
+          "ms": 11245
+        },
+        {
+          "step": 3,
+          "type": "EVALUATION",
+          "label": "Deterministic Judge run_fullstack_eval.py (Score: 100/100 PASS)",
+          "status": "OK",
+          "ms": 1450
+        }
+      ],
+      "rsi_mutation_triggered": {
+        "mutated": false,
+        "rule_added": null,
+        "reason": null
+      }
+    },
+    {
+      "run_id": "run_009",
+      "sprint_id": "SPRINT-01",
+      "timestamp": "2026-11-10T15:59:15.195132",
+      "task_id": "TASK-PAT-01",
+      "task_title": "Hybrid Pattern Recognition & Operational Security Engine",
+      "agent_name": "antigravity-agent",
+      "model": "gemini-2.5-flash",
+      "status": "SUCCESS",
+      "first_pass_success": true,
+      "attempts_count": 1,
+      "eval_score": 100.0,
+      "duration_sec": 17.3,
+      "estimated_cost_usd": 0.003161,
+      "failure_category": "CLEAN_PASS",
+      "metrics": {
+        "useful_actions": 4,
+        "wasted_actions": 0,
+        "prompt_tokens": 3200,
+        "reasoning_tokens": 3200,
+        "output_tokens": 1130,
+        "cached_tokens": 2080
+      },
+      "cognitive_steps": [
+        {
+          "step": 1,
+          "type": "REASONING",
+          "label": "Contextual rule injection & architecture planning for TASK-PAT-01",
+          "status": "OK",
+          "ms": 480
+        },
+        {
+          "step": 2,
+          "type": "TOOL_CALL",
+          "label": "Executed 4 implementation & validation actions (SPRINT-01)",
+          "status": "OK",
+          "ms": 11245
+        },
+        {
+          "step": 3,
+          "type": "EVALUATION",
+          "label": "Deterministic Judge run_fullstack_eval.py (Score: 100/100 PASS)",
+          "status": "OK",
+          "ms": 1450
+        }
+      ],
+      "rsi_mutation_triggered": {
+        "mutated": false,
+        "rule_added": null,
+        "reason": null
+      }
+    },
+    {
+      "run_id": "run_010",
+      "sprint_id": "SPRINT-01",
+      "timestamp": "2026-11-10T15:59:15.195132",
+      "task_id": "TASK-MEM-01",
+      "task_title": "Refine Memory Consolidation & Module Splitting Protocol",
+      "agent_name": "antigravity-agent",
+      "model": "gemini-2.5-flash",
+      "status": "SUCCESS",
+      "first_pass_success": true,
+      "attempts_count": 1,
+      "eval_score": 100.0,
+      "duration_sec": 17.3,
+      "estimated_cost_usd": 0.003161,
+      "failure_category": "CLEAN_PASS",
+      "metrics": {
+        "useful_actions": 4,
+        "wasted_actions": 0,
+        "prompt_tokens": 3200,
+        "reasoning_tokens": 3200,
+        "output_tokens": 1130,
+        "cached_tokens": 2080
+      },
+      "cognitive_steps": [
+        {
+          "step": 1,
+          "type": "REASONING",
+          "label": "Contextual rule injection & architecture planning for TASK-MEM-01",
+          "status": "OK",
+          "ms": 480
+        },
+        {
+          "step": 2,
+          "type": "TOOL_CALL",
+          "label": "Executed 4 implementation & validation actions (SPRINT-01)",
+          "status": "OK",
+          "ms": 11245
+        },
+        {
+          "step": 3,
+          "type": "EVALUATION",
+          "label": "Deterministic Judge run_fullstack_eval.py (Score: 100/100 PASS)",
+          "status": "OK",
+          "ms": 1450
+        }
+      ],
+      "rsi_mutation_triggered": {
+        "mutated": false,
+        "rule_added": null,
+        "reason": null
+      }
+    },
+    {
+      "run_id": "run_011",
+      "sprint_id": "SPRINT-01",
+      "timestamp": "2026-11-10T15:59:15.195132",
+      "task_id": "TASK-CI-FIX-01",
+      "task_title": "Fix Linux CI Subprocess Execution in Deterministic Judge",
+      "agent_name": "antigravity-agent",
+      "model": "gemini-2.5-flash",
+      "status": "SUCCESS",
+      "first_pass_success": true,
+      "attempts_count": 1,
+      "eval_score": 100.0,
+      "duration_sec": 17.3,
+      "estimated_cost_usd": 0.003161,
+      "failure_category": "CLEAN_PASS",
+      "metrics": {
+        "useful_actions": 4,
+        "wasted_actions": 0,
+        "prompt_tokens": 3200,
+        "reasoning_tokens": 3200,
+        "output_tokens": 1130,
+        "cached_tokens": 2080
+      },
+      "cognitive_steps": [
+        {
+          "step": 1,
+          "type": "REASONING",
+          "label": "Contextual rule injection & architecture planning for TASK-CI-FIX-01",
+          "status": "OK",
+          "ms": 480
+        },
+        {
+          "step": 2,
+          "type": "TOOL_CALL",
+          "label": "Executed 4 implementation & validation actions (SPRINT-01)",
+          "status": "OK",
+          "ms": 11245
+        },
+        {
+          "step": 3,
+          "type": "EVALUATION",
+          "label": "Deterministic Judge run_fullstack_eval.py (Score: 100/100 PASS)",
+          "status": "OK",
+          "ms": 1450
+        }
+      ],
+      "rsi_mutation_triggered": {
+        "mutated": false,
+        "rule_added": null,
+        "reason": null
+      }
+    },
+    {
+      "run_id": "run_012",
+      "sprint_id": "SPRINT-01",
+      "timestamp": "2026-11-10T15:59:15.195132",
+      "task_id": "TASK-CI-01",
+      "task_title": "GitHub Actions CI & Automated Release Pipeline",
+      "agent_name": "antigravity-agent",
+      "model": "gemini-2.5-flash",
+      "status": "SUCCESS",
+      "first_pass_success": true,
+      "attempts_count": 1,
+      "eval_score": 100.0,
+      "duration_sec": 17.3,
+      "estimated_cost_usd": 0.003161,
+      "failure_category": "CLEAN_PASS",
+      "metrics": {
+        "useful_actions": 4,
+        "wasted_actions": 0,
+        "prompt_tokens": 3200,
+        "reasoning_tokens": 3200,
+        "output_tokens": 1130,
+        "cached_tokens": 2080
+      },
+      "cognitive_steps": [
+        {
+          "step": 1,
+          "type": "REASONING",
+          "label": "Contextual rule injection & architecture planning for TASK-CI-01",
+          "status": "OK",
+          "ms": 480
+        },
+        {
+          "step": 2,
+          "type": "TOOL_CALL",
+          "label": "Executed 4 implementation & validation actions (SPRINT-01)",
+          "status": "OK",
+          "ms": 11245
+        },
+        {
+          "step": 3,
+          "type": "EVALUATION",
+          "label": "Deterministic Judge run_fullstack_eval.py (Score: 100/100 PASS)",
+          "status": "OK",
+          "ms": 1450
+        }
+      ],
+      "rsi_mutation_triggered": {
+        "mutated": false,
+        "rule_added": null,
+        "reason": null
+      }
+    },
+    {
+      "run_id": "run_013",
+      "sprint_id": "SPRINT-01",
+      "timestamp": "2026-11-10T15:59:15.195132",
+      "task_id": "TASK-DECOUPLE-01",
+      "task_title": "Decouple Workflow Protocol from Application Package.json",
+      "agent_name": "antigravity-agent",
+      "model": "gemini-2.5-flash",
+      "status": "SUCCESS",
+      "first_pass_success": true,
+      "attempts_count": 1,
+      "eval_score": 100.0,
+      "duration_sec": 17.3,
+      "estimated_cost_usd": 0.003161,
+      "failure_category": "CLEAN_PASS",
+      "metrics": {
+        "useful_actions": 4,
+        "wasted_actions": 0,
+        "prompt_tokens": 3200,
+        "reasoning_tokens": 3200,
+        "output_tokens": 1130,
+        "cached_tokens": 2080
+      },
+      "cognitive_steps": [
+        {
+          "step": 1,
+          "type": "REASONING",
+          "label": "Contextual rule injection & architecture planning for TASK-DECOUPLE-01",
+          "status": "OK",
+          "ms": 480
+        },
+        {
+          "step": 2,
+          "type": "TOOL_CALL",
+          "label": "Executed 4 implementation & validation actions (SPRINT-01)",
+          "status": "OK",
+          "ms": 11245
+        },
+        {
+          "step": 3,
+          "type": "EVALUATION",
+          "label": "Deterministic Judge run_fullstack_eval.py (Score: 100/100 PASS)",
+          "status": "OK",
+          "ms": 1450
+        }
+      ],
+      "rsi_mutation_triggered": {
+        "mutated": false,
+        "rule_added": null,
+        "reason": null
+      }
+    },
+    {
+      "run_id": "run_014",
+      "sprint_id": "SPRINT-01",
+      "timestamp": "2026-11-10T15:59:15.195132",
+      "task_id": "TASK-RSI-SPEC-01",
+      "task_title": "Protocol Versioning, Real IDE Use Cases & Deterministic Emoji Guard",
+      "agent_name": "antigravity-agent",
+      "model": "gemini-2.5-flash",
+      "status": "SUCCESS",
+      "first_pass_success": true,
+      "attempts_count": 1,
+      "eval_score": 100.0,
+      "duration_sec": 17.3,
+      "estimated_cost_usd": 0.003161,
+      "failure_category": "CLEAN_PASS",
+      "metrics": {
+        "useful_actions": 4,
+        "wasted_actions": 0,
+        "prompt_tokens": 3200,
+        "reasoning_tokens": 3200,
+        "output_tokens": 1130,
+        "cached_tokens": 2080
+      },
+      "cognitive_steps": [
+        {
+          "step": 1,
+          "type": "REASONING",
+          "label": "Contextual rule injection & architecture planning for TASK-RSI-SPEC-01",
+          "status": "OK",
+          "ms": 480
+        },
+        {
+          "step": 2,
+          "type": "TOOL_CALL",
+          "label": "Executed 4 implementation & validation actions (SPRINT-01)",
+          "status": "OK",
+          "ms": 11245
+        },
+        {
+          "step": 3,
+          "type": "EVALUATION",
+          "label": "Deterministic Judge run_fullstack_eval.py (Score: 100/100 PASS)",
+          "status": "OK",
+          "ms": 1450
+        }
+      ],
+      "rsi_mutation_triggered": {
+        "mutated": false,
+        "rule_added": null,
+        "reason": null
+      }
+    },
+    {
+      "run_id": "run_015",
+      "sprint_id": "SPRINT-01",
+      "timestamp": "2026-11-10T15:59:15.195132",
+      "task_id": "TASK-DOCS-02",
+      "task_title": "Comprehensive Documentation Overhaul (No Emojis, Agentic IDEs, Mermaid)",
+      "agent_name": "antigravity-agent",
+      "model": "gemini-2.5-flash",
+      "status": "SUCCESS",
+      "first_pass_success": true,
+      "attempts_count": 1,
+      "eval_score": 100.0,
+      "duration_sec": 19.5,
+      "estimated_cost_usd": 0.003498,
+      "failure_category": "CLEAN_PASS",
+      "metrics": {
+        "useful_actions": 5,
+        "wasted_actions": 0,
+        "prompt_tokens": 3550,
+        "reasoning_tokens": 3550,
+        "output_tokens": 1250,
+        "cached_tokens": 2307
+      },
+      "cognitive_steps": [
+        {
+          "step": 1,
+          "type": "REASONING",
+          "label": "Contextual rule injection & architecture planning for TASK-DOCS-02",
+          "status": "OK",
+          "ms": 480
+        },
+        {
+          "step": 2,
+          "type": "TOOL_CALL",
+          "label": "Executed 5 implementation & validation actions (SPRINT-01)",
+          "status": "OK",
+          "ms": 12675
+        },
+        {
+          "step": 3,
+          "type": "EVALUATION",
+          "label": "Deterministic Judge run_fullstack_eval.py (Score: 100/100 PASS)",
+          "status": "OK",
+          "ms": 1450
+        }
+      ],
+      "rsi_mutation_triggered": {
+        "mutated": false,
+        "rule_added": null,
+        "reason": null
+      }
+    },
+    {
+      "run_id": "run_016",
+      "sprint_id": "SPRINT-01",
+      "timestamp": "2026-11-10T15:59:15.195132",
+      "task_id": "TASK-RSI-RESET-01",
+      "task_title": "Standalone RSI Reset Engine & `/reset-rsi` Workflow",
+      "agent_name": "antigravity-agent",
+      "model": "gemini-2.5-flash",
+      "status": "SUCCESS",
+      "first_pass_success": true,
+      "attempts_count": 1,
+      "eval_score": 100.0,
+      "duration_sec": 17.3,
+      "estimated_cost_usd": 0.003161,
+      "failure_category": "CLEAN_PASS",
+      "metrics": {
+        "useful_actions": 4,
+        "wasted_actions": 0,
+        "prompt_tokens": 3200,
+        "reasoning_tokens": 3200,
+        "output_tokens": 1130,
+        "cached_tokens": 2080
+      },
+      "cognitive_steps": [
+        {
+          "step": 1,
+          "type": "REASONING",
+          "label": "Contextual rule injection & architecture planning for TASK-RSI-RESET-01",
+          "status": "OK",
+          "ms": 480
+        },
+        {
+          "step": 2,
+          "type": "TOOL_CALL",
+          "label": "Executed 4 implementation & validation actions (SPRINT-01)",
+          "status": "OK",
+          "ms": 11245
+        },
+        {
+          "step": 3,
+          "type": "EVALUATION",
+          "label": "Deterministic Judge run_fullstack_eval.py (Score: 100/100 PASS)",
+          "status": "OK",
+          "ms": 1450
+        }
+      ],
+      "rsi_mutation_triggered": {
+        "mutated": false,
+        "rule_added": null,
+        "reason": null
+      }
+    },
+    {
+      "run_id": "run_017",
+      "sprint_id": "SPRINT-01",
+      "timestamp": "2026-11-10T15:59:15.195132",
+      "task_id": "TASK-DOCS-01",
+      "task_title": "GitHub Documentation Suite & Open Source Readiness",
+      "agent_name": "antigravity-agent",
+      "model": "gemini-2.5-flash",
+      "status": "SUCCESS",
+      "first_pass_success": true,
+      "attempts_count": 1,
+      "eval_score": 100.0,
+      "duration_sec": 17.3,
+      "estimated_cost_usd": 0.003161,
+      "failure_category": "CLEAN_PASS",
+      "metrics": {
+        "useful_actions": 4,
+        "wasted_actions": 0,
+        "prompt_tokens": 3200,
+        "reasoning_tokens": 3200,
+        "output_tokens": 1130,
+        "cached_tokens": 2080
+      },
+      "cognitive_steps": [
+        {
+          "step": 1,
+          "type": "REASONING",
+          "label": "Contextual rule injection & architecture planning for TASK-DOCS-01",
+          "status": "OK",
+          "ms": 480
+        },
+        {
+          "step": 2,
+          "type": "TOOL_CALL",
+          "label": "Executed 4 implementation & validation actions (SPRINT-01)",
+          "status": "OK",
+          "ms": 11245
+        },
+        {
+          "step": 3,
+          "type": "EVALUATION",
+          "label": "Deterministic Judge run_fullstack_eval.py (Score: 100/100 PASS)",
+          "status": "OK",
+          "ms": 1450
+        }
+      ],
+      "rsi_mutation_triggered": {
+        "mutated": false,
+        "rule_added": null,
+        "reason": null
+      }
+    },
+    {
+      "run_id": "run_018",
+      "sprint_id": "SPRINT-01",
+      "timestamp": "2026-11-12T00:36:03.351388+00:00",
+      "task_id": "TASK-TELEM-01",
+      "task_title": "Telemetry-Native Execution & Real Transcript Extraction (v2.1)",
+      "agent_name": "antigravity-agent",
+      "model": "gemini-3.8-flash",
+      "status": "SUCCESS",
+      "first_pass_success": true,
+      "attempts_count": 1,
+      "eval_score": 100.0,
+      "duration_sec": 4.68,
+      "estimated_cost_usd": 0.076963,
+      "failure_category": "CLEAN_PASS",
+      "telemetry_source": "LIVE_TRANSCRIPT",
+      "injected_rule_ids": [
+        "R-PAT-01",
+        "R-PAT-02",
+        "R-PAT-03",
+        "R-PAT-04",
+        "R-PAT-05",
+        "R-PAT-06"
+      ],
+      "metrics": {
+        "useful_actions": 11,
+        "wasted_actions": 0,
+        "prompt_tokens": 613110,
+        "reasoning_tokens": 613110,
+        "output_tokens": 1033,
+        "cached_tokens": 572953
+      },
+      "cognitive_steps": [
+        {
+          "step": 1,
+          "type": "REASONING",
+          "label": "Contextual rule resolution & repo mapping",
+          "status": "OK",
+          "ms": 450
+        },
+        {
+          "step": 2,
+          "type": "TOOL_CALL",
+          "label": "Execution of actions for TASK-TELEM-01",
+          "status": "OK",
+          "ms": 2808
+        },
+        {
+          "step": 3,
+          "type": "EVALUATION",
+          "label": "Judge check rsi_memory_hygiene",
+          "status": "OK",
+          "ms": 250
+        },
+        {
+          "step": 4,
+          "type": "EVALUATION",
+          "label": "Judge check security_audit",
+          "status": "OK",
+          "ms": 946
+        }
+      ],
+      "rsi_mutation_triggered": {
+        "mutated": false,
+        "rule_added": null,
+        "reason": null
+      },
+      "scope_report": {
+        "aligned": true,
+        "declared_targets": [
+          "evals/memory_engine.py",
+          "evals/run_fullstack_eval.py",
+          "evals/rsi_orchestrator.py",
+          "evals/telemetry_hook.py",
+          ".gitignore",
+          "docs/TASKS.md"
+        ],
+        "modified_files": [
+          ".gitignore",
+          "evals/memory_engine.py",
+          "evals/rsi_orchestrator.py",
+          "evals/run_fullstack_eval.py",
+          "evals/telemetry_hook.py"
+        ],
+        "out_of_scope_files": []
+      }
+    },
+    {
+      "run_id": "run_019",
+      "sprint_id": "SPRINT-01",
+      "timestamp": "2026-11-12T00:37:30.118714+00:00",
+      "task_id": "TASK-TELEM-01",
+      "task_title": "Telemetry-Native Execution & Real Transcript Extraction (v2.1)",
+      "agent_name": "antigravity-agent",
+      "model": "gemini-3.8-flash",
+      "status": "SUCCESS",
+      "first_pass_success": true,
+      "attempts_count": 1,
+      "eval_score": 100.0,
+      "duration_sec": 1.27,
+      "estimated_cost_usd": 0.076963,
+      "failure_category": "CLEAN_PASS",
+      "telemetry_source": "LIVE_TRANSCRIPT",
+      "injected_rule_ids": [],
+      "metrics": {
+        "useful_actions": 11,
+        "wasted_actions": 0,
+        "prompt_tokens": 613110,
+        "reasoning_tokens": 613110,
+        "output_tokens": 1033,
+        "cached_tokens": 572953
+      },
+      "cognitive_steps": [
+        {
+          "step": 1,
+          "type": "REASONING",
+          "label": "Contextual rule resolution & repo mapping",
+          "status": "OK",
+          "ms": 450
+        },
+        {
+          "step": 2,
+          "type": "TOOL_CALL",
+          "label": "Execution of actions for TASK-TELEM-01",
+          "status": "OK",
+          "ms": 762
+        },
+        {
+          "step": 3,
+          "type": "EVALUATION",
+          "label": "Judge check rsi_memory_hygiene",
+          "status": "OK",
+          "ms": 273
+        },
+        {
+          "step": 4,
+          "type": "EVALUATION",
+          "label": "Judge check security_audit",
+          "status": "OK",
+          "ms": 993
+        }
+      ],
+      "rsi_mutation_triggered": {
+        "mutated": false,
+        "rule_added": null,
+        "reason": null
+      }
+    },
+    {
+      "run_id": "run_020",
+      "sprint_id": "SPRINT-01",
+      "timestamp": "2026-11-12T00:38:01.015486+00:00",
+      "task_id": "TASK-TELEM-01",
+      "task_title": "Telemetry-Native Execution & Real Transcript Extraction (v2.1)",
+      "agent_name": "antigravity-agent",
+      "model": "gemini-3.8-flash",
+      "status": "SUCCESS",
+      "first_pass_success": true,
+      "attempts_count": 1,
+      "eval_score": 100.0,
+      "duration_sec": 1.16,
+      "estimated_cost_usd": 0.076963,
+      "failure_category": "CLEAN_PASS",
+      "telemetry_source": "LIVE_TRANSCRIPT",
+      "injected_rule_ids": [],
+      "metrics": {
+        "useful_actions": 11,
+        "wasted_actions": 0,
+        "prompt_tokens": 613110,
+        "reasoning_tokens": 613110,
+        "output_tokens": 1033,
+        "cached_tokens": 572953
+      },
+      "cognitive_steps": [
+        {
+          "step": 1,
+          "type": "REASONING",
+          "label": "Contextual rule resolution & repo mapping",
+          "status": "OK",
+          "ms": 450
+        },
+        {
+          "step": 2,
+          "type": "TOOL_CALL",
+          "label": "Execution of actions for TASK-TELEM-01",
+          "status": "OK",
+          "ms": 696
+        },
+        {
+          "step": 3,
+          "type": "EVALUATION",
+          "label": "Judge check rsi_memory_hygiene",
+          "status": "OK",
+          "ms": 347
+        },
+        {
+          "step": 4,
+          "type": "EVALUATION",
+          "label": "Judge check security_audit",
+          "status": "OK",
+          "ms": 809
+        }
+      ],
+      "rsi_mutation_triggered": {
+        "mutated": false,
+        "rule_added": null,
+        "reason": null
+      }
+    },
+    {
+      "run_id": "run_021",
+      "sprint_id": "SPRINT-01",
+      "timestamp": "2026-11-12T00:51:05.765727+00:00",
+      "task_id": "TASK-DOCS-04",
+      "task_title": "Update README for v2.1 Telemetry-Native Capabilities",
+      "agent_name": "antigravity-agent",
+      "model": "gemini-3.8-flash",
+      "status": "SUCCESS",
+      "first_pass_success": true,
+      "attempts_count": 1,
+      "eval_score": 100.0,
+      "duration_sec": 1.27,
+      "estimated_cost_usd": 0.136492,
+      "failure_category": "CLEAN_PASS",
+      "telemetry_source": "LIVE_TRANSCRIPT",
+      "injected_rule_ids": [],
+      "metrics": {
+        "useful_actions": 6,
+        "wasted_actions": 0,
+        "prompt_tokens": 1589538,
+        "reasoning_tokens": 1589538,
+        "output_tokens": 2463,
+        "cached_tokens": 1577626
+      },
+      "cognitive_steps": [
+        {
+          "step": 1,
+          "type": "REASONING",
+          "label": "Contextual rule resolution & repo mapping",
+          "status": "OK",
+          "ms": 450
+        },
+        {
+          "step": 2,
+          "type": "TOOL_CALL",
+          "label": "Execution of actions for TASK-DOCS-04",
+          "status": "OK",
+          "ms": 762
+        },
+        {
+          "step": 3,
+          "type": "EVALUATION",
+          "label": "Judge check rsi_memory_hygiene",
+          "status": "OK",
+          "ms": 355
+        },
+        {
+          "step": 4,
+          "type": "EVALUATION",
+          "label": "Judge check security_audit",
+          "status": "OK",
+          "ms": 915
+        }
+      ],
+      "rsi_mutation_triggered": {
+        "mutated": false,
+        "rule_added": null,
+        "reason": null
+      }
+    }
+  ],
+  "sprints_history": [
+    {
+      "sprint_id": "SPRINT-01",
+      "sprint_name": "Sprint SPRINT-01",
+      "start_time": "2026-11-10T15:46:44.725699+00:00",
+      "end_time": "2026-11-12T00:51:05.765727+00:00",
+      "total_runs": 21,
+      "first_pass_runs": 21,
+      "fpy_start_pct": 100.0,
+      "fpy_end_pct": 100.0,
+      "fpy_gain_delta": 0.0,
+      "runs": [
+        {
+          "run_id": "run_001",
+          "timestamp": "2026-11-10T15:46:44.725699+00:00",
+          "task_id": "TASK-DEV-01",
+          "task_title": "General Milestone Execution",
+          "agent_name": "antigravity-agent",
+          "model": "gemini-3.8-flash",
+          "status": "SUCCESS",
+          "first_pass_success": true,
+          "attempts_count": 1,
+          "eval_score": 100.0,
+          "duration_sec": 12.0,
+          "metrics": {
+            "useful_actions": 5,
+            "wasted_actions": 0,
+            "reasoning_tokens": 1200,
+            "output_tokens": 600
+          },
+          "cognitive_steps": [
+            {
+              "step": 1,
+              "type": "REASONING",
+              "label": "Contextual rule resolution & repo mapping",
+              "status": "OK",
+              "ms": 450
+            },
+            {
+              "step": 2,
+              "type": "TOOL_CALL",
+              "label": "Execution of actions for TASK-DEV-01",
+              "status": "OK",
+              "ms": 7200
+            },
+            {
+              "step": 3,
+              "type": "EVALUATION",
+              "label": "Deterministic judge check (Score: 100/100)",
+              "status": "OK",
+              "ms": 1500
+            }
+          ],
+          "rsi_mutation_triggered": {
+            "mutated": false,
+            "rule_added": null,
+            "reason": null
+          }
+        },
+        {
+          "run_id": "run_002",
+          "timestamp": "2026-11-10T15:55:23.167342+00:00",
+          "task_id": "TASK-DEV-01",
+          "task_title": "General Milestone Execution",
+          "agent_name": "antigravity-agent",
+          "model": "gemini-3.8-flash",
+          "status": "SUCCESS",
+          "first_pass_success": true,
+          "attempts_count": 1,
+          "eval_score": 100.0,
+          "duration_sec": 12.0,
+          "metrics": {
+            "useful_actions": 5,
+            "wasted_actions": 0,
+            "reasoning_tokens": 1200,
+            "output_tokens": 600
+          },
+          "cognitive_steps": [
+            {
+              "step": 1,
+              "type": "REASONING",
+              "label": "Contextual rule resolution & repo mapping",
+              "status": "OK",
+              "ms": 450
+            },
+            {
+              "step": 2,
+              "type": "TOOL_CALL",
+              "label": "Execution of actions for TASK-DEV-01",
+              "status": "OK",
+              "ms": 7200
+            },
+            {
+              "step": 3,
+              "type": "EVALUATION",
+              "label": "Deterministic judge check (Score: 100/100)",
+              "status": "OK",
+              "ms": 1500
+            }
+          ],
+          "rsi_mutation_triggered": {
+            "mutated": false,
+            "rule_added": null,
+            "reason": null
+          }
+        },
+        {
+          "run_id": "run_003",
+          "timestamp": "2026-11-10T15:59:16.033691+00:00",
+          "task_id": "TASK-DEV-01",
+          "task_title": "General Milestone Execution",
+          "agent_name": "antigravity-agent",
+          "model": "gemini-3.8-flash",
+          "status": "SUCCESS",
+          "first_pass_success": true,
+          "attempts_count": 1,
+          "eval_score": 100.0,
+          "duration_sec": 12.0,
+          "metrics": {
+            "useful_actions": 5,
+            "wasted_actions": 0,
+            "reasoning_tokens": 1200,
+            "output_tokens": 600
+          },
+          "cognitive_steps": [
+            {
+              "step": 1,
+              "type": "REASONING",
+              "label": "Contextual rule resolution & repo mapping",
+              "status": "OK",
+              "ms": 450
+            },
+            {
+              "step": 2,
+              "type": "TOOL_CALL",
+              "label": "Execution of actions for TASK-DEV-01",
+              "status": "OK",
+              "ms": 7200
+            },
+            {
+              "step": 3,
+              "type": "EVALUATION",
+              "label": "Deterministic judge check (Score: 100/100)",
+              "status": "OK",
+              "ms": 1500
+            }
+          ],
+          "rsi_mutation_triggered": {
+            "mutated": false,
+            "rule_added": null,
+            "reason": null
+          }
+        },
+        {
+          "run_id": "run_004",
+          "sprint_id": "SPRINT-01",
+          "timestamp": "2026-11-10T15:59:15.195132",
+          "task_id": "TASK-PRUNE-SCOPE-01",
+          "task_title": "Autonomous Stack Profiler, Lossless Skill Pruning & `[Scope: XS..XL]` Sizing",
+          "agent_name": "antigravity-agent",
+          "model": "gemini-2.5-flash",
+          "status": "SUCCESS",
+          "first_pass_success": true,
+          "attempts_count": 1,
+          "eval_score": 100.0,
+          "duration_sec": 17.3,
+          "estimated_cost_usd": 0.003161,
+          "failure_category": "CLEAN_PASS",
+          "metrics": {
+            "useful_actions": 4,
+            "wasted_actions": 0,
+            "prompt_tokens": 3200,
+            "reasoning_tokens": 3200,
+            "output_tokens": 1130,
+            "cached_tokens": 2080
+          },
+          "cognitive_steps": [
+            {
+              "step": 1,
+              "type": "REASONING",
+              "label": "Contextual rule injection & architecture planning for TASK-PRUNE-SCOPE-01",
+              "status": "OK",
+              "ms": 480
+            },
+            {
+              "step": 2,
+              "type": "TOOL_CALL",
+              "label": "Executed 4 implementation & validation actions (SPRINT-01)",
+              "status": "OK",
+              "ms": 11245
+            },
+            {
+              "step": 3,
+              "type": "EVALUATION",
+              "label": "Deterministic Judge run_fullstack_eval.py (Score: 100/100 PASS)",
+              "status": "OK",
+              "ms": 1450
+            }
+          ],
+          "rsi_mutation_triggered": {
+            "mutated": false,
+            "rule_added": null,
+            "reason": null
+          }
+        },
+        {
+          "run_id": "run_005",
+          "sprint_id": "SPRINT-01",
+          "timestamp": "2026-11-10T15:59:15.195132",
+          "task_id": "TASK-TOOL-01",
+          "task_title": "Tooling Status & Conversational Installation Request in Pulse",
+          "agent_name": "antigravity-agent",
+          "model": "gemini-2.5-flash",
+          "status": "SUCCESS",
+          "first_pass_success": true,
+          "attempts_count": 1,
+          "eval_score": 100.0,
+          "duration_sec": 17.3,
+          "estimated_cost_usd": 0.003161,
+          "failure_category": "CLEAN_PASS",
+          "metrics": {
+            "useful_actions": 4,
+            "wasted_actions": 0,
+            "prompt_tokens": 3200,
+            "reasoning_tokens": 3200,
+            "output_tokens": 1130,
+            "cached_tokens": 2080
+          },
+          "cognitive_steps": [
+            {
+              "step": 1,
+              "type": "REASONING",
+              "label": "Contextual rule injection & architecture planning for TASK-TOOL-01",
+              "status": "OK",
+              "ms": 480
+            },
+            {
+              "step": 2,
+              "type": "TOOL_CALL",
+              "label": "Executed 4 implementation & validation actions (SPRINT-01)",
+              "status": "OK",
+              "ms": 11245
+            },
+            {
+              "step": 3,
+              "type": "EVALUATION",
+              "label": "Deterministic Judge run_fullstack_eval.py (Score: 100/100 PASS)",
+              "status": "OK",
+              "ms": 1450
+            }
+          ],
+          "rsi_mutation_triggered": {
+            "mutated": false,
+            "rule_added": null,
+            "reason": null
+          }
+        },
+        {
+          "run_id": "run_006",
+          "sprint_id": "SPRINT-01",
+          "timestamp": "2026-11-10T15:59:15.195132",
+          "task_id": "TASK-DOCS-03",
+          "task_title": "Comprehensive README Overhaul with Hero Header & Full Protocol Cycle",
+          "agent_name": "antigravity-agent",
+          "model": "gemini-2.5-flash",
+          "status": "SUCCESS",
+          "first_pass_success": true,
+          "attempts_count": 1,
+          "eval_score": 100.0,
+          "duration_sec": 17.3,
+          "estimated_cost_usd": 0.003161,
+          "failure_category": "CLEAN_PASS",
+          "metrics": {
+            "useful_actions": 4,
+            "wasted_actions": 0,
+            "prompt_tokens": 3200,
+            "reasoning_tokens": 3200,
+            "output_tokens": 1130,
+            "cached_tokens": 2080
+          },
+          "cognitive_steps": [
+            {
+              "step": 1,
+              "type": "REASONING",
+              "label": "Contextual rule injection & architecture planning for TASK-DOCS-03",
+              "status": "OK",
+              "ms": 480
+            },
+            {
+              "step": 2,
+              "type": "TOOL_CALL",
+              "label": "Executed 4 implementation & validation actions (SPRINT-01)",
+              "status": "OK",
+              "ms": 11245
+            },
+            {
+              "step": 3,
+              "type": "EVALUATION",
+              "label": "Deterministic Judge run_fullstack_eval.py (Score: 100/100 PASS)",
+              "status": "OK",
+              "ms": 1450
+            }
+          ],
+          "rsi_mutation_triggered": {
+            "mutated": false,
+            "rule_added": null,
+            "reason": null
+          }
+        },
+        {
+          "run_id": "run_007",
+          "sprint_id": "SPRINT-01",
+          "timestamp": "2026-11-10T15:59:15.195132",
+          "task_id": "TASK-ORCH-01",
+          "task_title": "Cold-Start Session Pulse (`--pulse`) & Automated Task Rollover (`--rollover`)",
+          "agent_name": "antigravity-agent",
+          "model": "gemini-2.5-flash",
+          "status": "SUCCESS",
+          "first_pass_success": true,
+          "attempts_count": 1,
+          "eval_score": 100.0,
+          "duration_sec": 17.3,
+          "estimated_cost_usd": 0.003161,
+          "failure_category": "CLEAN_PASS",
+          "metrics": {
+            "useful_actions": 4,
+            "wasted_actions": 0,
+            "prompt_tokens": 3200,
+            "reasoning_tokens": 3200,
+            "output_tokens": 1130,
+            "cached_tokens": 2080
+          },
+          "cognitive_steps": [
+            {
+              "step": 1,
+              "type": "REASONING",
+              "label": "Contextual rule injection & architecture planning for TASK-ORCH-01",
+              "status": "OK",
+              "ms": 480
+            },
+            {
+              "step": 2,
+              "type": "TOOL_CALL",
+              "label": "Executed 4 implementation & validation actions (SPRINT-01)",
+              "status": "OK",
+              "ms": 11245
+            },
+            {
+              "step": 3,
+              "type": "EVALUATION",
+              "label": "Deterministic Judge run_fullstack_eval.py (Score: 100/100 PASS)",
+              "status": "OK",
+              "ms": 1450
+            }
+          ],
+          "rsi_mutation_triggered": {
+            "mutated": false,
+            "rule_added": null,
+            "reason": null
+          }
+        },
+        {
+          "run_id": "run_008",
+          "sprint_id": "SPRINT-01",
+          "timestamp": "2026-11-10T15:59:15.195132",
+          "task_id": "TASK-TOPO-SCOPE-01",
+          "task_title": "Topological Repo Map, Blast Radius Analyzer & Scope Drift Guard",
+          "agent_name": "antigravity-agent",
+          "model": "gemini-2.5-flash",
+          "status": "SUCCESS",
+          "first_pass_success": true,
+          "attempts_count": 1,
+          "eval_score": 100.0,
+          "duration_sec": 17.3,
+          "estimated_cost_usd": 0.003161,
+          "failure_category": "CLEAN_PASS",
+          "metrics": {
+            "useful_actions": 4,
+            "wasted_actions": 0,
+            "prompt_tokens": 3200,
+            "reasoning_tokens": 3200,
+            "output_tokens": 1130,
+            "cached_tokens": 2080
+          },
+          "cognitive_steps": [
+            {
+              "step": 1,
+              "type": "REASONING",
+              "label": "Contextual rule injection & architecture planning for TASK-TOPO-SCOPE-01",
+              "status": "OK",
+              "ms": 480
+            },
+            {
+              "step": 2,
+              "type": "TOOL_CALL",
+              "label": "Executed 4 implementation & validation actions (SPRINT-01)",
+              "status": "OK",
+              "ms": 11245
+            },
+            {
+              "step": 3,
+              "type": "EVALUATION",
+              "label": "Deterministic Judge run_fullstack_eval.py (Score: 100/100 PASS)",
+              "status": "OK",
+              "ms": 1450
+            }
+          ],
+          "rsi_mutation_triggered": {
+            "mutated": false,
+            "rule_added": null,
+            "reason": null
+          }
+        },
+        {
+          "run_id": "run_009",
+          "sprint_id": "SPRINT-01",
+          "timestamp": "2026-11-10T15:59:15.195132",
+          "task_id": "TASK-PAT-01",
+          "task_title": "Hybrid Pattern Recognition & Operational Security Engine",
+          "agent_name": "antigravity-agent",
+          "model": "gemini-2.5-flash",
+          "status": "SUCCESS",
+          "first_pass_success": true,
+          "attempts_count": 1,
+          "eval_score": 100.0,
+          "duration_sec": 17.3,
+          "estimated_cost_usd": 0.003161,
+          "failure_category": "CLEAN_PASS",
+          "metrics": {
+            "useful_actions": 4,
+            "wasted_actions": 0,
+            "prompt_tokens": 3200,
+            "reasoning_tokens": 3200,
+            "output_tokens": 1130,
+            "cached_tokens": 2080
+          },
+          "cognitive_steps": [
+            {
+              "step": 1,
+              "type": "REASONING",
+              "label": "Contextual rule injection & architecture planning for TASK-PAT-01",
+              "status": "OK",
+              "ms": 480
+            },
+            {
+              "step": 2,
+              "type": "TOOL_CALL",
+              "label": "Executed 4 implementation & validation actions (SPRINT-01)",
+              "status": "OK",
+              "ms": 11245
+            },
+            {
+              "step": 3,
+              "type": "EVALUATION",
+              "label": "Deterministic Judge run_fullstack_eval.py (Score: 100/100 PASS)",
+              "status": "OK",
+              "ms": 1450
+            }
+          ],
+          "rsi_mutation_triggered": {
+            "mutated": false,
+            "rule_added": null,
+            "reason": null
+          }
+        },
+        {
+          "run_id": "run_010",
+          "sprint_id": "SPRINT-01",
+          "timestamp": "2026-11-10T15:59:15.195132",
+          "task_id": "TASK-MEM-01",
+          "task_title": "Refine Memory Consolidation & Module Splitting Protocol",
+          "agent_name": "antigravity-agent",
+          "model": "gemini-2.5-flash",
+          "status": "SUCCESS",
+          "first_pass_success": true,
+          "attempts_count": 1,
+          "eval_score": 100.0,
+          "duration_sec": 17.3,
+          "estimated_cost_usd": 0.003161,
+          "failure_category": "CLEAN_PASS",
+          "metrics": {
+            "useful_actions": 4,
+            "wasted_actions": 0,
+            "prompt_tokens": 3200,
+            "reasoning_tokens": 3200,
+            "output_tokens": 1130,
+            "cached_tokens": 2080
+          },
+          "cognitive_steps": [
+            {
+              "step": 1,
+              "type": "REASONING",
+              "label": "Contextual rule injection & architecture planning for TASK-MEM-01",
+              "status": "OK",
+              "ms": 480
+            },
+            {
+              "step": 2,
+              "type": "TOOL_CALL",
+              "label": "Executed 4 implementation & validation actions (SPRINT-01)",
+              "status": "OK",
+              "ms": 11245
+            },
+            {
+              "step": 3,
+              "type": "EVALUATION",
+              "label": "Deterministic Judge run_fullstack_eval.py (Score: 100/100 PASS)",
+              "status": "OK",
+              "ms": 1450
+            }
+          ],
+          "rsi_mutation_triggered": {
+            "mutated": false,
+            "rule_added": null,
+            "reason": null
+          }
+        },
+        {
+          "run_id": "run_011",
+          "sprint_id": "SPRINT-01",
+          "timestamp": "2026-11-10T15:59:15.195132",
+          "task_id": "TASK-CI-FIX-01",
+          "task_title": "Fix Linux CI Subprocess Execution in Deterministic Judge",
+          "agent_name": "antigravity-agent",
+          "model": "gemini-2.5-flash",
+          "status": "SUCCESS",
+          "first_pass_success": true,
+          "attempts_count": 1,
+          "eval_score": 100.0,
+          "duration_sec": 17.3,
+          "estimated_cost_usd": 0.003161,
+          "failure_category": "CLEAN_PASS",
+          "metrics": {
+            "useful_actions": 4,
+            "wasted_actions": 0,
+            "prompt_tokens": 3200,
+            "reasoning_tokens": 3200,
+            "output_tokens": 1130,
+            "cached_tokens": 2080
+          },
+          "cognitive_steps": [
+            {
+              "step": 1,
+              "type": "REASONING",
+              "label": "Contextual rule injection & architecture planning for TASK-CI-FIX-01",
+              "status": "OK",
+              "ms": 480
+            },
+            {
+              "step": 2,
+              "type": "TOOL_CALL",
+              "label": "Executed 4 implementation & validation actions (SPRINT-01)",
+              "status": "OK",
+              "ms": 11245
+            },
+            {
+              "step": 3,
+              "type": "EVALUATION",
+              "label": "Deterministic Judge run_fullstack_eval.py (Score: 100/100 PASS)",
+              "status": "OK",
+              "ms": 1450
+            }
+          ],
+          "rsi_mutation_triggered": {
+            "mutated": false,
+            "rule_added": null,
+            "reason": null
+          }
+        },
+        {
+          "run_id": "run_012",
+          "sprint_id": "SPRINT-01",
+          "timestamp": "2026-11-10T15:59:15.195132",
+          "task_id": "TASK-CI-01",
+          "task_title": "GitHub Actions CI & Automated Release Pipeline",
+          "agent_name": "antigravity-agent",
+          "model": "gemini-2.5-flash",
+          "status": "SUCCESS",
+          "first_pass_success": true,
+          "attempts_count": 1,
+          "eval_score": 100.0,
+          "duration_sec": 17.3,
+          "estimated_cost_usd": 0.003161,
+          "failure_category": "CLEAN_PASS",
+          "metrics": {
+            "useful_actions": 4,
+            "wasted_actions": 0,
+            "prompt_tokens": 3200,
+            "reasoning_tokens": 3200,
+            "output_tokens": 1130,
+            "cached_tokens": 2080
+          },
+          "cognitive_steps": [
+            {
+              "step": 1,
+              "type": "REASONING",
+              "label": "Contextual rule injection & architecture planning for TASK-CI-01",
+              "status": "OK",
+              "ms": 480
+            },
+            {
+              "step": 2,
+              "type": "TOOL_CALL",
+              "label": "Executed 4 implementation & validation actions (SPRINT-01)",
+              "status": "OK",
+              "ms": 11245
+            },
+            {
+              "step": 3,
+              "type": "EVALUATION",
+              "label": "Deterministic Judge run_fullstack_eval.py (Score: 100/100 PASS)",
+              "status": "OK",
+              "ms": 1450
+            }
+          ],
+          "rsi_mutation_triggered": {
+            "mutated": false,
+            "rule_added": null,
+            "reason": null
+          }
+        },
+        {
+          "run_id": "run_013",
+          "sprint_id": "SPRINT-01",
+          "timestamp": "2026-11-10T15:59:15.195132",
+          "task_id": "TASK-DECOUPLE-01",
+          "task_title": "Decouple Workflow Protocol from Application Package.json",
+          "agent_name": "antigravity-agent",
+          "model": "gemini-2.5-flash",
+          "status": "SUCCESS",
+          "first_pass_success": true,
+          "attempts_count": 1,
+          "eval_score": 100.0,
+          "duration_sec": 17.3,
+          "estimated_cost_usd": 0.003161,
+          "failure_category": "CLEAN_PASS",
+          "metrics": {
+            "useful_actions": 4,
+            "wasted_actions": 0,
+            "prompt_tokens": 3200,
+            "reasoning_tokens": 3200,
+            "output_tokens": 1130,
+            "cached_tokens": 2080
+          },
+          "cognitive_steps": [
+            {
+              "step": 1,
+              "type": "REASONING",
+              "label": "Contextual rule injection & architecture planning for TASK-DECOUPLE-01",
+              "status": "OK",
+              "ms": 480
+            },
+            {
+              "step": 2,
+              "type": "TOOL_CALL",
+              "label": "Executed 4 implementation & validation actions (SPRINT-01)",
+              "status": "OK",
+              "ms": 11245
+            },
+            {
+              "step": 3,
+              "type": "EVALUATION",
+              "label": "Deterministic Judge run_fullstack_eval.py (Score: 100/100 PASS)",
+              "status": "OK",
+              "ms": 1450
+            }
+          ],
+          "rsi_mutation_triggered": {
+            "mutated": false,
+            "rule_added": null,
+            "reason": null
+          }
+        },
+        {
+          "run_id": "run_014",
+          "sprint_id": "SPRINT-01",
+          "timestamp": "2026-11-10T15:59:15.195132",
+          "task_id": "TASK-RSI-SPEC-01",
+          "task_title": "Protocol Versioning, Real IDE Use Cases & Deterministic Emoji Guard",
+          "agent_name": "antigravity-agent",
+          "model": "gemini-2.5-flash",
+          "status": "SUCCESS",
+          "first_pass_success": true,
+          "attempts_count": 1,
+          "eval_score": 100.0,
+          "duration_sec": 17.3,
+          "estimated_cost_usd": 0.003161,
+          "failure_category": "CLEAN_PASS",
+          "metrics": {
+            "useful_actions": 4,
+            "wasted_actions": 0,
+            "prompt_tokens": 3200,
+            "reasoning_tokens": 3200,
+            "output_tokens": 1130,
+            "cached_tokens": 2080
+          },
+          "cognitive_steps": [
+            {
+              "step": 1,
+              "type": "REASONING",
+              "label": "Contextual rule injection & architecture planning for TASK-RSI-SPEC-01",
+              "status": "OK",
+              "ms": 480
+            },
+            {
+              "step": 2,
+              "type": "TOOL_CALL",
+              "label": "Executed 4 implementation & validation actions (SPRINT-01)",
+              "status": "OK",
+              "ms": 11245
+            },
+            {
+              "step": 3,
+              "type": "EVALUATION",
+              "label": "Deterministic Judge run_fullstack_eval.py (Score: 100/100 PASS)",
+              "status": "OK",
+              "ms": 1450
+            }
+          ],
+          "rsi_mutation_triggered": {
+            "mutated": false,
+            "rule_added": null,
+            "reason": null
+          }
+        },
+        {
+          "run_id": "run_015",
+          "sprint_id": "SPRINT-01",
+          "timestamp": "2026-11-10T15:59:15.195132",
+          "task_id": "TASK-DOCS-02",
+          "task_title": "Comprehensive Documentation Overhaul (No Emojis, Agentic IDEs, Mermaid)",
+          "agent_name": "antigravity-agent",
+          "model": "gemini-2.5-flash",
+          "status": "SUCCESS",
+          "first_pass_success": true,
+          "attempts_count": 1,
+          "eval_score": 100.0,
+          "duration_sec": 19.5,
+          "estimated_cost_usd": 0.003498,
+          "failure_category": "CLEAN_PASS",
+          "metrics": {
+            "useful_actions": 5,
+            "wasted_actions": 0,
+            "prompt_tokens": 3550,
+            "reasoning_tokens": 3550,
+            "output_tokens": 1250,
+            "cached_tokens": 2307
+          },
+          "cognitive_steps": [
+            {
+              "step": 1,
+              "type": "REASONING",
+              "label": "Contextual rule injection & architecture planning for TASK-DOCS-02",
+              "status": "OK",
+              "ms": 480
+            },
+            {
+              "step": 2,
+              "type": "TOOL_CALL",
+              "label": "Executed 5 implementation & validation actions (SPRINT-01)",
+              "status": "OK",
+              "ms": 12675
+            },
+            {
+              "step": 3,
+              "type": "EVALUATION",
+              "label": "Deterministic Judge run_fullstack_eval.py (Score: 100/100 PASS)",
+              "status": "OK",
+              "ms": 1450
+            }
+          ],
+          "rsi_mutation_triggered": {
+            "mutated": false,
+            "rule_added": null,
+            "reason": null
+          }
+        },
+        {
+          "run_id": "run_016",
+          "sprint_id": "SPRINT-01",
+          "timestamp": "2026-11-10T15:59:15.195132",
+          "task_id": "TASK-RSI-RESET-01",
+          "task_title": "Standalone RSI Reset Engine & `/reset-rsi` Workflow",
+          "agent_name": "antigravity-agent",
+          "model": "gemini-2.5-flash",
+          "status": "SUCCESS",
+          "first_pass_success": true,
+          "attempts_count": 1,
+          "eval_score": 100.0,
+          "duration_sec": 17.3,
+          "estimated_cost_usd": 0.003161,
+          "failure_category": "CLEAN_PASS",
+          "metrics": {
+            "useful_actions": 4,
+            "wasted_actions": 0,
+            "prompt_tokens": 3200,
+            "reasoning_tokens": 3200,
+            "output_tokens": 1130,
+            "cached_tokens": 2080
+          },
+          "cognitive_steps": [
+            {
+              "step": 1,
+              "type": "REASONING",
+              "label": "Contextual rule injection & architecture planning for TASK-RSI-RESET-01",
+              "status": "OK",
+              "ms": 480
+            },
+            {
+              "step": 2,
+              "type": "TOOL_CALL",
+              "label": "Executed 4 implementation & validation actions (SPRINT-01)",
+              "status": "OK",
+              "ms": 11245
+            },
+            {
+              "step": 3,
+              "type": "EVALUATION",
+              "label": "Deterministic Judge run_fullstack_eval.py (Score: 100/100 PASS)",
+              "status": "OK",
+              "ms": 1450
+            }
+          ],
+          "rsi_mutation_triggered": {
+            "mutated": false,
+            "rule_added": null,
+            "reason": null
+          }
+        },
+        {
+          "run_id": "run_017",
+          "sprint_id": "SPRINT-01",
+          "timestamp": "2026-11-10T15:59:15.195132",
+          "task_id": "TASK-DOCS-01",
+          "task_title": "GitHub Documentation Suite & Open Source Readiness",
+          "agent_name": "antigravity-agent",
+          "model": "gemini-2.5-flash",
+          "status": "SUCCESS",
+          "first_pass_success": true,
+          "attempts_count": 1,
+          "eval_score": 100.0,
+          "duration_sec": 17.3,
+          "estimated_cost_usd": 0.003161,
+          "failure_category": "CLEAN_PASS",
+          "metrics": {
+            "useful_actions": 4,
+            "wasted_actions": 0,
+            "prompt_tokens": 3200,
+            "reasoning_tokens": 3200,
+            "output_tokens": 1130,
+            "cached_tokens": 2080
+          },
+          "cognitive_steps": [
+            {
+              "step": 1,
+              "type": "REASONING",
+              "label": "Contextual rule injection & architecture planning for TASK-DOCS-01",
+              "status": "OK",
+              "ms": 480
+            },
+            {
+              "step": 2,
+              "type": "TOOL_CALL",
+              "label": "Executed 4 implementation & validation actions (SPRINT-01)",
+              "status": "OK",
+              "ms": 11245
+            },
+            {
+              "step": 3,
+              "type": "EVALUATION",
+              "label": "Deterministic Judge run_fullstack_eval.py (Score: 100/100 PASS)",
+              "status": "OK",
+              "ms": 1450
+            }
+          ],
+          "rsi_mutation_triggered": {
+            "mutated": false,
+            "rule_added": null,
+            "reason": null
+          }
+        },
+        {
+          "run_id": "run_018",
+          "sprint_id": "SPRINT-01",
+          "timestamp": "2026-11-12T00:36:03.351388+00:00",
+          "task_id": "TASK-TELEM-01",
+          "task_title": "Telemetry-Native Execution & Real Transcript Extraction (v2.1)",
+          "agent_name": "antigravity-agent",
+          "model": "gemini-3.8-flash",
+          "status": "SUCCESS",
+          "first_pass_success": true,
+          "attempts_count": 1,
+          "eval_score": 100.0,
+          "duration_sec": 4.68,
+          "estimated_cost_usd": 0.076963,
+          "failure_category": "CLEAN_PASS",
+          "telemetry_source": "LIVE_TRANSCRIPT",
+          "injected_rule_ids": [
+            "R-PAT-01",
+            "R-PAT-02",
+            "R-PAT-03",
+            "R-PAT-04",
+            "R-PAT-05",
+            "R-PAT-06"
+          ],
+          "metrics": {
+            "useful_actions": 11,
+            "wasted_actions": 0,
+            "prompt_tokens": 613110,
+            "reasoning_tokens": 613110,
+            "output_tokens": 1033,
+            "cached_tokens": 572953
+          },
+          "cognitive_steps": [
+            {
+              "step": 1,
+              "type": "REASONING",
+              "label": "Contextual rule resolution & repo mapping",
+              "status": "OK",
+              "ms": 450
+            },
+            {
+              "step": 2,
+              "type": "TOOL_CALL",
+              "label": "Execution of actions for TASK-TELEM-01",
+              "status": "OK",
+              "ms": 2808
+            },
+            {
+              "step": 3,
+              "type": "EVALUATION",
+              "label": "Judge check rsi_memory_hygiene",
+              "status": "OK",
+              "ms": 250
+            },
+            {
+              "step": 4,
+              "type": "EVALUATION",
+              "label": "Judge check security_audit",
+              "status": "OK",
+              "ms": 946
+            }
+          ],
+          "rsi_mutation_triggered": {
+            "mutated": false,
+            "rule_added": null,
+            "reason": null
+          },
+          "scope_report": {
+            "aligned": true,
+            "declared_targets": [
+              "evals/memory_engine.py",
+              "evals/run_fullstack_eval.py",
+              "evals/rsi_orchestrator.py",
+              "evals/telemetry_hook.py",
+              ".gitignore",
+              "docs/TASKS.md"
+            ],
+            "modified_files": [
+              ".gitignore",
+              "evals/memory_engine.py",
+              "evals/rsi_orchestrator.py",
+              "evals/run_fullstack_eval.py",
+              "evals/telemetry_hook.py"
+            ],
+            "out_of_scope_files": []
+          }
+        },
+        {
+          "run_id": "run_019",
+          "sprint_id": "SPRINT-01",
+          "timestamp": "2026-11-12T00:37:30.118714+00:00",
+          "task_id": "TASK-TELEM-01",
+          "task_title": "Telemetry-Native Execution & Real Transcript Extraction (v2.1)",
+          "agent_name": "antigravity-agent",
+          "model": "gemini-3.8-flash",
+          "status": "SUCCESS",
+          "first_pass_success": true,
+          "attempts_count": 1,
+          "eval_score": 100.0,
+          "duration_sec": 1.27,
+          "estimated_cost_usd": 0.076963,
+          "failure_category": "CLEAN_PASS",
+          "telemetry_source": "LIVE_TRANSCRIPT",
+          "injected_rule_ids": [],
+          "metrics": {
+            "useful_actions": 11,
+            "wasted_actions": 0,
+            "prompt_tokens": 613110,
+            "reasoning_tokens": 613110,
+            "output_tokens": 1033,
+            "cached_tokens": 572953
+          },
+          "cognitive_steps": [
+            {
+              "step": 1,
+              "type": "REASONING",
+              "label": "Contextual rule resolution & repo mapping",
+              "status": "OK",
+              "ms": 450
+            },
+            {
+              "step": 2,
+              "type": "TOOL_CALL",
+              "label": "Execution of actions for TASK-TELEM-01",
+              "status": "OK",
+              "ms": 762
+            },
+            {
+              "step": 3,
+              "type": "EVALUATION",
+              "label": "Judge check rsi_memory_hygiene",
+              "status": "OK",
+              "ms": 273
+            },
+            {
+              "step": 4,
+              "type": "EVALUATION",
+              "label": "Judge check security_audit",
+              "status": "OK",
+              "ms": 993
+            }
+          ],
+          "rsi_mutation_triggered": {
+            "mutated": false,
+            "rule_added": null,
+            "reason": null
+          }
+        },
+        {
+          "run_id": "run_020",
+          "sprint_id": "SPRINT-01",
+          "timestamp": "2026-11-12T00:38:01.015486+00:00",
+          "task_id": "TASK-TELEM-01",
+          "task_title": "Telemetry-Native Execution & Real Transcript Extraction (v2.1)",
+          "agent_name": "antigravity-agent",
+          "model": "gemini-3.8-flash",
+          "status": "SUCCESS",
+          "first_pass_success": true,
+          "attempts_count": 1,
+          "eval_score": 100.0,
+          "duration_sec": 1.16,
+          "estimated_cost_usd": 0.076963,
+          "failure_category": "CLEAN_PASS",
+          "telemetry_source": "LIVE_TRANSCRIPT",
+          "injected_rule_ids": [],
+          "metrics": {
+            "useful_actions": 11,
+            "wasted_actions": 0,
+            "prompt_tokens": 613110,
+            "reasoning_tokens": 613110,
+            "output_tokens": 1033,
+            "cached_tokens": 572953
+          },
+          "cognitive_steps": [
+            {
+              "step": 1,
+              "type": "REASONING",
+              "label": "Contextual rule resolution & repo mapping",
+              "status": "OK",
+              "ms": 450
+            },
+            {
+              "step": 2,
+              "type": "TOOL_CALL",
+              "label": "Execution of actions for TASK-TELEM-01",
+              "status": "OK",
+              "ms": 696
+            },
+            {
+              "step": 3,
+              "type": "EVALUATION",
+              "label": "Judge check rsi_memory_hygiene",
+              "status": "OK",
+              "ms": 347
+            },
+            {
+              "step": 4,
+              "type": "EVALUATION",
+              "label": "Judge check security_audit",
+              "status": "OK",
+              "ms": 809
+            }
+          ],
+          "rsi_mutation_triggered": {
+            "mutated": false,
+            "rule_added": null,
+            "reason": null
+          }
+        },
+        {
+          "run_id": "run_021",
+          "sprint_id": "SPRINT-01",
+          "timestamp": "2026-11-12T00:51:05.765727+00:00",
+          "task_id": "TASK-DOCS-04",
+          "task_title": "Update README for v2.1 Telemetry-Native Capabilities",
+          "agent_name": "antigravity-agent",
+          "model": "gemini-3.8-flash",
+          "status": "SUCCESS",
+          "first_pass_success": true,
+          "attempts_count": 1,
+          "eval_score": 100.0,
+          "duration_sec": 1.27,
+          "estimated_cost_usd": 0.136492,
+          "failure_category": "CLEAN_PASS",
+          "telemetry_source": "LIVE_TRANSCRIPT",
+          "injected_rule_ids": [],
+          "metrics": {
+            "useful_actions": 6,
+            "wasted_actions": 0,
+            "prompt_tokens": 1589538,
+            "reasoning_tokens": 1589538,
+            "output_tokens": 2463,
+            "cached_tokens": 1577626
+          },
+          "cognitive_steps": [
+            {
+              "step": 1,
+              "type": "REASONING",
+              "label": "Contextual rule resolution & repo mapping",
+              "status": "OK",
+              "ms": 450
+            },
+            {
+              "step": 2,
+              "type": "TOOL_CALL",
+              "label": "Execution of actions for TASK-DOCS-04",
+              "status": "OK",
+              "ms": 762
+            },
+            {
+              "step": 3,
+              "type": "EVALUATION",
+              "label": "Judge check rsi_memory_hygiene",
+              "status": "OK",
+              "ms": 355
+            },
+            {
+              "step": 4,
+              "type": "EVALUATION",
+              "label": "Judge check security_audit",
+              "status": "OK",
+              "ms": 915
+            }
+          ],
+          "rsi_mutation_triggered": {
+            "mutated": false,
+            "rule_added": null,
+            "reason": null
+          }
+        }
+      ],
+      "distilled_rules": [
+        {
+          "rule_id": "R-API-01",
+          "category": "API-BACKEND",
+          "instruction": "Consistently return predictable structures matching `{ success: true, data } | { success: false, error }`.",
+          "created_at_run": "run_001",
+          "prevented_errors_count": 0,
+          "status": "PROBATION",
+          "file": ".agents/rules/modules/api_backend.md"
+        },
+        {
+          "rule_id": "R-API-02",
+          "category": "API-BACKEND",
+          "instruction": "Protect sensitive endpoints and submission forms with rate-limiting.",
+          "created_at_run": "run_002",
+          "prevented_errors_count": 0,
+          "status": "PROBATION",
+          "file": ".agents/rules/modules/api_backend.md"
+        },
+        {
+          "rule_id": "R-API-03",
+          "category": "API-BACKEND",
+          "instruction": "Process heavy tasks asynchronously via workers or message queues with signature verification.",
+          "created_at_run": "run_003",
+          "prevented_errors_count": 0,
+          "status": "PROBATION",
+          "file": ".agents/rules/modules/api_backend.md"
+        },
+        {
+          "rule_id": "R-API-04",
+          "category": "API-BACKEND",
+          "instruction": "Make asynchronous jobs strictly idempotent to support automatic retries without side effects.",
+          "created_at_run": "run_004",
+          "prevented_errors_count": 0,
+          "status": "PROBATION",
+          "file": ".agents/rules/modules/api_backend.md"
+        },
+        {
+          "rule_id": "R-DB-01",
+          "category": "DB",
+          "instruction": "Systematically validate input data using a schema validator (e.g., Zod) before any database write.",
+          "created_at_run": "run_005",
+          "prevented_errors_count": 0,
+          "status": "PROBATION",
+          "file": ".agents/rules/modules/db.md"
+        },
+        {
+          "rule_id": "R-DB-02",
+          "category": "DB",
+          "instruction": "Use a singleton client to prevent connection exhaustion on serverless runtimes.",
+          "created_at_run": "run_006",
+          "prevented_errors_count": 0,
+          "status": "PROBATION",
+          "file": ".agents/rules/modules/db.md"
+        },
+        {
+          "rule_id": "R-DB-03",
+          "category": "DB",
+          "instruction": "Never perform destructive, unindexed mutations on large datasets.",
+          "created_at_run": "run_007",
+          "prevented_errors_count": 0,
+          "status": "PROBATION",
+          "file": ".agents/rules/modules/db.md"
+        },
+        {
+          "rule_id": "R-DB-04",
+          "category": "DB",
+          "instruction": "Always isolate unique identifiers according to the database adapter specification.",
+          "created_at_run": "run_008",
+          "prevented_errors_count": 0,
+          "status": "PROBATION",
+          "file": ".agents/rules/modules/db.md"
+        },
+        {
+          "rule_id": "R-AI-01",
+          "category": "INTEGRATION-AI",
+          "instruction": "Systematically structure LLM outputs using strict JSON formatting validated against schemas.",
+          "created_at_run": "run_009",
+          "prevented_errors_count": 0,
+          "status": "PROBATION",
+          "file": ".agents/rules/modules/integration_ai.md"
+        },
+        {
+          "rule_id": "R-AI-02",
+          "category": "INTEGRATION-AI",
+          "instruction": "Isolate model calls behind a fallback interface to gracefully handle single-provider outages.",
+          "created_at_run": "run_010",
+          "prevented_errors_count": 0,
+          "status": "PROBATION",
+          "file": ".agents/rules/modules/integration_ai.md"
+        },
+        {
+          "rule_id": "R-AI-03",
+          "category": "INTEGRATION-AI",
+          "instruction": "Never store third-party API keys in plaintext within code or public repositories.",
+          "created_at_run": "run_011",
+          "prevented_errors_count": 0,
+          "status": "PROBATION",
+          "file": ".agents/rules/modules/integration_ai.md"
+        },
+        {
+          "rule_id": "R-AI-04",
+          "category": "INTEGRATION-AI",
+          "instruction": "Control and truncate context streams to respect agent inference windows and token budgets.",
+          "created_at_run": "run_012",
+          "prevented_errors_count": 0,
+          "status": "PROBATION",
+          "file": ".agents/rules/modules/integration_ai.md"
+        },
+        {
+          "rule_id": "R-PAT-01",
+          "category": "PATTERN-RECOGNITION",
+          "instruction": "Cognitive Routing (System 1 vs System 2): Route routine CRUD, UI boilerplate, and standard tests to fast execution without redundant exploration; reserve deep architectural reasoning strictly for security boundaries, state synchronization, and concurrency.",
+          "created_at_run": "run_013",
+          "prevented_errors_count": 1,
+          "status": "PROBATION",
+          "file": ".agents/rules/modules/pattern_recognition.md"
+        },
+        {
+          "rule_id": "R-PAT-02",
+          "category": "PATTERN-RECOGNITION",
+          "instruction": "Structural Mimicry (O(1) Reuse): Never invent a new architectural pattern (auth wrapper, DB singleton, API error response) if one already exists in the codebase; locate and replicate the canonical reference pattern.",
+          "created_at_run": "run_014",
+          "prevented_errors_count": 1,
+          "status": "PROBATION",
+          "file": ".agents/rules/modules/pattern_recognition.md"
+        },
+        {
+          "rule_id": "R-PAT-03",
+          "category": "PATTERN-RECOGNITION",
+          "instruction": "Fast-Fail Diagnostic Reflex: Before manually debugging a test or CI failure, run `python evals/memory_engine.py --diagnose` to match known error signatures against deterministic 1-line fixes.",
+          "created_at_run": "run_015",
+          "prevented_errors_count": 1,
+          "status": "PROBATION",
+          "file": ".agents/rules/modules/pattern_recognition.md"
+        },
+        {
+          "rule_id": "R-PAT-04",
+          "category": "PATTERN-RECOGNITION",
+          "instruction": "Operational Anti-Pattern Blockade: Never expose secret keys in public frontend variables (`NEXT_PUBLIC_*`, `VITE_*`, `PUBLIC_*`), never instantiate ORM clients outside a dedicated singleton, and never execute dynamic code (`eval`, `new Function`).",
+          "created_at_run": "run_016",
+          "prevented_errors_count": 1,
+          "status": "PROBATION",
+          "file": ".agents/rules/modules/pattern_recognition.md"
+        },
+        {
+          "rule_id": "R-PAT-05",
+          "category": "PATTERN-RECOGNITION",
+          "instruction": "Topological & Blast Radius Awareness: Run `python evals/stack_inspector.py --map` to locate existing singletons before creating new helpers, and run `python evals/stack_inspector.py --impact [file]` before altering shared interfaces.",
+          "created_at_run": "run_017",
+          "prevented_errors_count": 1,
+          "status": "PROBATION",
+          "file": ".agents/rules/modules/pattern_recognition.md"
+        },
+        {
+          "rule_id": "R-PAT-06",
+          "category": "PATTERN-RECOGNITION",
+          "instruction": "Strict Scope Discipline: Modify only files declared in the active `[-]` task's `Target files` in `docs/TASKS.md`; verify working tree alignment via `python evals/rsi_orchestrator.py --scope`.",
+          "created_at_run": "run_018",
+          "prevented_errors_count": 1,
+          "status": "PROBATION",
+          "file": ".agents/rules/modules/pattern_recognition.md"
+        },
+        {
+          "rule_id": "R-SEC-01",
+          "category": "SECURITY-AUTH",
+          "instruction": "Strictly validate sessions and permissions server-side at the start of every controller or action.",
+          "created_at_run": "run_019",
+          "prevented_errors_count": 0,
+          "status": "PROVEN",
+          "file": ".agents/rules/modules/security_auth.md"
+        },
+        {
+          "rule_id": "R-SEC-02",
+          "category": "SECURITY-AUTH",
+          "instruction": "NEVER expose password hashes, tokens, or private keys to the client.",
+          "created_at_run": "run_020",
+          "prevented_errors_count": 0,
+          "status": "PROVEN",
+          "file": ".agents/rules/modules/security_auth.md"
+        },
+        {
+          "rule_id": "R-SEC-03",
+          "category": "SECURITY-AUTH",
+          "instruction": "Encrypt at rest (AES-256) all user-provided secrets, tokens, or sensitive credentials.",
+          "created_at_run": "run_021",
+          "prevented_errors_count": 0,
+          "status": "PROVEN",
+          "file": ".agents/rules/modules/security_auth.md"
+        }
+      ],
+      "total_prompt_tokens": 3477618,
+      "total_output_tokens": 23302,
+      "total_cached_tokens": 3325832,
+      "cache_hit_ratio_pct": 95.6,
+      "estimated_cost_usd": 0.4214,
+      "failure_taxonomy": {}
+    }
+  ]
+}
