@@ -310,12 +310,43 @@ This updates `VERSION`, synchronizes `package.json` if an application is install
 
 ### Integrating into an Existing Codebase
 
-Copy the core directories into your project root:
+#### Option A: One-Command Automated Sync & Update (Recommended)
+
+From your `Agentic-RSI-Protocol` repository, use `evals/version_manager.py` to synchronize the core engine to any target application workspace in one step:
+
 ```bash
-cp -r .agents/ evals/ docs/ CHANGELOG.md AGENTS.md VERSION /path/to/target-project/
+# Update an existing project (updates engine, preserves target TASKS.md & learned modules)
+python evals/version_manager.py --sync-to /path/to/target-project
+
+# Or initialize a brand new project workspace
+python evals/version_manager.py --init-target /path/to/new-project
 ```
 
-Add these standard scripts to your `package.json`:
+What `--sync-to` does automatically:
+- **Updates Engine:** Synchronizes `evals/`, `.agents/workflows/`, `.agents/prompts/`, `AGENTS.md`, and `VERSION`.
+- **Updates Base Rules:** Updates `.agents/rules/system_core.md` and `fullstack_playbook.md`.
+- **Preserves Target Backlog:** Never overwrites existing `docs/TASKS.md` or completed task archives.
+- **Preserves Target Memories:** Never overwrites existing custom modules in `.agents/rules/modules/` or project telemetry in `.agents/telemetry/`.
+
+#### Option B: Manual Cross-Platform Copy
+
+If running manually (e.g. via PowerShell on Windows):
+```powershell
+$SOURCE = "C:\path\to\Agentic-RSI-Protocol"
+$TARGET = "C:\path\to\target-project"
+
+# 1. Update engine & workflows
+Copy-Item -Path "$SOURCE\evals\*" -Destination "$TARGET\evals\" -Recurse -Force
+Copy-Item -Path "$SOURCE\.agents\workflows\*" -Destination "$TARGET\.agents\workflows\" -Recurse -Force
+Copy-Item -Path "$SOURCE\AGENTS.md", "$SOURCE\VERSION" -Destination "$TARGET\" -Force
+
+# 2. Verify target workspace
+cd $TARGET
+python evals/rsi_orchestrator.py --pulse
+python evals/run_fullstack_eval.py --quick
+```
+
+Add standard scripts to your project's `package.json` (optional):
 ```json
 {
   "scripts": {
@@ -411,7 +442,7 @@ All tools are in `evals/` and require Python 3.10+:
 | `python evals/reset_rsi.py` | Resets task registry and changelog to a clean template baseline | `--dry-run`, `--force`, `--no-backup` |
 | `python evals/rsi_orchestrator.py` | Session pulse, evaluation retry loop, guardrails, scope guard, and task rollover | `--pulse`, `--eval`, `--attempt N`, `--guardrail`, `--scope`, `--strict-scope`, `--rollover`, `--dry-run` |
 | `python evals/telemetry_hook.py` | Records latest trajectory telemetry, real transcript tokens, and rule ROI | *(None)* |
-| `python evals/version_manager.py` | Increments SemVer release and seals changelog entry | `--bump [major\|minor\|patch]` |
+| `python evals/version_manager.py` | Increments SemVer release, seals changelog, or syncs protocol to target project | `--bump [major\|minor\|patch]`, `--sync-to TARGET_DIR`, `--init-target TARGET_DIR` |
 
 ---
 
