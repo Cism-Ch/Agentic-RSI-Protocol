@@ -98,3 +98,8 @@ reports/
 *.sw?
 .DS_Store
 Thumbs.db
+
+# Cognitive-RSI-Ops temporary & ephemeral telemetry files
+.agent/telemetry/*.tmp
+.agents/telemetry/*.tmp
+.agents/telemetry/active_session.json

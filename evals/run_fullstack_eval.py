@@ -11,11 +11,12 @@ RSI Adaptive & Agnostic Deterministic Judge
 
 import sys
 import os
+import time
 import subprocess
 import json
 import argparse
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 
 # Configure Windows console encoding
 if sys.stdout.encoding != 'utf-8':
@@ -42,6 +43,7 @@ def detect_package_manager() -> str:
 def run_cmd(name: str, cmd_or_list: str | list[str], weight: int, timeout_sec: int = 180) -> dict:
     use_shell = isinstance(cmd_or_list, str)
     cmd_repr = " ".join(cmd_or_list) if isinstance(cmd_or_list, list) else cmd_or_list
+    start_ts = time.perf_counter()
     try:
         res = subprocess.run(
             cmd_or_list,
@@ -53,6 +55,7 @@ def run_cmd(name: str, cmd_or_list: str | list[str], weight: int, timeout_sec: i
             encoding="utf-8",
             errors="replace"
         )
+        duration_ms = int(round((time.perf_counter() - start_ts) * 1000))
         passed = res.returncode == 0
         error_output = ""
         if not passed:
@@ -64,22 +67,27 @@ def run_cmd(name: str, cmd_or_list: str | list[str], weight: int, timeout_sec: i
             "passed": passed,
             "score": weight if passed else 0,
             "max_score": weight,
+            "duration_ms": duration_ms,
             "error_log": error_output.strip()
         }
     except subprocess.TimeoutExpired:
+        duration_ms = int(round((time.perf_counter() - start_ts) * 1000))
         return {
             "step": name,
             "passed": False,
             "score": 0,
             "max_score": weight,
+            "duration_ms": duration_ms,
             "error_log": f"Timeout exceeded ({timeout_sec}s) while executing: {cmd_repr}"
         }
     except Exception as e:
+        duration_ms = int(round((time.perf_counter() - start_ts) * 1000))
         return {
             "step": name,
             "passed": False,
             "score": 0,
             "max_score": weight,
+            "duration_ms": duration_ms,
             "error_log": str(e)
         }
 
@@ -178,10 +186,12 @@ def build_adaptive_checks(quick: bool) -> list[dict]:
 def main():
     parser = argparse.ArgumentParser(description="Adaptive & Agnostic RSI Deterministic Judge")
     parser.add_argument("--quick", "-q", action="store_true", help="Skip production build for fast reflexive loops")
+    parser.add_argument("--no-telemetry", action="store_true", help="Skip automatic telemetry_hook invocation (used when orchestrated)")
     args = parser.parse_args()
 
     check_configs = build_adaptive_checks(args.quick)
     executed_checks = []
+    eval_start_ts = time.perf_counter()
 
     for cfg in check_configs:
         res = run_cmd(cfg["name"], cfg["cmd"], weight=cfg["weight"], timeout_sec=cfg["timeout"])
@@ -190,6 +200,7 @@ def main():
         if not res["passed"] and cfg["name"] in ["typecheck", "rsi_memory_hygiene", "security_audit"]:
             break
 
+    total_duration_ms = int(round((time.perf_counter() - eval_start_ts) * 1000))
     total_score = 0
     max_score = sum(c["weight"] for c in check_configs)
     raw_score = sum(r["score"] for r in executed_checks)
@@ -203,12 +214,14 @@ def main():
     status = "PASS" if total_score == 100 and not failed_steps else "FAIL"
 
     trajectory = {
-        "timestamp": datetime.now().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "mode": "QUICK" if args.quick else "FULL",
         "total_score": total_score,
         "raw_score": raw_score,
         "max_score": max_score,
+        "total_duration_ms": total_duration_ms,
         "status": status,
+        "checks": executed_checks,
         "failed_steps": failed_steps,
         "summary": {r["step"]: ("PASSED" if r["passed"] else "FAILED") for r in executed_checks}
     }
@@ -216,6 +229,14 @@ def main():
     LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(LOG_PATH, "w", encoding="utf-8") as f:
         json.dump(trajectory, f, indent=2, ensure_ascii=False)
+
+    # Optional Cognitive-RSI-Ops telemetry hook
+    hook_script = ROOT_DIR / "evals" / "telemetry_hook.py"
+    if hook_script.exists() and not args.no_telemetry:
+        try:
+            subprocess.run([sys.executable, str(hook_script)], cwd=str(ROOT_DIR), timeout=10, capture_output=True)
+        except Exception:
+            pass
 
     print(json.dumps(trajectory, indent=2, ensure_ascii=False))
 
