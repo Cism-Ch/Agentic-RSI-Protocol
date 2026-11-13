@@ -440,8 +440,8 @@ All tools are in `evals/` and require Python 3.10+:
 | `python evals/memory_engine.py` | Audits module limits, injects rules (+ session trace), or diagnoses failures | `--audit`, `--inject [files...]`, `--diagnose` |
 | `python evals/stack_inspector.py` | Autonomous stack profiler, O(1) topological map, Blast Radius, and lossless skill pruner | `--map`, `--impact <file>`, `--profile`, `--prune-skills`, `--dry-run` |
 | `python evals/reset_rsi.py` | Resets task registry and changelog to a clean template baseline | `--dry-run`, `--force`, `--no-backup` |
-| `python evals/rsi_orchestrator.py` | Session pulse, evaluation retry loop, guardrails, scope guard, and task rollover | `--pulse`, `--eval`, `--attempt N`, `--guardrail`, `--scope`, `--strict-scope`, `--rollover`, `--dry-run` |
-| `python evals/telemetry_hook.py` | Records latest trajectory telemetry, real transcript tokens, and rule ROI | *(None)* |
+| `python evals/rsi_orchestrator.py` | Session pulse, evaluation retry loop, guardrails, scope guard, task rollover, and target project sync | `--pulse`, `--eval`, `--attempt N`, `--guardrail`, `--scope`, `--strict-scope`, `--rollover`, `--dry-run`, `--sync-to TARGET_DIR`, `--init-target TARGET_DIR` |
+| `python evals/telemetry_hook.py` | Records trajectory telemetry, real transcript tokens, rule ROI, and verifies JSON contract | `--verify-contract`, `--target TARGET_DIR` |
 | `python evals/version_manager.py` | Increments SemVer release, seals changelog, or syncs protocol to target project | `--bump [major\|minor\|patch]`, `--sync-to TARGET_DIR`, `--init-target TARGET_DIR` |
 
 ---

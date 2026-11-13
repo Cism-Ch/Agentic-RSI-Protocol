@@ -12,7 +12,8 @@
 +-------------------------+  +-------------------------+  +-------------------------+
 | [>] IN PROGRESS (SP 01) |  |   [?] FUTURE BACKLOG    |  |       [X] ARCHIVES      |
 +-------------------------+  +-------------------------+  +-------------------------+
-| [ ] TASK-INIT-01        |  | [ ] Future task 1       |  | [x] TASK-SYNC-01        |
+| [ ] TASK-INIT-01        |  | [ ] Future task 1       |  | [x] TASK-V22-ISOLATE-01 |
+|                         |  |                         |  | [x] TASK-SYNC-01        |
 |                         |  |                         |  | [x] TASK-GIT-01         |
 |                         |  |                         |  | [x] TASK-I18N-01        |
 |                         |  |                         |  | [x] TASK-SCRIPTS-01     |
@@ -38,6 +39,15 @@
 ---
 
 ## Active Sprint 01: Project Setup & Initialization
+
+- [x] **`TASK-V22-ISOLATE-01` - Session Isolation, Contract Verification & OfferAnalyst Deployment (v2.2)**
+  - **Priority:** HIGH
+  - **Target files:** `evals/rsi_orchestrator.py`, `evals/telemetry_hook.py`, `evals/version_manager.py`, `README.md`, `docs/TASKS.md`, `PLAN_AGENTIC_RSI_PROTOCOL.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-V22-ISOLATE-01.01`: Implement strict session token isolation on task switch and track attempt timestamps in `evals/rsi_orchestrator.py`.
+    - [x] `TASK-V22-ISOLATE-01.02`: Implement `--verify-contract` in `evals/telemetry_hook.py` and align payload structure for `cognitive-rsi-ops`.
+    - [x] `TASK-V22-ISOLATE-01.03`: Add `--sync-to` support in `evals/rsi_orchestrator.py` alias and deploy cleanly to `../OfferAnalyst`.
+    - [x] `TASK-V22-ISOLATE-01.04`: Validate with deterministic judge (`100/100 PASS`), pure ASCII check, and security audit.
 
 - [x] **`TASK-SYNC-01` - Automated Target Project Sync & Installation CLI (`--sync-to`)**
   - **Priority:** HIGH
