@@ -1,44 +1,44 @@
 {
   "project_meta": {
     "project_name": "Agentic-RSI-Protocol",
-    "last_updated": "2026-11-13T01:18:57.458456+00:00",
+    "last_updated": "2026-11-13T16:10:11.245793+00:00",
     "playbook_version": "v1.0",
     "target_path": "C:\\Users\\hanok\\Dev\\Personal-Project\\Agentic-RSI-Protocol"
   },
   "summary_kpis": {
     "first_pass_yield_pct": 100.0,
-    "action_efficiency_ratio": 100.0,
-    "cognitive_friction_index": 0.0,
-    "total_runs": 27,
+    "action_efficiency_ratio": 96.7,
+    "cognitive_friction_index": 0.03,
+    "total_runs": 28,
     "total_mutations_applied": 26,
-    "avg_duration_sec": 11.0,
-    "total_reasoning_tokens": 11669562,
-    "total_output_tokens": 50495,
-    "total_prompt_tokens": 11669562,
-    "total_cached_tokens": 10832747,
-    "cache_hit_ratio_pct": 92.8,
-    "total_estimated_cost_usd": 1.6002,
+    "avg_duration_sec": 10.7,
+    "total_reasoning_tokens": 24364436,
+    "total_output_tokens": 63402,
+    "total_prompt_tokens": 24364436,
+    "total_cached_tokens": 23158198,
+    "cache_hit_ratio_pct": 95.0,
+    "total_estimated_cost_usd": 2.8501,
     "failure_taxonomy": {},
     "token_savings_roi": {
-      "real_data_runs_count": 27,
+      "real_data_runs_count": 28,
       "estimated_runs_count": 0,
-      "cache_savings_usd": 7.3002,
+      "cache_savings_usd": 15.6199,
       "first_pass_vs_retry": {
-        "first_pass_count": 27,
+        "first_pass_count": 28,
         "retry_count": 0,
-        "avg_tokens_first_pass": 434076,
-        "avg_cost_first_pass_usd": 0.05927,
+        "avg_tokens_first_pass": 872423,
+        "avg_cost_first_pass_usd": 0.10179,
         "avg_tokens_with_retries": 0,
         "avg_cost_with_retries_usd": 0.0,
         "estimated_retry_cost_avoided_usd": 0.0
       },
       "rules_impact": {
         "runs_with_rules": 1,
-        "runs_without_rules": 26,
+        "runs_without_rules": 27,
         "fpy_with_rules_pct": 100.0,
         "fpy_without_rules_pct": 100.0,
         "avg_tokens_with_rules": 614143,
-        "avg_tokens_without_rules": 427151,
+        "avg_tokens_without_rules": 881989,
         "total_prevented_errors": 6
       }
     }
@@ -1784,6 +1784,67 @@
         "rule_added": null,
         "reason": null
       }
+    },
+    {
+      "run_id": "run_028",
+      "sprint_id": "SPRINT-01",
+      "timestamp": "2026-11-13T16:10:11.235788+00:00",
+      "task_id": "TASK-V22-ISOLATE-01",
+      "task_title": "Session Isolation, Contract Verification & OfferAnalyst Deployment (v2.2)",
+      "agent_name": "antigravity-agent",
+      "model": "gemini-3.8-flash",
+      "status": "SUCCESS",
+      "first_pass_success": true,
+      "attempts_count": 1,
+      "eval_score": 100.0,
+      "duration_sec": 1.71,
+      "estimated_cost_usd": 1.249877,
+      "failure_category": "CLEAN_PASS",
+      "telemetry_source": "LIVE_TRANSCRIPT",
+      "injected_rule_ids": [],
+      "metrics": {
+        "useful_actions": 99,
+        "wasted_actions": 11,
+        "prompt_tokens": 12694874,
+        "reasoning_tokens": 12694874,
+        "output_tokens": 12907,
+        "cached_tokens": 12325451
+      },
+      "cognitive_steps": [
+        {
+          "step": 1,
+          "type": "REASONING",
+          "label": "Contextual rule resolution & repo mapping",
+          "status": "OK",
+          "ms": 450
+        },
+        {
+          "step": 2,
+          "type": "TOOL_CALL",
+          "label": "Execution of actions for TASK-V22-ISOLATE-01",
+          "status": "OK",
+          "ms": 1026
+        },
+        {
+          "step": 3,
+          "type": "EVALUATION",
+          "label": "Judge check rsi_memory_hygiene",
+          "status": "OK",
+          "ms": 461
+        },
+        {
+          "step": 4,
+          "type": "EVALUATION",
+          "label": "Judge check security_audit",
+          "status": "OK",
+          "ms": 1247
+        }
+      ],
+      "rsi_mutation_triggered": {
+        "mutated": false,
+        "rule_added": null,
+        "reason": null
+      }
     }
   ],
   "sprints_history": [
@@ -1791,9 +1852,9 @@
       "sprint_id": "SPRINT-01",
       "sprint_name": "Sprint SPRINT-01",
       "start_time": "2026-11-10T15:46:44.725699+00:00",
-      "end_time": "2026-11-13T01:18:57.447053+00:00",
-      "total_runs": 27,
-      "first_pass_runs": 27,
+      "end_time": "2026-11-13T16:10:11.235788+00:00",
+      "total_runs": 28,
+      "first_pass_runs": 28,
       "fpy_start_pct": 100.0,
       "fpy_end_pct": 100.0,
       "fpy_gain_delta": 0.0,
@@ -3302,6 +3363,67 @@
             "rule_added": null,
             "reason": null
           }
+        },
+        {
+          "run_id": "run_028",
+          "sprint_id": "SPRINT-01",
+          "timestamp": "2026-11-13T16:10:11.235788+00:00",
+          "task_id": "TASK-V22-ISOLATE-01",
+          "task_title": "Session Isolation, Contract Verification & OfferAnalyst Deployment (v2.2)",
+          "agent_name": "antigravity-agent",
+          "model": "gemini-3.8-flash",
+          "status": "SUCCESS",
+          "first_pass_success": true,
+          "attempts_count": 1,
+          "eval_score": 100.0,
+          "duration_sec": 1.71,
+          "estimated_cost_usd": 1.249877,
+          "failure_category": "CLEAN_PASS",
+          "telemetry_source": "LIVE_TRANSCRIPT",
+          "injected_rule_ids": [],
+          "metrics": {
+            "useful_actions": 99,
+            "wasted_actions": 11,
+            "prompt_tokens": 12694874,
+            "reasoning_tokens": 12694874,
+            "output_tokens": 12907,
+            "cached_tokens": 12325451
+          },
+          "cognitive_steps": [
+            {
+              "step": 1,
+              "type": "REASONING",
+              "label": "Contextual rule resolution & repo mapping",
+              "status": "OK",
+              "ms": 450
+            },
+            {
+              "step": 2,
+              "type": "TOOL_CALL",
+              "label": "Execution of actions for TASK-V22-ISOLATE-01",
+              "status": "OK",
+              "ms": 1026
+            },
+            {
+              "step": 3,
+              "type": "EVALUATION",
+              "label": "Judge check rsi_memory_hygiene",
+              "status": "OK",
+              "ms": 461
+            },
+            {
+              "step": 4,
+              "type": "EVALUATION",
+              "label": "Judge check security_audit",
+              "status": "OK",
+              "ms": 1247
+            }
+          ],
+          "rsi_mutation_triggered": {
+            "mutated": false,
+            "rule_added": null,
+            "reason": null
+          }
         }
       ],
       "distilled_rules": [
@@ -3540,13 +3662,13 @@
           "file": ".agents/rules/modules/ui_frontend.md"
         }
       ],
-      "total_prompt_tokens": 11669562,
-      "total_output_tokens": 50495,
-      "total_cached_tokens": 10832747,
-      "cache_hit_ratio_pct": 92.8,
-      "estimated_cost_usd": 1.6002,
-      "avg_tokens_per_run": 434076,
-      "avg_cost_per_run_usd": 0.05927,
+      "total_prompt_tokens": 24364436,
+      "total_output_tokens": 63402,
+      "total_cached_tokens": 23158198,
+      "cache_hit_ratio_pct": 95.0,
+      "estimated_cost_usd": 2.8501,
+      "avg_tokens_per_run": 872423,
+      "avg_cost_per_run_usd": 0.10179,
       "failure_taxonomy": {}
     }
   ]
