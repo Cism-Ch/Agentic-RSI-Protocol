@@ -1,44 +1,44 @@
 {
   "project_meta": {
     "project_name": "Agentic-RSI-Protocol",
-    "last_updated": "2026-11-13T16:29:48.376882+00:00",
+    "last_updated": "2026-11-14T00:51:15.525285+00:00",
     "playbook_version": "v1.0",
     "target_path": "C:\\Users\\hanok\\Dev\\Personal-Project\\Agentic-RSI-Protocol"
   },
   "summary_kpis": {
     "first_pass_yield_pct": 100.0,
-    "action_efficiency_ratio": 95.2,
-    "cognitive_friction_index": 0.05,
-    "total_runs": 29,
+    "action_efficiency_ratio": 95.8,
+    "cognitive_friction_index": 0.04,
+    "total_runs": 32,
     "total_mutations_applied": 26,
-    "avg_duration_sec": 10.4,
-    "total_reasoning_tokens": 62731505,
-    "total_output_tokens": 89634,
-    "total_prompt_tokens": 62731505,
-    "total_cached_tokens": 60615755,
-    "cache_hit_ratio_pct": 96.6,
-    "total_estimated_cost_usd": 6.4399,
+    "avg_duration_sec": 9.5,
+    "total_reasoning_tokens": 82172657,
+    "total_output_tokens": 102624,
+    "total_prompt_tokens": 82172657,
+    "total_cached_tokens": 79855811,
+    "cache_hit_ratio_pct": 97.2,
+    "total_estimated_cost_usd": 8.0824,
     "failure_taxonomy": {},
     "token_savings_roi": {
-      "real_data_runs_count": 29,
+      "real_data_runs_count": 32,
       "estimated_runs_count": 0,
-      "cache_savings_usd": 40.9037,
+      "cache_savings_usd": 53.8908,
       "first_pass_vs_retry": {
-        "first_pass_count": 29,
+        "first_pass_count": 32,
         "retry_count": 0,
-        "avg_tokens_first_pass": 2166246,
-        "avg_cost_first_pass_usd": 0.22206,
+        "avg_tokens_first_pass": 2571103,
+        "avg_cost_first_pass_usd": 0.25258,
         "avg_tokens_with_retries": 0,
         "avg_cost_with_retries_usd": 0.0,
         "estimated_retry_cost_avoided_usd": 0.0
       },
       "rules_impact": {
         "runs_with_rules": 1,
-        "runs_without_rules": 28,
+        "runs_without_rules": 31,
         "fpy_with_rules_pct": 100.0,
         "fpy_without_rules_pct": 100.0,
         "avg_tokens_with_rules": 614143,
-        "avg_tokens_without_rules": 2221678,
+        "avg_tokens_without_rules": 2634230,
         "total_prevented_errors": 6
       }
     }
@@ -1906,6 +1906,189 @@
         "rule_added": null,
         "reason": null
       }
+    },
+    {
+      "run_id": "run_030",
+      "sprint_id": "SPRINT-01",
+      "timestamp": "2026-11-14T00:46:26.255067+00:00",
+      "task_id": "TASK-SEC-FIX-01",
+      "task_title": "Fix False Positives in security_audit.py (ASCII vs French Accents & Prisma Scope)",
+      "agent_name": "antigravity-agent",
+      "model": "gemini-3.8-flash",
+      "status": "SUCCESS",
+      "first_pass_success": true,
+      "attempts_count": 1,
+      "eval_score": 100.0,
+      "duration_sec": 0.61,
+      "estimated_cost_usd": 0.101456,
+      "failure_category": "CLEAN_PASS",
+      "telemetry_source": "LIVE_TRANSCRIPT",
+      "injected_rule_ids": [],
+      "metrics": {
+        "useful_actions": 5,
+        "wasted_actions": 0,
+        "prompt_tokens": 1139364,
+        "reasoning_tokens": 1139364,
+        "output_tokens": 1833,
+        "cached_tokens": 1125838
+      },
+      "cognitive_steps": [
+        {
+          "step": 1,
+          "type": "REASONING",
+          "label": "Contextual rule resolution & repo mapping",
+          "status": "OK",
+          "ms": 450
+        },
+        {
+          "step": 2,
+          "type": "TOOL_CALL",
+          "label": "Execution of actions for TASK-SEC-FIX-01",
+          "status": "OK",
+          "ms": 366
+        },
+        {
+          "step": 3,
+          "type": "EVALUATION",
+          "label": "Judge check rsi_memory_hygiene",
+          "status": "OK",
+          "ms": 231
+        },
+        {
+          "step": 4,
+          "type": "EVALUATION",
+          "label": "Judge check security_audit",
+          "status": "OK",
+          "ms": 381
+        }
+      ],
+      "rsi_mutation_triggered": {
+        "mutated": false,
+        "rule_added": null,
+        "reason": null
+      }
+    },
+    {
+      "run_id": "run_031",
+      "sprint_id": "SPRINT-01",
+      "timestamp": "2026-11-14T00:50:35.021920+00:00",
+      "task_id": "TASK-SEC-FIX-01",
+      "task_title": "Fix False Positives in security_audit.py (ASCII vs French Accents & Prisma Scope)",
+      "agent_name": "antigravity-agent",
+      "model": "gemini-3.8-flash",
+      "status": "SUCCESS",
+      "first_pass_success": true,
+      "attempts_count": 1,
+      "eval_score": 100.0,
+      "duration_sec": 0.86,
+      "estimated_cost_usd": 0.726793,
+      "failure_category": "CLEAN_PASS",
+      "telemetry_source": "LIVE_TRANSCRIPT",
+      "injected_rule_ids": [],
+      "metrics": {
+        "useful_actions": 37,
+        "wasted_actions": 0,
+        "prompt_tokens": 8664642,
+        "reasoning_tokens": 8664642,
+        "output_tokens": 4615,
+        "cached_tokens": 8576289
+      },
+      "cognitive_steps": [
+        {
+          "step": 1,
+          "type": "REASONING",
+          "label": "Contextual rule resolution & repo mapping",
+          "status": "OK",
+          "ms": 450
+        },
+        {
+          "step": 2,
+          "type": "TOOL_CALL",
+          "label": "Execution of actions for TASK-SEC-FIX-01",
+          "status": "OK",
+          "ms": 516
+        },
+        {
+          "step": 3,
+          "type": "EVALUATION",
+          "label": "Judge check rsi_memory_hygiene",
+          "status": "OK",
+          "ms": 332
+        },
+        {
+          "step": 4,
+          "type": "EVALUATION",
+          "label": "Judge check security_audit",
+          "status": "OK",
+          "ms": 527
+        }
+      ],
+      "rsi_mutation_triggered": {
+        "mutated": false,
+        "rule_added": null,
+        "reason": null
+      }
+    },
+    {
+      "run_id": "run_032",
+      "sprint_id": "SPRINT-01",
+      "timestamp": "2026-11-14T00:51:15.517195+00:00",
+      "task_id": "TASK-SEC-FIX-01",
+      "task_title": "Fix False Positives in security_audit.py (ASCII vs French Accents & Prisma Scope)",
+      "agent_name": "antigravity-agent",
+      "model": "gemini-3.8-flash",
+      "status": "SUCCESS",
+      "first_pass_success": true,
+      "attempts_count": 1,
+      "eval_score": 100.0,
+      "duration_sec": 1.04,
+      "estimated_cost_usd": 0.81429,
+      "failure_category": "CLEAN_PASS",
+      "telemetry_source": "LIVE_TRANSCRIPT",
+      "injected_rule_ids": [],
+      "metrics": {
+        "useful_actions": 41,
+        "wasted_actions": 0,
+        "prompt_tokens": 9637146,
+        "reasoning_tokens": 9637146,
+        "output_tokens": 6542,
+        "cached_tokens": 9537929
+      },
+      "cognitive_steps": [
+        {
+          "step": 1,
+          "type": "REASONING",
+          "label": "Contextual rule resolution & repo mapping",
+          "status": "OK",
+          "ms": 450
+        },
+        {
+          "step": 2,
+          "type": "TOOL_CALL",
+          "label": "Execution of actions for TASK-SEC-FIX-01",
+          "status": "OK",
+          "ms": 624
+        },
+        {
+          "step": 3,
+          "type": "EVALUATION",
+          "label": "Judge check rsi_memory_hygiene",
+          "status": "OK",
+          "ms": 351
+        },
+        {
+          "step": 4,
+          "type": "EVALUATION",
+          "label": "Judge check security_audit",
+          "status": "OK",
+          "ms": 687
+        }
+      ],
+      "rsi_mutation_triggered": {
+        "mutated": false,
+        "rule_added": null,
+        "reason": null
+      }
     }
   ],
   "sprints_history": [
@@ -1913,9 +2096,9 @@
       "sprint_id": "SPRINT-01",
       "sprint_name": "Sprint SPRINT-01",
       "start_time": "2026-11-10T15:46:44.725699+00:00",
-      "end_time": "2026-11-13T16:29:48.369521+00:00",
-      "total_runs": 29,
-      "first_pass_runs": 29,
+      "end_time": "2026-11-14T00:51:15.517195+00:00",
+      "total_runs": 32,
+      "first_pass_runs": 32,
       "fpy_start_pct": 100.0,
       "fpy_end_pct": 100.0,
       "fpy_gain_delta": 0.0,
@@ -3546,6 +3729,189 @@
             "rule_added": null,
             "reason": null
           }
+        },
+        {
+          "run_id": "run_030",
+          "sprint_id": "SPRINT-01",
+          "timestamp": "2026-11-14T00:46:26.255067+00:00",
+          "task_id": "TASK-SEC-FIX-01",
+          "task_title": "Fix False Positives in security_audit.py (ASCII vs French Accents & Prisma Scope)",
+          "agent_name": "antigravity-agent",
+          "model": "gemini-3.8-flash",
+          "status": "SUCCESS",
+          "first_pass_success": true,
+          "attempts_count": 1,
+          "eval_score": 100.0,
+          "duration_sec": 0.61,
+          "estimated_cost_usd": 0.101456,
+          "failure_category": "CLEAN_PASS",
+          "telemetry_source": "LIVE_TRANSCRIPT",
+          "injected_rule_ids": [],
+          "metrics": {
+            "useful_actions": 5,
+            "wasted_actions": 0,
+            "prompt_tokens": 1139364,
+            "reasoning_tokens": 1139364,
+            "output_tokens": 1833,
+            "cached_tokens": 1125838
+          },
+          "cognitive_steps": [
+            {
+              "step": 1,
+              "type": "REASONING",
+              "label": "Contextual rule resolution & repo mapping",
+              "status": "OK",
+              "ms": 450
+            },
+            {
+              "step": 2,
+              "type": "TOOL_CALL",
+              "label": "Execution of actions for TASK-SEC-FIX-01",
+              "status": "OK",
+              "ms": 366
+            },
+            {
+              "step": 3,
+              "type": "EVALUATION",
+              "label": "Judge check rsi_memory_hygiene",
+              "status": "OK",
+              "ms": 231
+            },
+            {
+              "step": 4,
+              "type": "EVALUATION",
+              "label": "Judge check security_audit",
+              "status": "OK",
+              "ms": 381
+            }
+          ],
+          "rsi_mutation_triggered": {
+            "mutated": false,
+            "rule_added": null,
+            "reason": null
+          }
+        },
+        {
+          "run_id": "run_031",
+          "sprint_id": "SPRINT-01",
+          "timestamp": "2026-11-14T00:50:35.021920+00:00",
+          "task_id": "TASK-SEC-FIX-01",
+          "task_title": "Fix False Positives in security_audit.py (ASCII vs French Accents & Prisma Scope)",
+          "agent_name": "antigravity-agent",
+          "model": "gemini-3.8-flash",
+          "status": "SUCCESS",
+          "first_pass_success": true,
+          "attempts_count": 1,
+          "eval_score": 100.0,
+          "duration_sec": 0.86,
+          "estimated_cost_usd": 0.726793,
+          "failure_category": "CLEAN_PASS",
+          "telemetry_source": "LIVE_TRANSCRIPT",
+          "injected_rule_ids": [],
+          "metrics": {
+            "useful_actions": 37,
+            "wasted_actions": 0,
+            "prompt_tokens": 8664642,
+            "reasoning_tokens": 8664642,
+            "output_tokens": 4615,
+            "cached_tokens": 8576289
+          },
+          "cognitive_steps": [
+            {
+              "step": 1,
+              "type": "REASONING",
+              "label": "Contextual rule resolution & repo mapping",
+              "status": "OK",
+              "ms": 450
+            },
+            {
+              "step": 2,
+              "type": "TOOL_CALL",
+              "label": "Execution of actions for TASK-SEC-FIX-01",
+              "status": "OK",
+              "ms": 516
+            },
+            {
+              "step": 3,
+              "type": "EVALUATION",
+              "label": "Judge check rsi_memory_hygiene",
+              "status": "OK",
+              "ms": 332
+            },
+            {
+              "step": 4,
+              "type": "EVALUATION",
+              "label": "Judge check security_audit",
+              "status": "OK",
+              "ms": 527
+            }
+          ],
+          "rsi_mutation_triggered": {
+            "mutated": false,
+            "rule_added": null,
+            "reason": null
+          }
+        },
+        {
+          "run_id": "run_032",
+          "sprint_id": "SPRINT-01",
+          "timestamp": "2026-11-14T00:51:15.517195+00:00",
+          "task_id": "TASK-SEC-FIX-01",
+          "task_title": "Fix False Positives in security_audit.py (ASCII vs French Accents & Prisma Scope)",
+          "agent_name": "antigravity-agent",
+          "model": "gemini-3.8-flash",
+          "status": "SUCCESS",
+          "first_pass_success": true,
+          "attempts_count": 1,
+          "eval_score": 100.0,
+          "duration_sec": 1.04,
+          "estimated_cost_usd": 0.81429,
+          "failure_category": "CLEAN_PASS",
+          "telemetry_source": "LIVE_TRANSCRIPT",
+          "injected_rule_ids": [],
+          "metrics": {
+            "useful_actions": 41,
+            "wasted_actions": 0,
+            "prompt_tokens": 9637146,
+            "reasoning_tokens": 9637146,
+            "output_tokens": 6542,
+            "cached_tokens": 9537929
+          },
+          "cognitive_steps": [
+            {
+              "step": 1,
+              "type": "REASONING",
+              "label": "Contextual rule resolution & repo mapping",
+              "status": "OK",
+              "ms": 450
+            },
+            {
+              "step": 2,
+              "type": "TOOL_CALL",
+              "label": "Execution of actions for TASK-SEC-FIX-01",
+              "status": "OK",
+              "ms": 624
+            },
+            {
+              "step": 3,
+              "type": "EVALUATION",
+              "label": "Judge check rsi_memory_hygiene",
+              "status": "OK",
+              "ms": 351
+            },
+            {
+              "step": 4,
+              "type": "EVALUATION",
+              "label": "Judge check security_audit",
+              "status": "OK",
+              "ms": 687
+            }
+          ],
+          "rsi_mutation_triggered": {
+            "mutated": false,
+            "rule_added": null,
+            "reason": null
+          }
         }
       ],
       "distilled_rules": [
@@ -3784,13 +4150,13 @@
           "file": ".agents/rules/modules/ui_frontend.md"
         }
       ],
-      "total_prompt_tokens": 62731505,
-      "total_output_tokens": 89634,
-      "total_cached_tokens": 60615755,
-      "cache_hit_ratio_pct": 96.6,
-      "estimated_cost_usd": 6.4399,
-      "avg_tokens_per_run": 2166246,
-      "avg_cost_per_run_usd": 0.22206,
+      "total_prompt_tokens": 82172657,
+      "total_output_tokens": 102624,
+      "total_cached_tokens": 79855811,
+      "cache_hit_ratio_pct": 97.2,
+      "estimated_cost_usd": 8.0824,
+      "avg_tokens_per_run": 2571103,
+      "avg_cost_per_run_usd": 0.25258,
       "failure_taxonomy": {}
     }
   ]

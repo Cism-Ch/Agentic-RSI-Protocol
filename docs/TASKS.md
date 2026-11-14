@@ -12,7 +12,8 @@
 +-------------------------+  +-------------------------+  +-------------------------+
 | [>] IN PROGRESS (SP 01) |  |   [?] FUTURE BACKLOG    |  |       [X] ARCHIVES      |
 +-------------------------+  +-------------------------+  +-------------------------+
-| [ ] TASK-INIT-01        |  | [ ] Future task 1       |  | [x] TASK-V22-ISOLATE-01 |
+| [ ] TASK-INIT-01        |  | [ ] Future task 1       |  | [x] TASK-SEC-FIX-01     |
+|                         |  |                         |  | [x] TASK-V22-ISOLATE-01 |
 |                         |  |                         |  | [x] TASK-SYNC-01        |
 |                         |  |                         |  | [x] TASK-GIT-01         |
 |                         |  |                         |  | [x] TASK-I18N-01        |
@@ -39,6 +40,14 @@
 ---
 
 ## Active Sprint 01: Project Setup & Initialization
+
+- [x] **`TASK-SEC-FIX-01` - Fix False Positives in security_audit.py (ASCII vs French Accents & Prisma Scope)**
+  - **Priority:** HIGH
+  - **Target files:** `evals/security_audit.py`, `docs/TASKS.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-SEC-FIX-01.01`: Restrict strict ASCII check (ord > 127) to executable Python scripts (`evals/**/*.py`) and exclude third-party `.agents/skills/` and `CHANGELOG.md`.
+    - [x] `TASK-SEC-FIX-01.02`: Restrict `new PrismaClient(` audit pattern strictly to application code under `src/` (while preserving `SINGLETON_ALLOWED_FILES`).
+    - [x] `TASK-SEC-FIX-01.03`: Validate `python evals/security_audit.py` and `python evals/run_fullstack_eval.py` (100/100 PASS) in Agentic-RSI-Protocol and synced OfferAnalyst.
 
 - [x] **`TASK-V22-ISOLATE-01` - Session Isolation, Contract Verification & OfferAnalyst Deployment (v2.2)**
   - **Priority:** HIGH

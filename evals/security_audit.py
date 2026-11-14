@@ -10,6 +10,7 @@ Static Security Audit & Secret Leak Detector
 import sys
 import re
 import os
+import subprocess
 from pathlib import Path
 
 # Fix Windows console UTF-8 encoding
@@ -94,9 +95,9 @@ def audit_secrets() -> list[dict]:
     return findings
 
 def audit_ascii_hygiene() -> list[dict]:
-    """Ensures that scripts, rules, and core docs are 100% pure ASCII to prevent terminal/CI encoding crashes."""
+    """Ensures that executable Python scripts are 100% pure ASCII to prevent terminal/CI encoding crashes."""
     violations = []
-    check_patterns = ["evals/**/*.py", ".agents/**/*.md", "docs/**/*.md", "*.md"]
+    check_patterns = ["evals/**/*.py"]
     scanned_files = set()
 
     for pat in check_patterns:
@@ -111,14 +112,14 @@ def audit_ascii_hygiene() -> list[dict]:
                         non_ascii_chars = [ch for ch in line if ord(ch) > 127]
                         if non_ascii_chars:
                             violations.append({
-                                "file": str(path.relative_to(ROOT_DIR)),
+                                "file": str(path.relative_to(ROOT_DIR)).replace("\\", "/"),
                                 "line": idx,
-                                "type": "Non-ASCII / Emoji Character",
+                                "type": "Non-ASCII Character in Python Script",
                                 "sample": line.strip()[:60]
                             })
                 except Exception as e:
                     violations.append({
-                        "file": str(path.relative_to(ROOT_DIR)),
+                        "file": str(path.relative_to(ROOT_DIR)).replace("\\", "/"),
                         "line": 0,
                         "type": "Read Error",
                         "sample": str(e)
@@ -148,10 +149,14 @@ def audit_operational_patterns() -> list[dict]:
     violations = []
     for root, dirs, files in os.walk(ROOT_DIR):
         dirs[:] = [d for d in dirs if d not in IGNORE_DIRS and not d.startswith('.git')]
-        if "evals" in Path(root).parts:
+        root_path = Path(root)
+        if "evals" in root_path.parts:
             continue
+        rel_root_parts = root_path.relative_to(ROOT_DIR).parts
+        is_src_dir = len(rel_root_parts) > 0 and rel_root_parts[0] == "src"
+
         for f in files:
-            path = Path(root) / f
+            path = root_path / f
             is_env = f.startswith(".env")
             if path.suffix not in APP_CODE_EXTENSIONS and not is_env:
                 continue
@@ -163,18 +168,20 @@ def audit_operational_patterns() -> list[dict]:
                     if stripped.startswith("//") or stripped.startswith("#"):
                         continue
                     for pattern, label in OPERATIONAL_ANTI_PATTERNS:
-                        if "PrismaClient" in label and path.name in SINGLETON_ALLOWED_FILES:
-                            continue
+                        if "PrismaClient" in label:
+                            # Rule [R-DB-02] applies to application code in src/ to prevent serverless pool exhaustion
+                            if not is_src_dir or path.name in SINGLETON_ALLOWED_FILES:
+                                continue
                         if pattern.search(line):
                             violations.append({
-                                "file": str(path.relative_to(ROOT_DIR)),
+                                "file": str(path.relative_to(ROOT_DIR)).replace("\\", "/"),
                                 "line": idx,
                                 "type": label,
                                 "sample": stripped[:60]
                             })
             except Exception as e:
                 violations.append({
-                    "file": str(path.relative_to(ROOT_DIR)),
+                    "file": str(path.relative_to(ROOT_DIR)).replace("\\", "/"),
                     "line": 0,
                     "type": "Read Error",
                     "sample": str(e)
