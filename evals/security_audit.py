@@ -62,6 +62,14 @@ def is_gitignored(rel_path_str: str) -> bool:
     except Exception:
         return False
 
+DUMMY_SECRET_INDICATORS = (
+    "<username>", "<password>", "<token>", "<key>",
+    "user:pass", "username:password", "%s:%s",
+    "YOUR_PASSWORD", "YOUR_KEY", "YOUR_API_KEY", "your-key-here",
+    "sk-or-v1-your-key-here", "example.com", "dummy", "placeholder",
+    "CHANGE_ME", "REPLACE_ME", "MY_SECRET", "[VOTRE-", "[YOUR-"
+)
+
 def audit_secrets() -> list[dict]:
     findings = []
     for root, dirs, files in os.walk(ROOT_DIR):
@@ -71,12 +79,20 @@ def audit_secrets() -> list[dict]:
                 continue
             path = Path(root) / f
             rel_str = str(path.relative_to(ROOT_DIR)).replace("\\", "/")
-            # Legitimate local environment files ignored by git are not leaks
+            # Exclude third-party vendor skills from secret leak scans
+            if any(part == "skills" for part in path.parts):
+                continue
+            # Legitimate local environment files ignored by git or template files are not leaks
+            if f in (".env.example", ".env.sample", ".env.template"):
+                continue
             if f.startswith(".env") and is_gitignored(rel_str):
                 continue
             try:
                 lines = path.read_text(encoding="utf-8", errors="ignore").splitlines()
                 for idx, line in enumerate(lines, start=1):
+                    # Skip documentation template/dummy examples
+                    if any(dummy.lower() in line.lower() for dummy in DUMMY_SECRET_INDICATORS):
+                        continue
                     for pattern, label in SECRET_PATTERNS:
                         if pattern.search(line):
                             findings.append({

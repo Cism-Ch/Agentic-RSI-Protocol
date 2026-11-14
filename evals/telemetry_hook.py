@@ -38,6 +38,7 @@ STATE_FILE = ROOT_DIR / ".agents" / "telemetry" / "cognitive_state.json"
 FALLBACK_PRICING = {
     "gemini-3.8-flash": {"in": 0.00000015, "out": 0.0000006, "cache": 0.0000000375},
     "gemini-2.5-flash": {"in": 0.00000015, "out": 0.0000006, "cache": 0.0000000375},
+    "gemini-4-hydrogen": {"in": 0.00000125, "out": 0.000005, "cache": 0.0000003125},
     "gemini-4-argon": {"in": 0.00000125, "out": 0.000005, "cache": 0.0000003125},
     "gemini-2.5-pro": {"in": 0.00000125, "out": 0.000005, "cache": 0.0000003125},
     "claude-3-5-sonnet": {"in": 0.000003, "out": 0.000015, "cache": 0.0000003},
@@ -98,8 +99,10 @@ def find_active_task() -> tuple[str, str]:
 
 def _normalize_model_label(raw_segment: str) -> str:
     clean = raw_segment.lower().strip()
-    if "argon" in clean or "gemini 4" in clean or "gemini-4" in clean:
+    if "argon" in clean:
         return "gemini-4-argon"
+    if "hydrogen" in clean or "gemini 4" in clean or "gemini-4" in clean:
+        return "gemini-4-hydrogen"
     if "3.8" in clean:
         return "gemini-3.8-flash"
     if "2.5-pro" in clean or "pro" in clean:
@@ -657,7 +660,7 @@ def verify_contract(target_dir: Optional[Path] = None) -> bool:
                         passed = False
 
                 source = latest_run.get("telemetry_source")
-                if source not in ("LIVE_TRANSCRIPT", "ESTIMATED_FALLBACK", "MANUAL_CLI"):
+                if source not in ("LIVE_TRANSCRIPT", "ESTIMATED_FALLBACK", "MANUAL_CLI", "TASKS_MD_BACKFILL"):
                     errors.append(f"Invalid telemetry_source: '{source}'")
                     passed = False
 

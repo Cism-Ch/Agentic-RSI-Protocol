@@ -12,7 +12,8 @@
 +-------------------------+  +-------------------------+  +-------------------------+
 | [>] IN PROGRESS (SP 01) |  |   [?] FUTURE BACKLOG    |  |       [X] ARCHIVES      |
 +-------------------------+  +-------------------------+  +-------------------------+
-| [ ] TASK-INIT-01        |  | [ ] Future task 1       |  | [x] TASK-SEC-FIX-01     |
+|                         |  | [ ] TASK-INIT-01        |  | [x] TASK-MODEL-MAP-01   |
+|                         |  |                         |  | [x] TASK-SEC-FIX-01     |
 |                         |  |                         |  | [x] TASK-V22-ISOLATE-01 |
 |                         |  |                         |  | [x] TASK-SYNC-01        |
 |                         |  |                         |  | [x] TASK-GIT-01         |
@@ -40,6 +41,14 @@
 ---
 
 ## Active Sprint 01: Project Setup & Initialization
+
+- [x] **`TASK-MODEL-MAP-01` - Update Gemini 4 Model Mapping to Hydrogen in Telemetry Hook**
+  - **Priority:** MEDIUM
+  - **Target files:** `evals/telemetry_hook.py`, `docs/TASKS.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-MODEL-MAP-01.01`: Map generic "gemini 4" and "gemini-4" to "gemini-4-hydrogen" while preserving explicit "argon" and "hydrogen" keywords in `evals/telemetry_hook.py`.
+    - [x] `TASK-MODEL-MAP-01.02`: Add pricing entry for `gemini-4-hydrogen` in `FALLBACK_PRICING` dictionary.
+    - [x] `TASK-MODEL-MAP-01.03`: Synchronize updated telemetry hook to `OfferAnalyst` and validate with deterministic judge (`100/100 PASS`).
 
 - [x] **`TASK-SEC-FIX-01` - Fix False Positives in security_audit.py (ASCII vs French Accents & Prisma Scope)**
   - **Priority:** HIGH
