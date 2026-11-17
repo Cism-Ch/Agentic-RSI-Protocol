@@ -12,7 +12,8 @@
 +-------------------------+  +-------------------------+  +-------------------------+
 | [>] IN PROGRESS (SP 01) |  |   [?] FUTURE BACKLOG    |  |       [X] ARCHIVES      |
 +-------------------------+  +-------------------------+  +-------------------------+
-|                         |  | [ ] TASK-INIT-01        |  | [x] TASK-MODEL-MAP-01   |
+|                         |  | [ ] TASK-INIT-01        |  | [x] TASK-HONESTY-01     |
+|                         |  |                         |  | [x] TASK-MODEL-MAP-01   |
 |                         |  |                         |  | [x] TASK-SEC-FIX-01     |
 |                         |  |                         |  | [x] TASK-V22-ISOLATE-01 |
 |                         |  |                         |  | [x] TASK-SYNC-01        |
@@ -41,6 +42,14 @@
 ---
 
 ## Active Sprint 01: Project Setup & Initialization
+
+- [x] **`TASK-HONESTY-01` - Fail-Loud Honesty, Zero Reward Hacking & Blocked Escalation Protocol**
+  - **Priority:** HIGH
+  - **Target files:** `.agents/rules/system_core.md`, `AGENTS.md`, `.agents/workflows/rsi-feature.md`, `evals/rsi_orchestrator.py`, `docs/TASKS.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-HONESTY-01.01`: Add Fail-Loud & Zero Reward Hacking rule to `.agents/rules/system_core.md` and `AGENTS.md`.
+    - [x] `TASK-HONESTY-01.02`: Formalize `[!] BLOCKED` escalation state in `.agents/workflows/rsi-feature.md` and `evals/rsi_orchestrator.py`.
+    - [x] `TASK-HONESTY-01.03`: Validate with `python evals/run_fullstack_eval.py` (`100/100 PASS`).
 
 - [x] **`TASK-MODEL-MAP-01` - Update Gemini 4 Model Mapping to Hydrogen in Telemetry Hook**
   - **Priority:** MEDIUM

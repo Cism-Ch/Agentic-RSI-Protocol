@@ -9,8 +9,8 @@ This document governs engineering guidelines, codebase governance, and the Recur
 1. **Architecture & Strict Typing:** Zero type errors, strong inference, and systematic runtime validation.
 2. **Task Tracking (Inviolable SSOT - `docs/TASKS.md`):**
    - **No Unregistered Coding:** All work MUST be attached to a formalized task in `docs/TASKS.md` (`TASK-DOMAIN-XX`) with a description and checkable acceptance criteria.
-   - **Real-Time Updates:** Mark `[-]` at start, `[x]` upon completion.
-   - **Validation Before Closure:** Never mark a task completed without validating with the deterministic judge (`python evals/run_fullstack_eval.py`).
+   - **Real-Time Updates:** Mark `[-]` at start, `[!]` (`BLOCKED`) on unresolvable impasse with diagnostic report, `[x]` upon completion.
+   - **Validation Before Closure:** Never mark a task completed without validating with the deterministic judge (`python evals/run_fullstack_eval.py`). Never weaken tests or validators to bypass a failure without explicit user approval.
    - **Strict Ceiling:** `docs/TASKS.md` must never exceed **250 lines** (Rollover to `docs/archive/tasks/`).
 3. **RSI Protocol (Recursive Self-Improvement):**
    - **Modular Procedural Memory:** Consult `.agents/rules/modules/` for specialized rules (< 80 lines per file).

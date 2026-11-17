@@ -171,7 +171,7 @@ def parse_active_tasks() -> list[dict]:
 
     task_active_re = re.compile(r'^-\s*\[-\]\s*\*\*`?(TASK-[A-Z0-9\-]+)`?\*{0,2}(?:\s*[-:]\s*(.*))?')
     task_closed_re = re.compile(r'^-\s*\[[xX]\]\s*\*\*`?(TASK-[A-Z0-9\-]+)`?\*{0,2}(?:\s*[-:]\s*(.*))?')
-    any_top_task_re = re.compile(r'^-\s*\[[ xX\-]\]\s*\*\*`?(TASK-[A-Z0-9\-]+)`?')
+    any_top_task_re = re.compile(r'^-\s*\[[ xX\-!]\]\s*\*\*`?(TASK-[A-Z0-9\-]+)`?')
 
     for line in lines:
         if line.startswith("## Active Sprint"):
@@ -209,6 +209,19 @@ def parse_active_tasks() -> list[dict]:
         return active_tasks
     # During Phase 4 closure (right after marking [-] -> [x] and before git commit), use the latest closed task
     return closed_sprint_tasks[:1]
+
+def parse_blocked_tasks() -> list[dict]:
+    """Extracts tasks marked [!] (BLOCKED) in docs/TASKS.md."""
+    if not TASKS_PATH.exists():
+        return []
+    blocked = []
+    blocked_re = re.compile(r'^-\s*\[!\]\s*\*\*`?(TASK-[A-Z0-9\-]+)`?\*{0,2}(?:\s*[-:]\s*(.*))?')
+    for line in TASKS_PATH.read_text(encoding="utf-8", errors="ignore").splitlines():
+        m = blocked_re.match(line)
+        if m:
+            raw_title = (m.group(2) or "").strip(" *:-")
+            blocked.append({"id": m.group(1), "title": raw_title or m.group(1)})
+    return blocked
 
 def get_modified_workspace_files() -> list[str]:
     """Returns git-modified and untracked files relative to ROOT_DIR."""
@@ -558,6 +571,11 @@ def run_session_pulse() -> None:
             print(f"   \\-- Directive  : {sizing['directive']}")
     else:
         print(f"2. Active Task    : None marked [-] in {sprint_id}. Mark a task [-] in docs/TASKS.md before editing code.")
+
+    blocked = parse_blocked_tasks()
+    if blocked:
+        b_list = ", ".join(b["id"] for b in blocked)
+        print(f"   [!] Blocked    : {b_list} (awaiting human guidance)")
 
     # Working tree & scope status
     mod_files = get_modified_workspace_files()

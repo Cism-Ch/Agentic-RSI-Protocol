@@ -62,8 +62,8 @@ Scrupulously follow these 4 sequential phases without skipping any:
      ```bash
      python evals/rsi_orchestrator.py --eval --attempt 2
      ```
-   - Iterate until reaching 100/100 (maximum 3 attempts).
-   - *If the score remains below 100 after 3 attempts, halt execution and request human guidance detailing the roadblock.*
+   - Iterate until reaching 100/100 (maximum 3 attempts), without weakening tests or `evals/` validators to bypass failures.
+   - *If the score remains below 100 after 3 attempts, or if an external/structural blocker is hit (missing secret, conflicting rule, suspected validator false positive), halt immediately, mark the task `[!]` (`BLOCKED`) in `docs/TASKS.md`, and request human guidance with exact logs, attempted fixes, and options.*
 
 ---
 

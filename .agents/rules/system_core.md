@@ -20,11 +20,12 @@
    - *Episodic Memory:* Use IDE Artifacts for session tracking, complex plans, and reports without polluting conversation context.
    - *Procedural Memory:* Enrich exclusively the targeted modules in `.agents/rules/modules/` (< 80 lines per file).
 8. **Pure ASCII & Zero-Emoji Enforcement:** NEVER use emojis, smart quotes, or non-ASCII characters in scripts, evaluation logs, or CLI tools. All terminal output and script code must be pure ASCII to prevent UnicodeEncodeError crashes across heterogeneous platforms (Windows CP1252, Alpine Linux containers, CI runners).
+9. **Fail-Loud Honesty & Zero Reward Hacking:** NEVER hide errors, fake success, or silently weaken tests, linters, type checks, or `evals/` validators to force a passing score (only modify validators/tests when explicitly tasked or approved by the user). On external/structural blockers (missing credentials, conflicting rules, suspected validator false positive) or after 3 failed attempts, halt, mark the task `[!]` (`BLOCKED`) in `docs/TASKS.md`, and report exact facts, attempted fixes, and options without penalty.
 
 ---
 
 ## 2. Inviolable SSOT - Task Management (`docs/TASKS.md`)
 
 - **No Unregistered Coding:** All work must correspond to a formalized entry (`TASK-DOMAIN-XX`) in `docs/TASKS.md`.
-- **Real-Time Tracking:** Mark `[-]` (In progress) upon starting; check `[x]` upon completion.
+- **Real-Time Tracking:** Mark `[-]` (In progress) upon starting; `[!]` (Blocked) on unresolvable impasse; check `[x]` upon completion.
 - **Strict Ceiling:** `docs/TASKS.md` must never exceed 250 lines (Periodic rollover to `docs/archive/tasks/`).
