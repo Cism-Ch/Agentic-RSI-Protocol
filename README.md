@@ -39,6 +39,7 @@ It establishes an inviolable operational contract between human developers and a
 - [The RSI Architectural Solution](#the-rsi-architectural-solution)
   - [AI Operating System Architecture Mapping](#ai-operating-system-architecture-mapping)
   - [Plan -> Act -> Evaluate -> Improve Closed Loop](#plan---act---evaluate---improve-closed-loop)
+  - [What "RSI" Means Here (Applied Harness-Level RSI)](#what-rsi-means-here-applied-harness-level-rsi)
 - [End-to-End Operational Lifecycle Diagram](#end-to-end-operational-lifecycle-diagram)
 - [Key Guarantees and Capabilities](#key-guarantees-and-capabilities)
   - [1. Inviolable Single Source of Truth](#1-inviolable-single-source-of-truth-ssot)
@@ -144,6 +145,16 @@ The 4-phase `/rsi-feature` workflow (`.agents/workflows/rsi-feature.md`) impleme
 2. **Act:** Implement incrementally using the anti-saturation cadence (micro-edits without running full suites on every line).
 3. **Evaluate:** Run the deterministic judge (`--quick` at milestones, full mode before closure) in a bounded loop (max 3 attempts). On external/structural blockers or after 3 failed attempts, **fail loud** without reward hacking: mark `[!] BLOCKED` in `docs/TASKS.md` and escalate with exact facts and options.
 4. **Improve:** Distill resolved incidents (`> 1 attempt`) or audits into `< 80L` preventive rules via `.agents/prompts/meta_optimizer.md`, record token/rule ROI in `telemetry_hook.py`, verify `--guardrail`, and seal the release with `version_manager.py`.
+
+### What "RSI" Means Here (Applied Harness-Level RSI)
+
+In this protocol, **Recursive Self-Improvement (RSI)** refers to **applied, harness-level self-improvement** of the agentic system (`LLM + Procedural Memory + Deterministic Validators`), not autonomous retraining of model weights:
+
+- **What self-improves:** Agents continuously enrich and compact their own procedural memory (`.agents/rules/modules/*.md`), refine error-pattern signatures, and propagate protocol upgrades across repositories (`--sync-to`) so future sessions avoid past mistakes on the first pass.
+- **Explicit safety boundaries:**
+  - **Frozen model weights:** The underlying LLM is never fine-tuned or retrained; improvements live in versioned rules, workflows, and scripts.
+  - **Human-gated core rules:** By design (*Zero Reward Hacking*), an agent cannot unilaterally weaken `evals/` judges, tests, or `.agents/rules/system_core.md` during a task without explicit human approval.
+  - **Reactive improvement:** Learning triggers on resolved incidents, audits, or explicit tasks rather than unsupervised background A/B self-rewriting.
 
 ---
 

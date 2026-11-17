@@ -12,7 +12,8 @@
 +-------------------------+  +-------------------------+  +-------------------------+
 | [>] IN PROGRESS (SP 01) |  |   [?] FUTURE BACKLOG    |  |       [X] ARCHIVES      |
 +-------------------------+  +-------------------------+  +-------------------------+
-|                         |  | [ ] TASK-INIT-01        |  | [x] TASK-DOCS-05        |
+|                         |  | [ ] TASK-INIT-01        |  | [x] TASK-DOCS-06        |
+|                         |  |                         |  | [x] TASK-DOCS-05        |
 |                         |  |                         |  | [x] TASK-HONESTY-01     |
 |                         |  |                         |  | [x] TASK-MODEL-MAP-01   |
 |                         |  |                         |  | [x] TASK-SEC-FIX-01     |
@@ -43,6 +44,13 @@
 ---
 
 ## Active Sprint 01: Project Setup & Initialization
+
+- [x] **`TASK-DOCS-06` - Clarify Applied Harness-Level RSI Scope and Boundaries in README**
+  - **Priority:** MEDIUM
+  - **Target files:** `README.md`, `docs/TASKS.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-DOCS-06.01`: Add `What "RSI" Means Here (Applied Harness-Level RSI)` section and TOC link to `README.md`.
+    - [x] `TASK-DOCS-06.02`: Validate with `python evals/run_fullstack_eval.py` (`100/100 PASS`).
 
 - [x] **`TASK-DOCS-05` - Document AI OS Architecture & Plan-Act-Evaluate-Improve Loop in README**
   - **Priority:** MEDIUM
