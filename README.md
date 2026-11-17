@@ -37,6 +37,8 @@ It establishes an inviolable operational contract between human developers and a
   - [Real-World Failure Scenario 6: Uncontrolled Scope Drift & Over-Zealous Refactoring](#real-world-failure-scenario-6-uncontrolled-scope-drift--over-zealous-refactoring)
   - [Real-World Failure Scenario 7: Reinventing the Wheel & Singleton Fragmentation](#real-world-failure-scenario-7-reinventing-the-wheel--singleton-fragmentation)
 - [The RSI Architectural Solution](#the-rsi-architectural-solution)
+  - [AI Operating System Architecture Mapping](#ai-operating-system-architecture-mapping)
+  - [Plan -> Act -> Evaluate -> Improve Closed Loop](#plan---act---evaluate---improve-closed-loop)
 - [End-to-End Operational Lifecycle Diagram](#end-to-end-operational-lifecycle-diagram)
 - [Key Guarantees and Capabilities](#key-guarantees-and-capabilities)
   - [1. Inviolable Single Source of Truth](#1-inviolable-single-source-of-truth-ssot)
@@ -120,6 +122,28 @@ The **Agentic RSI Protocol** introduces a deterministic, self-contained closed f
 - **Deterministic Judge & Fast-Fail Reflex:** A lightweight evaluation harness (`evals/run_fullstack_eval.py`) validates typecheck, linters, schemas, and security while timing every check (`duration_ms`). On failure, `--diagnose` maps known error signatures to 1-line fixes in `< 10ms`.
 - **Scope Discipline & Automated Rollover:** Changes must match the active task's `Target files` (`--scope`), and completed tasks are archived deterministically (`--rollover`) to maintain `docs/TASKS.md` under 250 lines.
 - **Telemetry-Native Observability & Rule ROI:** Tracks injected rule IDs in `.agents/telemetry/active_session.json`, persists structured `scope_report` metrics, credits `prevented_errors_count` when rules hold on passing runs, and extracts real token/tool counts from local IDE session transcripts (`evals/telemetry_hook.py`) with an autonomous `cognitive_state.json` fallback.
+
+### AI Operating System Architecture Mapping
+
+Rather than duplicating your IDE runtime, the protocol acts as a deterministic **governance and cognitive layer** on top of it:
+
+| AI OS Layer | Status | Implementation in Agentic-RSI-Protocol | Scope / Boundary |
+| :--- | :--- | :--- | :--- |
+| **Memory** | Built-in | **Procedural:** modular rules in `.agents/rules/modules/` (`< 80L`), indexed by `evals/memory_engine.py` (`--inject`, `--audit`).<br>**Working (SSOT):** `docs/TASKS.md` (`< 250L`, `--rollover`).<br>**Episodic:** `active_session.json`, `cognitive_state.json`, and IDE Artifacts. | Keyword/path-based routing (no built-in vector/RAG store). |
+| **Planner** | Built-in | `docs/TASKS.md` enforces formalized tasks (`TASK-DOMAIN-XX`), `Target files`, and acceptance criteria; `evals/rsi_orchestrator.py` computes `[Scope: XS..XL]` and Blast Radius. | Task decomposition is authored by the agent/human using topological hints (`--map`, `--impact`). |
+| **Scheduler** | Partial | `evals/rsi_orchestrator.py` sequences the workflow (`--pulse`, `--eval --attempt 1..3`, `--guardrail`, `--sync-to`). | Sequential execution driven by the active agent or CI; no background cron/multi-agent daemon. |
+| **Tool Router** | Partial | `evals/stack_inspector.py` profiles the stack, MCP servers, and skills; `evals/memory_engine.py` routes domain rules (`MODULE_TRIGGERS`) and error signatures (`--diagnose`). | Advisory routing; actual tool execution (shell, file edits, MCP calls) is handled by the host IDE runtime. |
+| **Evaluator** | Built-in | `evals/run_fullstack_eval.py` runs deterministic checks (`typecheck`, `lint`, DB schema, memory hygiene, `security_audit.py`, `build`) with compact JSON output and `evals/telemetry_hook.py --verify-contract`. | Strictly enforces Zero Reward Hacking (validators/tests cannot be weakened to force `100/100`). |
+| **Interface** | CLI + Docs | Structured ASCII/JSON CLI (`--pulse`, `--quick`, `--guardrail`) for agents; synthetic Kanban in `docs/TASKS.md` and `CHANGELOG.md` for humans. | Optional external observability UI via `cognitive-rsi-ops`. |
+
+### Plan -> Act -> Evaluate -> Improve Closed Loop
+
+The 4-phase `/rsi-feature` workflow (`.agents/workflows/rsi-feature.md`) implements an explicit **Plan -> Act -> Evaluate -> Improve** cycle:
+
+1. **Plan:** Run `--pulse`, register `[-]` in `docs/TASKS.md`, inspect singletons and reverse dependencies (`stack_inspector.py --map / --impact`), and load targeted rules (`memory_engine.py --inject`).
+2. **Act:** Implement incrementally using the anti-saturation cadence (micro-edits without running full suites on every line).
+3. **Evaluate:** Run the deterministic judge (`--quick` at milestones, full mode before closure) in a bounded loop (max 3 attempts). On external/structural blockers or after 3 failed attempts, **fail loud** without reward hacking: mark `[!] BLOCKED` in `docs/TASKS.md` and escalate with exact facts and options.
+4. **Improve:** Distill resolved incidents (`> 1 attempt`) or audits into `< 80L` preventive rules via `.agents/prompts/meta_optimizer.md`, record token/rule ROI in `telemetry_hook.py`, verify `--guardrail`, and seal the release with `version_manager.py`.
 
 ---
 

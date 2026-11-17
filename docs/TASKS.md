@@ -12,7 +12,8 @@
 +-------------------------+  +-------------------------+  +-------------------------+
 | [>] IN PROGRESS (SP 01) |  |   [?] FUTURE BACKLOG    |  |       [X] ARCHIVES      |
 +-------------------------+  +-------------------------+  +-------------------------+
-|                         |  | [ ] TASK-INIT-01        |  | [x] TASK-HONESTY-01     |
+|                         |  | [ ] TASK-INIT-01        |  | [x] TASK-DOCS-05        |
+|                         |  |                         |  | [x] TASK-HONESTY-01     |
 |                         |  |                         |  | [x] TASK-MODEL-MAP-01   |
 |                         |  |                         |  | [x] TASK-SEC-FIX-01     |
 |                         |  |                         |  | [x] TASK-V22-ISOLATE-01 |
@@ -42,6 +43,14 @@
 ---
 
 ## Active Sprint 01: Project Setup & Initialization
+
+- [x] **`TASK-DOCS-05` - Document AI OS Architecture & Plan-Act-Evaluate-Improve Loop in README**
+  - **Priority:** MEDIUM
+  - **Target files:** `README.md`, `docs/TASKS.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-DOCS-05.01`: Add AI Operating System mapping table (Memory, Planner, Scheduler, Tool Router, Evaluator, Interface) to `README.md`.
+    - [x] `TASK-DOCS-05.02`: Document the explicit `Plan -> Act -> Evaluate -> Improve` closed loop (including `[!] BLOCKED` fail-loud escalation) in `README.md`.
+    - [x] `TASK-DOCS-05.03`: Validate with `python evals/run_fullstack_eval.py` (`100/100 PASS`).
 
 - [x] **`TASK-HONESTY-01` - Fail-Loud Honesty, Zero Reward Hacking & Blocked Escalation Protocol**
   - **Priority:** HIGH
