@@ -17,6 +17,7 @@ This document governs engineering guidelines, codebase governance, and the Recur
    - **Adaptive Deterministic Judge:** Validate progress with `python evals/run_fullstack_eval.py --quick`.
    - **Meta-Cognitive Loop:** Adopt `.agents/prompts/meta_optimizer.md` to extract lessons and enrich sub-playbooks when fixing bugs or after security audits.
    - **Dedicated Workflow:** Use the `/rsi-feature` command.
+   - **Post-Commit Target Sync:** On the source protocol repository, after work & commit, always ask the user before running `--sync-all` / `--sync-to <dir>` on registered targets and ask for the disk path of any other unsynchronized project.
 4. **Anti-Saturation Test Cadence:**
    - Micro-edits without global test suite -> Milestone checkpoint with compact `--quick` -> Task closure with full validation.
 5. **Memory Duality:**

@@ -75,7 +75,7 @@ def audit_secrets() -> list[dict]:
     for root, dirs, files in os.walk(ROOT_DIR):
         dirs[:] = [d for d in dirs if d not in IGNORE_DIRS and not d.startswith('.git')]
         for f in files:
-            if f == "security_audit.py":
+            if f in ("security_audit.py", "trajectory_latest.json"):
                 continue
             path = Path(root) / f
             rel_str = str(path.relative_to(ROOT_DIR)).replace("\\", "/")

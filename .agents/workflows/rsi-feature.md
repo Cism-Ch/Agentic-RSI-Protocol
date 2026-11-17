@@ -101,3 +101,7 @@ This phase triggers whenever an error was resolved (> 1 attempt) OR a security a
    - Sealed SemVer release.
    - Number of attempts required.
    - Lessons learned and newly registered rules (with exact diff if applicable).
+6. **Post-Commit Target Sync (Protocol Repository Only):**
+   - After committing changes on `Agentic-RSI-Protocol`, run `python evals/rsi_orchestrator.py --sync-targets` to inspect locally registered target workspaces (`.agents/telemetry/sync_targets.json`).
+   - Ask the user for confirmation before executing `python evals/rsi_orchestrator.py --sync-all` or `--sync-to <TARGET_DIR>` on known targets.
+   - Also ask the user to signal any other unsynchronized project by providing its disk path / working directory so `--sync-to <TARGET_DIR>` can be executed automatically (explaining that if they do not have the path on hand, they can ask in that project's workspace for its working directory path and paste it into this conversation).

@@ -17,7 +17,7 @@ import shutil
 import argparse
 import subprocess
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 
 # UTF-8 for Windows console
 if sys.stdout.encoding != 'utf-8':
@@ -31,6 +31,7 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 PACKAGE_JSON_PATH = ROOT_DIR / "package.json"
 VERSION_PATH = ROOT_DIR / "VERSION"
 CHANGELOG_PATH = ROOT_DIR / "CHANGELOG.md"
+SYNC_TARGETS_PATH = ROOT_DIR / ".agents" / "telemetry" / "sync_targets.json"
 
 CORE_ENGINE_DIRS = [
     "evals",
@@ -103,8 +104,82 @@ def update_changelog(new_ver: str) -> None:
         updated = re.sub(r"##\s+\[Unreleased\]", replacement, content, count=1, flags=re.IGNORECASE)
         CHANGELOG_PATH.write_text(updated, encoding="utf-8")
 
+def load_sync_targets() -> list[dict]:
+    """Loads locally registered consumer project targets from .agents/telemetry/sync_targets.json."""
+    if not SYNC_TARGETS_PATH.exists():
+        return []
+    try:
+        data = json.loads(SYNC_TARGETS_PATH.read_text(encoding="utf-8", errors="ignore"))
+        if isinstance(data, dict) and isinstance(data.get("targets"), list):
+            return [t for t in data["targets"] if isinstance(t, dict) and t.get("path")]
+    except Exception:
+        pass
+    return []
+
+def register_sync_target(target_dir: Path, protocol_version: str) -> None:
+    """Registers or updates a target consumer project path locally (git-ignored)."""
+    resolved = str(target_dir.resolve())
+    targets = load_sync_targets()
+    now_iso = datetime.now(timezone.utc).isoformat()
+    updated = False
+    for t in targets:
+        if os.path.normcase(t.get("path", "")) == os.path.normcase(resolved):
+            t["name"] = target_dir.name
+            t["last_synced_at"] = now_iso
+            t["protocol_version"] = protocol_version
+            updated = True
+            break
+    if not updated:
+        targets.append({
+            "name": target_dir.name,
+            "path": resolved,
+            "last_synced_at": now_iso,
+            "protocol_version": protocol_version,
+        })
+    SYNC_TARGETS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    SYNC_TARGETS_PATH.write_text(json.dumps({"targets": targets}, indent=2) + "\n", encoding="utf-8")
+
+def list_sync_targets(print_report: bool = True) -> list[dict]:
+    """Lists locally registered sync target workspaces and checks disk availability."""
+    targets = load_sync_targets()
+    if print_report:
+        print("=== [RSI SYNC TARGETS REGISTRY] ===")
+        if not targets:
+            print("[INFO] No local sync targets registered yet.")
+            print("       Ask the user for the workspace path of each project to sync, then run:")
+            print("       python evals/rsi_orchestrator.py --sync-to <TARGET_DIR>")
+        else:
+            for t in targets:
+                p = Path(t["path"])
+                exists = p.exists()
+                ver_file = p / "VERSION"
+                target_ver = ver_file.read_text(encoding="utf-8").strip() if ver_file.exists() else "UNKNOWN"
+                state = "OK" if exists else "MISSING_ON_DISK"
+                print(f"  - [{state}] {t.get('name', p.name)}: {t['path']} (Target VERSION: v{target_ver}, Last synced: {t.get('last_synced_at', 'never')})")
+        print("-" * 50)
+    return targets
+
+def sync_all_targets() -> bool:
+    """Synchronizes protocol updates to all existing registered consumer targets."""
+    targets = load_sync_targets()
+    if not targets:
+        print("[INFO] No local sync targets registered. Run --sync-to <TARGET_DIR> first.")
+        return False
+    all_ok = True
+    for t in targets:
+        p = Path(t["path"])
+        if not p.exists():
+            print(f"[WARN] Skipping missing target directory: {p}")
+            all_ok = False
+            continue
+        sync_protocol_to_target(str(p), init_mode=False)
+    return all_ok
+
 def sync_protocol_to_target(target_path_str: str, init_mode: bool = False) -> None:
     target_dir = Path(target_path_str).resolve()
+    if target_dir == ROOT_DIR.resolve():
+        print("[Error] Cannot sync protocol onto the source protocol repository itself.")
+        sys.exit(1)
     if not target_dir.exists():
         if init_mode:
             target_dir.mkdir(parents=True, exist_ok=True)
@@ -128,12 +203,13 @@ def sync_protocol_to_target(target_path_str: str, init_mode: bool = False) -> No
         dst.mkdir(parents=True, exist_ok=True)
 
         for root, dirs, files in os.walk(src):
+            dirs[:] = [d for d in dirs if d not in ("__pycache__", ".pytest_cache")]
             rel_root = Path(root).relative_to(src)
             target_subdir = dst / rel_root
             target_subdir.mkdir(parents=True, exist_ok=True)
 
             for f in files:
-                if f.endswith(".tmp") or f == "active_session.json":
+                if f.endswith((".tmp", ".pyc")) or f in ("active_session.json", "cognitive_state.json", "sync_targets.json"):
                     continue
                 src_file = Path(root) / f
                 dst_file = target_subdir / f
@@ -245,6 +321,8 @@ def sync_protocol_to_target(target_path_str: str, init_mode: bool = False) -> No
         except Exception as e:
             print(f"[WARN] Could not update target package.json: {e}")
 
+    register_sync_target(target_dir, get_current_version())
+
     print("-" * 50)
     print(f"[SUCCESS] Agentic-RSI-Protocol engine synchronized successfully to:")
     print(f"          {target_dir}")
@@ -259,7 +337,17 @@ def main():
     parser.add_argument("--mention", help="Optional pre-release tag (e.g. beta, hotfix)")
     parser.add_argument("--sync-to", metavar="TARGET_DIR", help="Synchronize or update protocol engine into a target project")
     parser.add_argument("--init-target", metavar="TARGET_DIR", help="Initialize protocol structure and sync into a new target project")
+    parser.add_argument("--sync-targets", action="store_true", help="List locally registered consumer target projects")
+    parser.add_argument("--sync-all", action="store_true", help="Synchronize protocol to all locally registered target projects")
     args = parser.parse_args()
+
+    if args.sync_targets:
+        list_sync_targets(print_report=True)
+        return
+
+    if args.sync_all:
+        ok = sync_all_targets()
+        sys.exit(0 if ok else 1)
 
     if args.sync_to:
         sync_protocol_to_target(args.sync_to, init_mode=False)

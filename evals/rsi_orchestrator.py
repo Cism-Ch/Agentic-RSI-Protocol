@@ -158,8 +158,8 @@ def run_evaluation(attempt: int, quick: bool = True) -> bool:
         print(f"[WARN] [RSI Loop] Attempt {attempt} failed. Inspect evals/logs/trajectory_latest.json.")
         return False
 
-def parse_active_tasks() -> list[dict]:
-    """Extracts currently active [-] tasks (or the just-closed topmost [x] sprint task pre-commit) from docs/TASKS.md."""
+def parse_active_tasks(include_just_closed: bool = True) -> list[dict]:
+    """Extracts currently active [-] tasks (or optionally the just-closed topmost [x] sprint task pre-commit) from docs/TASKS.md."""
     if not TASKS_PATH.exists():
         return []
 
@@ -186,14 +186,14 @@ def parse_active_tasks() -> list[dict]:
         m_active = task_active_re.match(line)
         if m_active:
             raw_title = (m_active.group(2) or "").strip(" *:-")
-            current_task = {"id": m_active.group(1), "title": raw_title or m_active.group(1), "targets": []}
+            current_task = {"id": m_active.group(1), "title": raw_title or m_active.group(1), "targets": [], "status": "active"}
             active_tasks.append(current_task)
             continue
 
         m_closed = task_closed_re.match(line)
         if in_active_sprint and m_closed:
             raw_title = (m_closed.group(2) or "").strip(" *:-")
-            current_task = {"id": m_closed.group(1), "title": raw_title or m_closed.group(1), "targets": []}
+            current_task = {"id": m_closed.group(1), "title": raw_title or m_closed.group(1), "targets": [], "status": "closed"}
             closed_sprint_tasks.append(current_task)
             continue
 
@@ -207,8 +207,9 @@ def parse_active_tasks() -> list[dict]:
 
     if active_tasks:
         return active_tasks
-    # During Phase 4 closure (right after marking [-] -> [x] and before git commit), use the latest closed task
-    return closed_sprint_tasks[:1]
+    if include_just_closed:
+        return closed_sprint_tasks[:1]
+    return []
 
 def parse_blocked_tasks() -> list[dict]:
     """Extracts tasks marked [!] (BLOCKED) in docs/TASKS.md."""
@@ -224,10 +225,10 @@ def parse_blocked_tasks() -> list[dict]:
     return blocked
 
 def get_modified_workspace_files() -> list[str]:
-    """Returns git-modified and untracked files relative to ROOT_DIR."""
+    """Returns git-modified and untracked non-ignored files relative to ROOT_DIR."""
     try:
         res = subprocess.run(
-            ["git", "status", "--porcelain"],
+            ["git", "status", "--porcelain", "-uall"],
             cwd=str(ROOT_DIR),
             capture_output=True,
             text=True,
@@ -243,13 +244,7 @@ def get_modified_workspace_files() -> list[str]:
             if " -> " in path_part:
                 path_part = path_part.split(" -> ")[-1].strip()
             path_part = path_part.strip('"').replace("\\", "/")
-            if path_part.endswith("/"):
-                dir_path = ROOT_DIR / path_part
-                if dir_path.exists():
-                    for sub in dir_path.rglob("*"):
-                        if sub.is_file():
-                            modified.append(str(sub.relative_to(ROOT_DIR)).replace("\\", "/"))
-            else:
+            if path_part and not path_part.endswith("/"):
                 modified.append(path_part)
         return sorted(set(modified))
     except Exception:
@@ -535,7 +530,11 @@ def run_session_pulse() -> None:
     print(f"1. Health & Judge : {eval_status} | TASKS.md capacity: {tasks_lines}/{MAX_TASKS_LINES} lines")
 
     # Active & pending tasks with automatic [Scope: XS..XL] & Blast Radius
-    active = parse_active_tasks()
+    mod_files = get_modified_workspace_files()
+    active = parse_active_tasks(include_just_closed=False)
+    if not active and mod_files:
+        # Pre-commit Phase 4 closure: show just-closed sprint task while working tree is still dirty
+        active = parse_active_tasks(include_just_closed=True)
     sprint_id = parse_active_sprint_id()
     if active:
         try:
@@ -566,7 +565,8 @@ def run_session_pulse() -> None:
             for imp in sizing["target_impacts"][:5]:
                 impact_summary.append(f"{imp['target']} ({imp['tier']}:{imp['count']})")
             t_display = ", ".join(impact_summary) if impact_summary else "None declared"
-            print(f"2. Active Task    : {t['id']} [{sprint_id}] {sizing['scope_badge']} | Blast Radius: {sizing['max_tier']}")
+            closed_note = " (JUST CLOSED pre-commit)" if t.get("status") == "closed" else ""
+            print(f"2. Active Task    : {t['id']} [{sprint_id}]{closed_note} {sizing['scope_badge']} | Blast Radius: {sizing['max_tier']}")
             print(f"   |-- Targets    : {t_display}")
             print(f"   \\-- Directive  : {sizing['directive']}")
     else:
@@ -578,7 +578,6 @@ def run_session_pulse() -> None:
         print(f"   [!] Blocked    : {b_list} (awaiting human guidance)")
 
     # Working tree & scope status
-    mod_files = get_modified_workspace_files()
     if mod_files:
         print(f"3. Git Workspace  : {len(mod_files)} modified file(s): {', '.join(mod_files[:5])}")
     else:
@@ -627,6 +626,18 @@ def run_session_pulse() -> None:
     except Exception:
         pass
 
+    # 6. Target Sync Registry reminder (for protocol repository)
+    try:
+        from version_manager import load_sync_targets
+        targets = load_sync_targets()
+        if targets:
+            t_names = ", ".join(t.get("name", "target") for t in targets)
+            print(f"6. Sync Targets   : {len(targets)} registered ({t_names}) -> Ask user after commit before running --sync-all / --sync-to")
+        elif not (ROOT_DIR / "package.json").exists():
+            print("6. Sync Targets   : None registered yet -> Ask user for target workspace paths after commit to initialize --sync-to")
+    except Exception:
+        pass
+
 def main():
     parser = argparse.ArgumentParser(description="RSI Protocol Orchestrator")
     parser.add_argument("--pulse", action="store_true", help="1-command Cold-Start Cockpit Briefing (<50ms)")
@@ -639,7 +650,19 @@ def main():
     parser.add_argument("--dry-run", action="store_true", help="Preview --rollover without modifying files")
     parser.add_argument("--sync-to", metavar="TARGET_DIR", help="Synchronize or update protocol engine into a target project workspace")
     parser.add_argument("--init-target", metavar="TARGET_DIR", help="Initialize protocol structure and sync into a new target project")
+    parser.add_argument("--sync-targets", action="store_true", help="List locally registered consumer target projects")
+    parser.add_argument("--sync-all", action="store_true", help="Synchronize protocol updates to all locally registered target projects")
     args = parser.parse_args()
+
+    if args.sync_targets:
+        from version_manager import list_sync_targets
+        list_sync_targets(print_report=True)
+        sys.exit(0)
+
+    if args.sync_all:
+        from version_manager import sync_all_targets
+        ok = sync_all_targets()
+        sys.exit(0 if ok else 1)
 
     if args.sync_to:
         from version_manager import sync_protocol_to_target

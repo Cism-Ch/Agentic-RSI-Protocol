@@ -103,3 +103,5 @@ Thumbs.db
 .agent/telemetry/*.tmp
 .agents/telemetry/*.tmp
 .agents/telemetry/active_session.json
+.agents/telemetry/cognitive_state.json
+.agents/telemetry/sync_targets.json

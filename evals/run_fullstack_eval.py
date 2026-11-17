@@ -163,6 +163,16 @@ def build_adaptive_checks(quick: bool) -> list[dict]:
             "timeout": 30
         })
 
+    # 5b. Protocol Engine Unit Tests (when evals/tests exists)
+    eval_tests_dir = ROOT_DIR / "evals" / "tests"
+    if eval_tests_dir.is_dir() and list(eval_tests_dir.glob("test_*.py")):
+        checks.append({
+            "name": "eval_unit_tests",
+            "cmd": [py, "-m", "unittest", "discover", "-s", str(eval_tests_dir), "-p", "test_*.py"],
+            "weight": 15 if quick else 15,
+            "timeout": 30
+        })
+
     # 6. Production Build (Full mode only)
     if not quick and has_lint_script:
         pkg_has_build = False

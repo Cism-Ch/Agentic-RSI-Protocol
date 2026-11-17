@@ -140,3 +140,69 @@
     - [x] `TASK-DOCS-01.02`: Create deep-dive `docs/ARCHITECTURE.md` (feedback loops, evaluation harness, memory duality).
     - [x] `TASK-DOCS-01.03`: Add `CONTRIBUTING.md` and MIT `LICENSE` for public open-source usage.
     - [x] `TASK-DOCS-01.04`: Validate full deterministic evaluation (100/100 PASS) and guardrails.
+
+- [x] **`TASK-FRICTION-01` - Fix Repo Friction Points, Add Evals Unit Tests & Post-Commit Target Sync Prompt**
+  - **Priority:** HIGH
+  - **Target files:** `.gitignore`, `evals/rsi_orchestrator.py`, `evals/version_manager.py`, `evals/run_fullstack_eval.py`, `evals/telemetry_hook.py`, `evals/security_audit.py`, `evals/tests/test_evals.py`, `.agents/workflows/rsi-feature.md`, `AGENTS.md`, `README.md`, `docs/TASKS.md`, `docs/archive/tasks/*`
+  - **Acceptance criteria:**
+    - [x] `TASK-FRICTION-01.01`: Ignore ephemeral telemetry files (`cognitive_state.json`, `sync_targets.json`) in `.gitignore` and untrack `cognitive_state.json`.
+    - [x] `TASK-FRICTION-01.02`: Fix `parse_active_tasks()` and `--pulse` so closed `[x]` tasks do not appear active on a clean tree.
+    - [x] `TASK-FRICTION-01.03`: Add unit test suite (`evals/tests/test_evals.py`) and wire into `evals/run_fullstack_eval.py`.
+    - [x] `TASK-FRICTION-01.04`: Add local sync target registry (`--sync-targets`, `--sync-all`) and enforce human-confirmed post-commit `--sync-to` prompt in workflow & `AGENTS.md`.
+    - [x] `TASK-FRICTION-01.05`: Clean stale `TASK-INIT-01`, rollover completed sprint blocks, and validate `100/100 PASS`.
+
+- [x] **`TASK-DOCS-06` - Clarify Applied Harness-Level RSI Scope and Boundaries in README**
+  - **Priority:** MEDIUM
+  - **Target files:** `README.md`, `docs/TASKS.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-DOCS-06.01`: Add `What "RSI" Means Here (Applied Harness-Level RSI)` section and TOC link to `README.md`.
+    - [x] `TASK-DOCS-06.02`: Validate with `python evals/run_fullstack_eval.py` (`100/100 PASS`).
+
+- [x] **`TASK-DOCS-05` - Document AI OS Architecture & Plan-Act-Evaluate-Improve Loop in README**
+  - **Priority:** MEDIUM
+  - **Target files:** `README.md`, `docs/TASKS.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-DOCS-05.01`: Add AI Operating System mapping table (Memory, Planner, Scheduler, Tool Router, Evaluator, Interface) to `README.md`.
+    - [x] `TASK-DOCS-05.02`: Document the explicit `Plan -> Act -> Evaluate -> Improve` closed loop (including `[!] BLOCKED` fail-loud escalation) in `README.md`.
+    - [x] `TASK-DOCS-05.03`: Validate with `python evals/run_fullstack_eval.py` (`100/100 PASS`).
+
+- [x] **`TASK-HONESTY-01` - Fail-Loud Honesty, Zero Reward Hacking & Blocked Escalation Protocol**
+  - **Priority:** HIGH
+  - **Target files:** `.agents/rules/system_core.md`, `AGENTS.md`, `.agents/workflows/rsi-feature.md`, `evals/rsi_orchestrator.py`, `docs/TASKS.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-HONESTY-01.01`: Add Fail-Loud & Zero Reward Hacking rule to `.agents/rules/system_core.md` and `AGENTS.md`.
+    - [x] `TASK-HONESTY-01.02`: Formalize `[!] BLOCKED` escalation state in `.agents/workflows/rsi-feature.md` and `evals/rsi_orchestrator.py`.
+    - [x] `TASK-HONESTY-01.03`: Validate with `python evals/run_fullstack_eval.py` (`100/100 PASS`).
+
+- [x] **`TASK-MODEL-MAP-01` - Update Gemini 4 Model Mapping to Hydrogen in Telemetry Hook**
+  - **Priority:** MEDIUM
+  - **Target files:** `evals/telemetry_hook.py`, `docs/TASKS.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-MODEL-MAP-01.01`: Map generic "gemini 4" and "gemini-4" to "gemini-4-hydrogen" while preserving explicit "argon" and "hydrogen" keywords in `evals/telemetry_hook.py`.
+    - [x] `TASK-MODEL-MAP-01.02`: Add pricing entry for `gemini-4-hydrogen` in `FALLBACK_PRICING` dictionary.
+    - [x] `TASK-MODEL-MAP-01.03`: Synchronize updated telemetry hook to `OfferAnalyst` and validate with deterministic judge (`100/100 PASS`).
+
+- [x] **`TASK-SEC-FIX-01` - Fix False Positives in security_audit.py (ASCII vs French Accents & Prisma Scope)**
+  - **Priority:** HIGH
+  - **Target files:** `evals/security_audit.py`, `docs/TASKS.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-SEC-FIX-01.01`: Restrict strict ASCII check (ord > 127) to executable Python scripts (`evals/**/*.py`) and exclude third-party `.agents/skills/` and `CHANGELOG.md`.
+    - [x] `TASK-SEC-FIX-01.02`: Restrict `new PrismaClient(` audit pattern strictly to application code under `src/` (while preserving `SINGLETON_ALLOWED_FILES`).
+    - [x] `TASK-SEC-FIX-01.03`: Validate `python evals/security_audit.py` and `python evals/run_fullstack_eval.py` (100/100 PASS) in Agentic-RSI-Protocol and synced OfferAnalyst.
+
+- [x] **`TASK-V22-ISOLATE-01` - Session Isolation, Contract Verification & OfferAnalyst Deployment (v2.2)**
+  - **Priority:** HIGH
+  - **Target files:** `evals/rsi_orchestrator.py`, `evals/telemetry_hook.py`, `evals/version_manager.py`, `README.md`, `docs/TASKS.md`, `PLAN_AGENTIC_RSI_PROTOCOL.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-V22-ISOLATE-01.01`: Implement strict session token isolation on task switch and track attempt timestamps in `evals/rsi_orchestrator.py`.
+    - [x] `TASK-V22-ISOLATE-01.02`: Implement `--verify-contract` in `evals/telemetry_hook.py` and align payload structure for `cognitive-rsi-ops`.
+    - [x] `TASK-V22-ISOLATE-01.03`: Add `--sync-to` support in `evals/rsi_orchestrator.py` alias and deploy cleanly to `../OfferAnalyst`.
+    - [x] `TASK-V22-ISOLATE-01.04`: Validate with deterministic judge (`100/100 PASS`), pure ASCII check, and security audit.
+
+- [x] **`TASK-SYNC-01` - Automated Target Project Sync & Installation CLI (`--sync-to`)**
+  - **Priority:** HIGH
+  - **Target files:** `evals/version_manager.py`, `README.md`, `docs/TASKS.md`, `docs/archive/tasks/sprint_archive_2026_11.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-SYNC-01.01`: Implement `--sync-to <target-dir>` and `--init-target <target-dir>` in `evals/version_manager.py` preserving target memories and backlog.
+    - [x] `TASK-SYNC-01.02`: Update `README.md` with complete installation and update documentation for target project workspaces.
+    - [x] `TASK-SYNC-01.03`: Verify deterministic evaluation with `python evals/run_fullstack_eval.py` (100/100 PASS) and security audit.

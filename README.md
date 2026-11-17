@@ -351,10 +351,16 @@ From your `Agentic-RSI-Protocol` repository, use `evals/version_manager.py` to s
 
 ```bash
 # Update an existing project (updates engine, preserves target TASKS.md & learned modules)
-python evals/version_manager.py --sync-to /path/to/target-project
+python evals/rsi_orchestrator.py --sync-to /path/to/target-project
 
 # Or initialize a brand new project workspace
-python evals/version_manager.py --init-target /path/to/new-project
+python evals/rsi_orchestrator.py --init-target /path/to/new-project
+
+# List locally registered target workspaces (stored in git-ignored sync_targets.json)
+python evals/rsi_orchestrator.py --sync-targets
+
+# Synchronize all registered targets (after human confirmation post-commit)
+python evals/rsi_orchestrator.py --sync-all
 ```
 
 What `--sync-to` does automatically:
@@ -362,6 +368,7 @@ What `--sync-to` does automatically:
 - **Updates Base Rules:** Updates `.agents/rules/system_core.md` and `fullstack_playbook.md`.
 - **Preserves Target Backlog:** Never overwrites existing `docs/TASKS.md` or completed task archives.
 - **Preserves Target Memories:** Never overwrites existing custom modules in `.agents/rules/modules/` or project telemetry in `.agents/telemetry/`.
+- **Registers Target Locally:** Saves the target workspace path locally in git-ignored `.agents/telemetry/sync_targets.json` so agents prompt you after future protocol commits to sync known targets or any additional unsynchronized workspace path you provide.
 
 #### Option B: Manual Cross-Platform Copy
 
