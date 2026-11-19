@@ -30,10 +30,29 @@ SECRET_PATTERNS = [
     (re.compile(r'ghp_[a-zA-Z0-9]{36}'), "GitHub Personal Access Token"),
     (re.compile(r'xox[baprs]-[0-9a-zA-Z]{10,48}'), "Slack API Token"),
     (re.compile(r'(?:postgres|postgresql|mysql|mongodb\+srv):\/\/[^\s:]+:[^\s@]+@[^\s\/]+'), "Database URI with hardcoded password"),
-    (re.compile(r'(?i)(?:api_key|secret_key|private_key|auth_token)\s*=\s*["\'][a-zA-Z0-9_\-\.]{16,}["\']'), "Hardcoded Auth Secret")
+    (re.compile(r'(?i:(?:api_key|secret_key|private_key|auth_token)\s*=\s*["\'][a-zA-Z0-9_\-\.]{16,}["\'])'), "Hardcoded Auth Secret")
 ]
+COMBINED_SECRET_RE = re.compile("|".join(f"(?:{p.pattern})" for p, _ in SECRET_PATTERNS))
 
-IGNORE_DIRS = {'.git', 'node_modules', '__pycache__', '.venv', 'venv', 'dist', 'build', '.next', 'playwright-report', 'test-results', '.turbo', '.cache'}
+IGNORE_DIRS = {
+    '.git', 'node_modules', '__pycache__', '.venv', 'venv', 'dist', 'build',
+    '.next', 'playwright-report', 'test-results', '.turbo', '.cache',
+    'logs', 'backups', 'coverage', '.vercel', '.mypy_cache', '.pytest_cache', 'out'
+}
+
+SECRET_SKIP_FILENAMES = {
+    "security_audit.py", "trajectory_latest.json",
+    "cognitive_state.json", "active_session.json", "sync_targets.json",
+    "pnpm-lock.yaml", "package-lock.json", "yarn.lock",
+    "bun.lock", "bun.lockb", "poetry.lock", "Cargo.lock"
+}
+BINARY_EXTENSIONS = {
+    ".png", ".jpg", ".jpeg", ".gif", ".webp", ".ico",
+    ".woff", ".woff2", ".ttf", ".eot", ".otf",
+    ".pdf", ".zip", ".gz", ".tar", ".exe", ".dll", ".so", ".dylib",
+    ".pyc", ".sqlite", ".db", ".mp4", ".mp3"
+}
+MAX_SECRET_SCAN_BYTES = 1_048_576
 
 def audit_gitignore() -> list[str]:
     issues = []
@@ -69,45 +88,62 @@ DUMMY_SECRET_INDICATORS = (
     "sk-or-v1-your-key-here", "example.com", "dummy", "placeholder",
     "CHANGE_ME", "REPLACE_ME", "MY_SECRET", "[VOTRE-", "[YOUR-"
 )
+DUMMY_SECRET_LOWER = tuple(d.lower() for d in DUMMY_SECRET_INDICATORS)
+
+def _read_text_if_scannable(path: Path, max_bytes: int | None = None) -> tuple[str | None, str | None]:
+    """Reads UTF-8 text from non-binary, size-bounded files without raising."""
+    try:
+        size = path.stat().st_size
+        if size == 0 or (max_bytes is not None and size > max_bytes):
+            return None, None
+        raw = path.read_bytes()
+        if b"\x00" in raw[:1024]:
+            return None, None
+        return raw.decode("utf-8", errors="ignore"), None
+    except Exception as e:
+        return None, str(e)
 
 def audit_secrets() -> list[dict]:
     findings = []
     for root, dirs, files in os.walk(ROOT_DIR):
         dirs[:] = [d for d in dirs if d not in IGNORE_DIRS and not d.startswith('.git')]
+        root_path = Path(root)
+        # Exclude third-party vendor skills from secret leak scans
+        if "skills" in root_path.parts:
+            continue
         for f in files:
-            if f in ("security_audit.py", "trajectory_latest.json"):
+            if f in SECRET_SKIP_FILENAMES:
                 continue
-            path = Path(root) / f
-            rel_str = str(path.relative_to(ROOT_DIR)).replace("\\", "/")
-            # Exclude third-party vendor skills from secret leak scans
-            if any(part == "skills" for part in path.parts):
+            path = root_path / f
+            if path.suffix.lower() in BINARY_EXTENSIONS:
                 continue
             # Legitimate local environment files ignored by git or template files are not leaks
             if f in (".env.example", ".env.sample", ".env.template"):
                 continue
+            rel_str = str(path.relative_to(ROOT_DIR)).replace("\\", "/")
             if f.startswith(".env") and is_gitignored(rel_str):
                 continue
-            try:
-                lines = path.read_text(encoding="utf-8", errors="ignore").splitlines()
-                for idx, line in enumerate(lines, start=1):
-                    # Skip documentation template/dummy examples
-                    if any(dummy.lower() in line.lower() for dummy in DUMMY_SECRET_INDICATORS):
-                        continue
-                    for pattern, label in SECRET_PATTERNS:
-                        if pattern.search(line):
-                            findings.append({
-                                "file": rel_str,
-                                "line": idx,
-                                "type": label,
-                                "sample": line.strip()[:60]
-                            })
-            except Exception as e:
-                findings.append({
-                    "file": rel_str,
-                    "line": 0,
-                    "type": "Read Error",
-                    "sample": str(e)
-                })
+
+            content, read_err = _read_text_if_scannable(path, max_bytes=MAX_SECRET_SCAN_BYTES)
+            if read_err:
+                findings.append({"file": rel_str, "line": 0, "type": "Read Error", "sample": read_err})
+                continue
+            # Fast C-engine whole-file pre-filter before slow per-line splitting
+            if not content or not COMBINED_SECRET_RE.search(content):
+                continue
+
+            for idx, line in enumerate(content.splitlines(), start=1):
+                line_low = line.lower()
+                if any(dummy in line_low for dummy in DUMMY_SECRET_LOWER):
+                    continue
+                for pattern, label in SECRET_PATTERNS:
+                    if pattern.search(line):
+                        findings.append({
+                            "file": rel_str,
+                            "line": idx,
+                            "type": label,
+                            "sample": line.strip()[:60]
+                        })
     return findings
 
 def audit_ascii_hygiene() -> list[dict]:
@@ -156,6 +192,7 @@ OPERATIONAL_ANTI_PATTERNS = [
         "Unsafe Dynamic Code Execution ([R-PAT-04])"
     )
 ]
+COMBINED_OPERATIONAL_RE = re.compile("|".join(f"(?:{p.pattern})" for p, _ in OPERATIONAL_ANTI_PATTERNS))
 
 SINGLETON_ALLOWED_FILES = {"db.ts", "db.js", "prisma.ts", "prisma.js", "client.ts", "client.js"}
 APP_CODE_EXTENSIONS = {".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".py"}
@@ -177,31 +214,31 @@ def audit_operational_patterns() -> list[dict]:
             if path.suffix not in APP_CODE_EXTENSIONS and not is_env:
                 continue
 
-            try:
-                lines = path.read_text(encoding="utf-8", errors="ignore").splitlines()
-                for idx, line in enumerate(lines, start=1):
-                    stripped = line.strip()
-                    if stripped.startswith("//") or stripped.startswith("#"):
-                        continue
-                    for pattern, label in OPERATIONAL_ANTI_PATTERNS:
-                        if "PrismaClient" in label:
-                            # Rule [R-DB-02] applies to application code in src/ to prevent serverless pool exhaustion
-                            if not is_src_dir or path.name in SINGLETON_ALLOWED_FILES:
-                                continue
-                        if pattern.search(line):
-                            violations.append({
-                                "file": str(path.relative_to(ROOT_DIR)).replace("\\", "/"),
-                                "line": idx,
-                                "type": label,
-                                "sample": stripped[:60]
-                            })
-            except Exception as e:
-                violations.append({
-                    "file": str(path.relative_to(ROOT_DIR)).replace("\\", "/"),
-                    "line": 0,
-                    "type": "Read Error",
-                    "sample": str(e)
-                })
+            content, read_err = _read_text_if_scannable(path, max_bytes=MAX_SECRET_SCAN_BYTES)
+            rel_str = str(path.relative_to(ROOT_DIR)).replace("\\", "/")
+            if read_err:
+                violations.append({"file": rel_str, "line": 0, "type": "Read Error", "sample": read_err})
+                continue
+            # Fast C-engine whole-file pre-filter before splitting lines
+            if not content or not COMBINED_OPERATIONAL_RE.search(content):
+                continue
+
+            for idx, line in enumerate(content.splitlines(), start=1):
+                stripped = line.strip()
+                if stripped.startswith("//") or stripped.startswith("#"):
+                    continue
+                for pattern, label in OPERATIONAL_ANTI_PATTERNS:
+                    if "PrismaClient" in label:
+                        # Rule [R-DB-02] applies to application code in src/ to prevent serverless pool exhaustion
+                        if not is_src_dir or path.name in SINGLETON_ALLOWED_FILES:
+                            continue
+                    if pattern.search(line):
+                        violations.append({
+                            "file": rel_str,
+                            "line": idx,
+                            "type": label,
+                            "sample": stripped[:60]
+                        })
     return violations
 
 def run_security_audit() -> bool:

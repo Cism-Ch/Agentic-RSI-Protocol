@@ -12,6 +12,7 @@
 +-------------------------+  +-------------------------+  +-------------------------+
 | [>] IN PROGRESS (SP 01) |  |   [?] FUTURE BACKLOG    |  |       [X] ARCHIVES      |
 +-------------------------+  +-------------------------+  +-------------------------+
+|                         |  |                         |  | [x] TASK-SEC-PERF-01    |
 |                         |  |                         |  | [x] TASK-FRICTION-01    |
 |                         |  |                         |  | [x] TASK-DOCS-06        |
 |                         |  |                         |  | [x] TASK-DOCS-05        |
@@ -45,6 +46,14 @@
 ---
 
 ## Active Sprint 01: Project Setup & Initialization
+
+- [x] **`TASK-SEC-PERF-01` - Optimize security_audit.py Performance (< 2s) Without Coverage Loss**
+  - **Priority:** HIGH
+  - **Target files:** `evals/security_audit.py`, `evals/tests/test_evals.py`, `docs/TASKS.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-SEC-PERF-01.01`: Add file-level combined regex pre-filtering (`COMBINED_SECRET_RE`, `COMBINED_OPERATIONAL_RE`) in `evals/security_audit.py`.
+    - [x] `TASK-SEC-PERF-01.02`: Exclude lockfiles, ephemeral telemetry files, binary extensions, and oversized/null-byte artifacts in `audit_secrets()`, and expand `IGNORE_DIRS`.
+    - [x] `TASK-SEC-PERF-01.03`: Add unit tests in `evals/tests/test_evals.py` verifying skipped files and lossless secret/anti-pattern detection, and pass `python evals/run_fullstack_eval.py` (`100/100 PASS`).
 
 ---
 

@@ -164,6 +164,41 @@ class TestSecurityAudit(unittest.TestCase):
                 self.assertEqual(len(leaks), 1)
                 self.assertEqual(leaks[0]["file"], "src/leak.ts")
 
+    def test_skips_lockfiles_telemetry_and_binaries_without_coverage_loss(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".gitignore").write_text(".env\n*.pem\n*.key\nnode_modules\n", encoding="utf-8")
+            (root / ".agents" / "telemetry").mkdir(parents=True)
+            (root / ".agents" / "telemetry" / "cognitive_state.json").write_text(
+                '{"note": "api_key = \\"super_secret_value_12345\\""}\n',
+                encoding="utf-8",
+            )
+            (root / "pnpm-lock.yaml").write_text(
+                'resolved: "https://registry.npmjs.org/pkg"\n',
+                encoding="utf-8",
+            )
+            (root / "logo.png").write_bytes(b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR")
+            (root / "src").mkdir()
+            sample_key_name = "API_" + "KEY"
+            sample_key_val = "prod_tok_" + "9876543210abcdef"
+            (root / "src" / "auth.ts").write_text(
+                f'{sample_key_name} = "{sample_key_val}"\n'
+                '// eval("commented out")\n'
+                'eval("danger")\n',
+                encoding="utf-8",
+            )
+
+            with patch.object(security_audit, "ROOT_DIR", root):
+                leaks = security_audit.audit_secrets()
+                self.assertEqual(len(leaks), 1)
+                self.assertEqual(leaks[0]["file"], "src/auth.ts")
+                self.assertEqual(leaks[0]["line"], 1)
+
+                ops = security_audit.audit_operational_patterns()
+                self.assertEqual(len(ops), 1)
+                self.assertEqual(ops[0]["file"], "src/auth.ts")
+                self.assertEqual(ops[0]["line"], 3)
+
 
 class TestSyncTargetsRegistry(unittest.TestCase):
     def test_register_and_load_deduplicates_targets(self):
