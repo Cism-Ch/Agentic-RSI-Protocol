@@ -62,9 +62,14 @@ PROJECT_MARKERS = {
 
 EPHEMERAL_GITIGNORE_ENTRIES = [
     "evals/logs/",
+    "evals/backups/",
+    "backups/skills/",
+    ".agents/telemetry/*.tmp",
     ".agents/telemetry/active_session.json",
     ".agents/telemetry/cognitive_state.json",
     ".agents/telemetry/sync_targets.json",
+    "__pycache__/",
+    "*.pyc",
 ]
 
 def ensure_target_gitignore_hygiene(target_dir: Path) -> list[str]:

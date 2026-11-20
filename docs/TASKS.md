@@ -12,6 +12,7 @@
 +-------------------------+  +-------------------------+  +-------------------------+
 | [>] IN PROGRESS (SP 01) |  |   [?] FUTURE BACKLOG    |  |       [X] ARCHIVES      |
 +-------------------------+  +-------------------------+  +-------------------------+
+|                         |  |                         |  | [x] TASK-SYNC-IGNORE-01 |
 |                         |  |                         |  | [x] TASK-SYNC-SCOPE-01  |
 |                         |  |                         |  | [x] TASK-SEC-HARDEN-01  |
 |                         |  |                         |  | [x] TASK-SEC-PERF-01    |
@@ -48,6 +49,13 @@
 ---
 
 ## Active Sprint 01: Project Setup & Initialization
+
+- [x] **`TASK-SYNC-IGNORE-01` - Expand Target Gitignore Hygiene Entries in version_manager.py & Sync Targets**
+  - **Priority:** MEDIUM
+  - **Target files:** `evals/version_manager.py`, `docs/TASKS.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-SYNC-IGNORE-01.01`: Add `evals/backups/`, `backups/skills/`, `.agents/telemetry/*.tmp`, `__pycache__/`, and `*.pyc` to `EPHEMERAL_GITIGNORE_ENTRIES` in `evals/version_manager.py`.
+    - [x] `TASK-SYNC-IGNORE-01.02`: Validate `python evals/run_fullstack_eval.py` (`100/100 PASS`) and run `--sync-all` on `OfferAnalyst` and `home-services`.
 
 - [x] **`TASK-SYNC-SCOPE-01` - Exempt Synced Protocol Files in Consumer Scope Guard & Enforce Target Gitignore Hygiene**
   - **Priority:** MEDIUM
