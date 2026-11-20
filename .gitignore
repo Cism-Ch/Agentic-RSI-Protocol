@@ -99,6 +99,9 @@ reports/
 .DS_Store
 Thumbs.db
 
+# Docs
+docs/files/*
+
 # Cognitive-RSI-Ops temporary & ephemeral telemetry files
 .agent/telemetry/*.tmp
 .agents/telemetry/*.tmp
