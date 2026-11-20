@@ -241,12 +241,104 @@ def audit_operational_patterns() -> list[dict]:
                         })
     return violations
 
+ALLOWED_EVAL_SCRIPTS = {
+    "memory_engine.py", "reset_rsi.py", "rsi_orchestrator.py",
+    "run_fullstack_eval.py", "security_audit.py", "stack_inspector.py",
+    "telemetry_hook.py", "version_manager.py", "test_evals.py"
+}
+
+SUPPLY_CHAIN_ATTACK_PATTERNS = [
+    (
+        re.compile(r'(?i:(?:curl|wget|iwr|Invoke-WebRequest)\b[^\n|]*\|\s*(?:sh|bash|zsh|pwsh|powershell|iex|Invoke-Expression)\b)'),
+        "Remote Pipe-to-Shell Execution Vector"
+    ),
+    (
+        re.compile(r'(?i:\b(?:powershell|pwsh)\b[^\n]*\s-(?:e|enc|encodedcommand)\s+[A-Za-z0-9+/=]{16,})'),
+        "Encoded Shell Payload Vector"
+    ),
+    (
+        re.compile(r'(?:rm\s+-[rRf]{2,}\s+/(?:\s|$|\*)|Format-Volume\b|mkfs\.[a-z0-9]+\s+/dev/|\bdd\s+if=/dev/(?:zero|random|urandom)\s+of=/dev/)'),
+        "Destructive Host/Disk Command Vector"
+    ),
+    (
+        re.compile(r'(?i:(?:ignore\s+all\s+previous\s+instructions|disregard\s+system\s+rules|bypass\s+security_audit|exfiltrate\s+[^\n]*\.env))'),
+        "Prompt Injection / Guardrail Subversion Vector"
+    )
+]
+COMBINED_SUPPLY_CHAIN_RE = re.compile("|".join(f"(?:{p.pattern})" for p, _ in SUPPLY_CHAIN_ATTACK_PATTERNS))
+
+def _scan_file_for_supply_chain(path: Path, findings: list[dict]) -> None:
+    rel_str = str(path.relative_to(ROOT_DIR)).replace("\\", "/")
+    if path.is_symlink():
+        findings.append({"file": rel_str, "line": 0, "type": "Unsafe Symlink in Governance/Engine Tree", "sample": str(path)})
+        return
+    if path.name in ("security_audit.py", "test_evals.py", "trajectory_latest.json", "cognitive_state.json"):
+        return
+    if path.suffix.lower() in BINARY_EXTENSIONS:
+        return
+    content, read_err = _read_text_if_scannable(path, max_bytes=MAX_SECRET_SCAN_BYTES)
+    if read_err:
+        findings.append({"file": rel_str, "line": 0, "type": "Read Error", "sample": read_err})
+        return
+    if not content or not COMBINED_SUPPLY_CHAIN_RE.search(content):
+        return
+    for idx, line in enumerate(content.splitlines(), start=1):
+        for pattern, label in SUPPLY_CHAIN_ATTACK_PATTERNS:
+            if pattern.search(line):
+                findings.append({"file": rel_str, "line": idx, "type": label, "sample": line.strip()[:60]})
+
+def audit_supply_chain_and_agent_integrity() -> list[dict]:
+    """Detects supply-chain payloads, unapproved evals scripts on source repo, symlinks, and prompt injections."""
+    findings = []
+    is_protocol_source_repo = (
+        not (ROOT_DIR / "package.json").exists()
+        and not (ROOT_DIR / "pyproject.toml").exists()
+        and (ROOT_DIR / "evals" / "version_manager.py").exists()
+    )
+
+    evals_dir = ROOT_DIR / "evals"
+    if evals_dir.exists():
+        for root, dirs, files in os.walk(evals_dir):
+            dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
+            root_path = Path(root)
+            if root_path.is_symlink():
+                rel_dir = str(root_path.relative_to(ROOT_DIR)).replace("\\", "/")
+                findings.append({"file": rel_dir, "line": 0, "type": "Unsafe Symlink in Governance/Engine Tree", "sample": str(root_path)})
+                dirs[:] = []
+                continue
+            for f in files:
+                p = root_path / f
+                if is_protocol_source_repo and p.suffix == ".py" and p.name not in ALLOWED_EVAL_SCRIPTS:
+                    rel_str = str(p.relative_to(ROOT_DIR)).replace("\\", "/")
+                    findings.append({"file": rel_str, "line": 0, "type": "Unapproved Executable Script in evals/", "sample": p.name})
+                _scan_file_for_supply_chain(p, findings)
+
+    agents_dir = ROOT_DIR / ".agents"
+    if agents_dir.exists():
+        for root, dirs, files in os.walk(agents_dir):
+            dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
+            root_path = Path(root)
+            if root_path.is_symlink():
+                rel_dir = str(root_path.relative_to(ROOT_DIR)).replace("\\", "/")
+                findings.append({"file": rel_dir, "line": 0, "type": "Unsafe Symlink in Governance/Engine Tree", "sample": str(root_path)})
+                dirs[:] = []
+                continue
+            for f in files:
+                _scan_file_for_supply_chain(root_path / f, findings)
+
+    pkg_json = ROOT_DIR / "package.json"
+    if pkg_json.exists():
+        _scan_file_for_supply_chain(pkg_json, findings)
+
+    return findings
+
 def run_security_audit() -> bool:
     print("[RSI Security Audit] Running static security, secret leak, operational pattern, and ASCII guard audit...")
     gitignore_issues = audit_gitignore()
     secret_findings = audit_secrets()
     ascii_violations = audit_ascii_hygiene()
     operational_violations = audit_operational_patterns()
+    supply_chain_violations = audit_supply_chain_and_agent_integrity()
 
     success = True
     if gitignore_issues:
@@ -280,6 +372,14 @@ def run_security_audit() -> bool:
         success = False
     else:
         print("  [OK] Pure ASCII & Emoji Hygiene: 0 non-ASCII or emoji characters found.")
+
+    if supply_chain_violations:
+        print(f"\n[FAIL] {len(supply_chain_violations)} supply-chain / agent integrity violation(s) detected:")
+        for sv in supply_chain_violations:
+            print(f"  - [{sv['type']}] {sv['file']}:{sv['line']} -> {sv['sample']}")
+        success = False
+    else:
+        print("  [OK] Supply-Chain & Agent Integrity Guard: 0 attack vectors found.")
 
     # Check for real uncommitted .env files
     env_files = list(ROOT_DIR.glob(".env*"))

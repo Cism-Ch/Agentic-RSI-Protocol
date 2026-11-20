@@ -30,6 +30,8 @@ SKILLS_DIR = ROOT_DIR / ".agents" / "skills"
 SKILLS_BACKUP_DIR = ROOT_DIR / "backups" / "skills"
 IGNORE_DIRS = {'.git', 'node_modules', '__pycache__', '.venv', 'venv', 'dist', 'build', '.next', 'backups', 'logs'}
 CODE_EXTENSIONS = {'.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.py', '.go', '.rs', '.php', '.rb', '.java', '.cs'}
+MAX_SOURCE_FILE_BYTES = 524_288
+MAX_GRAPH_FILES = 1500
 
 SINGLETON_SIGNATURES = [
     (re.compile(r'new\s+PrismaClient|PrismaClient'), "Database ORM Singleton"),
@@ -195,12 +197,18 @@ def get_missing_tools() -> list[dict]:
 def iter_source_files() -> list[Path]:
     files = []
     for root, dirs, filenames in os.walk(ROOT_DIR):
-        dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
+        dirs[:] = [d for d in dirs if d not in IGNORE_DIRS and not (Path(root) / d).is_symlink()]
         for fname in filenames:
             path = Path(root) / fname
-            if path.suffix in CODE_EXTENSIONS:
-                files.append(path)
-    return sorted(files)
+            if path.is_symlink() or path.suffix not in CODE_EXTENSIONS:
+                continue
+            try:
+                if path.stat().st_size > MAX_SOURCE_FILE_BYTES:
+                    continue
+            except OSError:
+                continue
+            files.append(path)
+    return sorted(files)[:MAX_GRAPH_FILES]
 
 def build_dependency_graph(files: list[Path]) -> dict[str, set[str]]:
     """Maps each relative file path to the set of relative file paths that import/reference it."""
@@ -505,11 +513,17 @@ def restore_file(rel_path: str) -> bool:
     norm = rel_path.replace("\\\\", "/").lstrip("/")
     if norm.startswith(".agents/skills/"):
         norm = norm[len(".agents/skills/"):]
+    if ".." in Path(norm).parts:
+        print(f"[FAIL] Refusing unsafe path traversal in skill restore: {rel_path}")
+        return False
     src = UNPACKED_DIR / norm
-    if not src.exists():
-        print(f"[FAIL] Backup file not found in unpacked mirror: {norm}")
+    if not src.exists() or src.is_symlink():
+        print(f"[FAIL] Backup file missing or unsafe symlink in unpacked mirror: {norm}")
         return False
     dst = SKILLS_DIR / norm
+    if not src.resolve().is_relative_to(UNPACKED_DIR.resolve()) or not dst.resolve().is_relative_to(SKILLS_DIR.resolve()):
+        print(f"[FAIL] Resolved skill restore path escapes confined root: {norm}")
+        return False
     dst.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(src, dst)
     print(f"[OK] Restored: .agents/skills/{norm}")

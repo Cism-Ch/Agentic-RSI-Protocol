@@ -44,6 +44,22 @@ CORE_ENGINE_FILES = [
     "VERSION"
 ]
 
+ALLOWED_SYNC_EVAL_FILES = {
+    "memory_engine.py", "reset_rsi.py", "rsi_orchestrator.py",
+    "run_fullstack_eval.py", "security_audit.py", "stack_inspector.py",
+    "telemetry_hook.py", "version_manager.py", "tests/test_evals.py"
+}
+
+FORBIDDEN_SYSTEM_DIR_NAMES = {
+    "windows", "system32", "program files", "program files (x86)",
+    "etc", "bin", "sbin", "usr", "var", ".ssh", ".gnupg", ".aws", ".gemini"
+}
+
+PROJECT_MARKERS = {
+    ".git", "package.json", "pyproject.toml", "requirements.txt",
+    "Cargo.toml", "go.mod", "docs/TASKS.md", "AGENTS.md"
+}
+
 def parse_semver(version_str: str) -> tuple[int, int, int, str | None]:
     clean = version_str.lstrip("v").strip()
     match = re.match(r"^(\d+)\.(\d+)\.(\d+)(?:-([a-zA-Z0-9._-]+))?$", clean)
@@ -175,18 +191,38 @@ def sync_all_targets() -> bool:
         sync_protocol_to_target(str(p), init_mode=False)
     return all_ok
 
+def validate_safe_target_dir(target_dir: Path, init_mode: bool = False) -> tuple[bool, str]:
+    """Verifies that target_dir is a safe project directory (anti-overwrite & anti-symlink guard)."""
+    if target_dir.is_symlink():
+        return False, f"Refusing symlink target directory: {target_dir}"
+    resolved = target_dir.resolve()
+    if resolved == ROOT_DIR.resolve():
+        return False, "Cannot sync protocol onto the source protocol repository itself."
+    if resolved.parent == resolved or resolved == Path.home().resolve():
+        return False, f"Refusing filesystem root or home directory as sync target: {resolved}"
+    for part in resolved.parts:
+        if part.lower() in FORBIDDEN_SYSTEM_DIR_NAMES:
+            return False, f"Refusing protected system or credential directory segment '{part}' in path: {resolved}"
+    if not init_mode:
+        if not resolved.exists():
+            return False, f"Target directory does not exist: {resolved}"
+        if not any((resolved / marker).exists() for marker in PROJECT_MARKERS):
+            return False, (
+                f"Target directory has no project markers ({', '.join(sorted(PROJECT_MARKERS))}). "
+                "Use --init-target for new projects."
+            )
+    return True, ""
+
 def sync_protocol_to_target(target_path_str: str, init_mode: bool = False) -> None:
-    target_dir = Path(target_path_str).resolve()
-    if target_dir == ROOT_DIR.resolve():
-        print("[Error] Cannot sync protocol onto the source protocol repository itself.")
+    raw_target = Path(target_path_str)
+    safe, reason = validate_safe_target_dir(raw_target, init_mode=init_mode)
+    if not safe:
+        print(f"[Error] {reason}")
         sys.exit(1)
-    if not target_dir.exists():
-        if init_mode:
-            target_dir.mkdir(parents=True, exist_ok=True)
-            print(f"[Init] Created target project root: {target_dir}")
-        else:
-            print(f"[Error] Target directory does not exist: {target_dir}")
-            sys.exit(1)
+    target_dir = raw_target.resolve()
+    if not target_dir.exists() and init_mode:
+        target_dir.mkdir(parents=True, exist_ok=True)
+        print(f"[Init] Created target project root: {target_dir}")
 
     print(f"=== [RSI PROTOCOL SYNC] ===")
     print(f"Source Protocol : {ROOT_DIR} (v{get_current_version()})")
@@ -203,7 +239,7 @@ def sync_protocol_to_target(target_path_str: str, init_mode: bool = False) -> No
         dst.mkdir(parents=True, exist_ok=True)
 
         for root, dirs, files in os.walk(src):
-            dirs[:] = [d for d in dirs if d not in ("__pycache__", ".pytest_cache")]
+            dirs[:] = [d for d in dirs if d not in ("__pycache__", ".pytest_cache") and not (Path(root) / d).is_symlink()]
             rel_root = Path(root).relative_to(src)
             target_subdir = dst / rel_root
             target_subdir.mkdir(parents=True, exist_ok=True)
@@ -212,7 +248,15 @@ def sync_protocol_to_target(target_path_str: str, init_mode: bool = False) -> No
                 if f.endswith((".tmp", ".pyc")) or f in ("active_session.json", "cognitive_state.json", "sync_targets.json"):
                     continue
                 src_file = Path(root) / f
+                if src_file.is_symlink():
+                    continue
+                if rel_dir == "evals":
+                    rel_file_posix = str(src_file.relative_to(src)).replace("\\", "/")
+                    if rel_file_posix not in ALLOWED_SYNC_EVAL_FILES:
+                        continue
                 dst_file = target_subdir / f
+                if dst_file.is_symlink():
+                    continue
                 shutil.copy2(src_file, dst_file)
         print(f"[OK] Synced engine directory: {rel_dir}/")
 

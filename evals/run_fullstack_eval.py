@@ -12,6 +12,8 @@ RSI Adaptive & Agnostic Deterministic Judge
 import sys
 import os
 import time
+import shlex
+import shutil
 import subprocess
 import json
 import argparse
@@ -40,14 +42,18 @@ def detect_package_manager() -> str:
         return "npm"
     return "pnpm"
 
+def resolve_pm_cmd(pm: str, args: list[str]) -> list[str]:
+    pm_bin = shutil.which(pm) or pm
+    return [pm_bin] + args
+
 def run_cmd(name: str, cmd_or_list: str | list[str], weight: int, timeout_sec: int = 180) -> dict:
-    use_shell = isinstance(cmd_or_list, str)
-    cmd_repr = " ".join(cmd_or_list) if isinstance(cmd_or_list, list) else cmd_or_list
+    cmd_list = shlex.split(cmd_or_list) if isinstance(cmd_or_list, str) else list(cmd_or_list)
+    cmd_repr = " ".join(cmd_list)
     start_ts = time.perf_counter()
     try:
         res = subprocess.run(
-            cmd_or_list,
-            shell=use_shell,
+            cmd_list,
+            shell=False,
             cwd=str(ROOT_DIR),
             capture_output=True,
             text=True,
@@ -100,7 +106,7 @@ def build_adaptive_checks(quick: bool) -> list[dict]:
     if (ROOT_DIR / "tsconfig.json").exists():
         checks.append({
             "name": "typecheck",
-            "cmd": f"{pm} exec tsc --noEmit",
+            "cmd": resolve_pm_cmd(pm, ["exec", "tsc", "--noEmit"]),
             "weight": 30 if quick else 25,
             "timeout": 120
         })
@@ -119,7 +125,7 @@ def build_adaptive_checks(quick: bool) -> list[dict]:
     if has_lint_script:
         checks.append({
             "name": "lint",
-            "cmd": f"{pm} run lint",
+            "cmd": resolve_pm_cmd(pm, ["run", "lint"]),
             "weight": 30 if quick else 25,
             "timeout": 240
         })
@@ -128,7 +134,12 @@ def build_adaptive_checks(quick: bool) -> list[dict]:
     prisma_schema = ROOT_DIR / "prisma" / "schema.prisma"
     db_validator = ROOT_DIR / ".agents" / "skills" / "db_schema_validator.py"
 
-    if prisma_schema.exists() and db_validator.exists():
+    if (
+        prisma_schema.exists()
+        and db_validator.exists()
+        and not db_validator.is_symlink()
+        and db_validator.resolve().is_relative_to(ROOT_DIR.resolve())
+    ):
         checks.append({
             "name": "prisma_hygiene",
             "cmd": [py, str(db_validator)],
@@ -138,7 +149,7 @@ def build_adaptive_checks(quick: bool) -> list[dict]:
     elif (ROOT_DIR / "drizzle.config.ts").exists() or (ROOT_DIR / "drizzle.config.js").exists():
         checks.append({
             "name": "drizzle_check",
-            "cmd": f"{pm} exec drizzle-kit check",
+            "cmd": resolve_pm_cmd(pm, ["exec", "drizzle-kit", "check"]),
             "weight": 25 if quick else 15,
             "timeout": 60
         })
@@ -186,7 +197,7 @@ def build_adaptive_checks(quick: bool) -> list[dict]:
         if pkg_has_build:
             checks.append({
                 "name": "prod_build",
-                "cmd": f"{pm} run build",
+                "cmd": resolve_pm_cmd(pm, ["run", "build"]),
                 "weight": 25,
                 "timeout": 180
             })

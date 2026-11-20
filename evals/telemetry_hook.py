@@ -535,15 +535,26 @@ def record_latest_eval(attempts: int = 1, agent_name: str = "antigravity-agent",
         wasted_actions = len(traj_data.get("failed_steps", [])) + scope_drift_count
         active_model = model or detect_active_model()
 
-    # Check if cognitive-rsi-ops cli is accessible
-    cli_path = ROOT_DIR / "cli.py"
-    if not cli_path.exists():
-        for cand in [ROOT_DIR.parent / "cognitive-rsi-ops" / "cli.py", Path.home() / "cognitive-rsi-ops" / "cli.py"]:
-            if cand.exists():
-                cli_path = cand
-                break
+    # Check if cognitive-rsi-ops cli is accessible and authentic
+    cli_candidates = []
+    if ROOT_DIR.name.lower() == "cognitive-rsi-ops":
+        cli_candidates.append(ROOT_DIR / "cli.py")
+    cli_candidates.extend([
+        ROOT_DIR.parent / "cognitive-rsi-ops" / "cli.py",
+        Path.home() / "cognitive-rsi-ops" / "cli.py",
+    ])
+    cli_path: Optional[Path] = None
+    for cand in cli_candidates:
+        if cand.exists() and not cand.is_symlink():
+            try:
+                head = cand.read_text(encoding="utf-8", errors="ignore")[:2048].lower()
+                if "cognitive" in head:
+                    cli_path = cand
+                    break
+            except Exception:
+                continue
 
-    if cli_path.exists():
+    if cli_path is not None:
         cmd = [
             sys.executable,
             str(cli_path),
@@ -567,11 +578,16 @@ def record_latest_eval(attempts: int = 1, agent_name: str = "antigravity-agent",
         if injected_rules:
             cmd.extend(["--injected-rules", ",".join(str(r) for r in injected_rules)])
 
-        res = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
-        if res.returncode == 0:
-            print(f"[OK] [Cognitive-Ops] Recorded telemetry ({telemetry_source}, scope_drift={scope_drift_count}) into {STATE_FILE}")
-            return
-        print(f"[WARN] [Cognitive-Ops] CLI fallback triggered (rc={res.returncode}): {res.stderr.strip()[:120]}")
+        try:
+            res = subprocess.run(
+                cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10
+            )
+            if res.returncode == 0:
+                print(f"[OK] [Cognitive-Ops] Recorded telemetry ({telemetry_source}, scope_drift={scope_drift_count}) into {STATE_FILE}")
+                return
+            print(f"[WARN] [Cognitive-Ops] CLI fallback triggered (rc={res.returncode}): {res.stderr.strip()[:120]}")
+        except Exception as e:
+            print(f"[WARN] [Cognitive-Ops] CLI fallback triggered: {e}")
 
     _record_standalone_state(
         traj_data=traj_data,

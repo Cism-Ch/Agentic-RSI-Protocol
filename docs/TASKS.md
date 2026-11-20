@@ -12,6 +12,7 @@
 +-------------------------+  +-------------------------+  +-------------------------+
 | [>] IN PROGRESS (SP 01) |  |   [?] FUTURE BACKLOG    |  |       [X] ARCHIVES      |
 +-------------------------+  +-------------------------+  +-------------------------+
+|                         |  |                         |  | [x] TASK-SEC-HARDEN-01  |
 |                         |  |                         |  | [x] TASK-SEC-PERF-01    |
 |                         |  |                         |  | [x] TASK-FRICTION-01    |
 |                         |  |                         |  | [x] TASK-DOCS-06        |
@@ -46,6 +47,15 @@
 ---
 
 ## Active Sprint 01: Project Setup & Initialization
+
+- [x] **`TASK-SEC-HARDEN-01` - Supply-Chain, Host Hardware & Agent Integrity Hardening**
+  - **Priority:** HIGH
+  - **Target files:** `evals/security_audit.py`, `evals/version_manager.py`, `evals/telemetry_hook.py`, `evals/run_fullstack_eval.py`, `evals/stack_inspector.py`, `evals/tests/test_evals.py`, `.github/workflows/ci.yml`, `.github/workflows/release.yml`, `docs/TASKS.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-SEC-HARDEN-01.01`: Add `audit_supply_chain_and_agent_integrity()` in `evals/security_audit.py` (evals allowlist, symlink rejection, pipe-to-shell, destructive OS commands, and prompt-injection checks).
+    - [x] `TASK-SEC-HARDEN-01.02`: Add `validate_safe_target_dir()` and `ALLOWED_SYNC_EVAL_FILES` allowlist in `evals/version_manager.py` to prevent arbitrary path overwrite or rogue file propagation during `--sync-to`.
+    - [x] `TASK-SEC-HARDEN-01.03`: Eliminate `shell=True` in `evals/run_fullstack_eval.py`, verify `cli.py` authenticity + timeout in `evals/telemetry_hook.py`, and add path-confinement + RAM/CPU caps in `evals/stack_inspector.py`.
+    - [x] `TASK-SEC-HARDEN-01.04`: Harden `.github/workflows/ci.yml` and `release.yml` (least-privilege permissions and timeouts) and add unit tests in `evals/tests/test_evals.py` (`100/100 PASS`).
 
 - [x] **`TASK-SEC-PERF-01` - Optimize security_audit.py Performance (< 2s) Without Coverage Loss**
   - **Priority:** HIGH
