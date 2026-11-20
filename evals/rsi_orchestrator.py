@@ -41,7 +41,34 @@ ALWAYS_ALLOWED_GOVERNANCE_FILES = {
     "VERSION",
     ".agents/telemetry/cognitive_state.json",
     ".agents/telemetry/active_session.json",
+    ".agents/telemetry/sync_targets.json",
+    "evals/logs/trajectory_latest.json",
 }
+
+CONSUMER_SYNCED_PROTOCOL_PATTERNS = (
+    "AGENTS.md",
+    "VERSION",
+    ".agents/rules/system_core.md",
+    ".agents/rules/fullstack_playbook.md",
+    ".agents/workflows/*",
+    ".agents/prompts/*",
+    "evals/*",
+    "evals/tests/*",
+)
+
+def is_consumer_project() -> bool:
+    """Returns True when running inside a consumer application repository rather than the source protocol repo."""
+    return any((ROOT_DIR / m).exists() for m in ("package.json", "pyproject.toml", "Cargo.toml", "go.mod"))
+
+def is_governance_exempt(file_path: str) -> bool:
+    """Returns True if file_path is exempt from Scope Drift checks (including synced protocol files in consumer repos)."""
+    if file_path in ALWAYS_ALLOWED_GOVERNANCE_FILES:
+        return True
+    if is_consumer_project():
+        for pat in CONSUMER_SYNCED_PROTOCOL_PATTERNS:
+            if file_path == pat or fnmatch.fnmatch(file_path, pat):
+                return True
+    return False
 
 def _parse_iso_utc(raw_ts: str | None) -> datetime | None:
     if not raw_ts or not isinstance(raw_ts, str):
@@ -251,7 +278,7 @@ def get_modified_workspace_files() -> list[str]:
         return []
 
 def matches_target_pattern(file_path: str, patterns: list[str]) -> bool:
-    if file_path in ALWAYS_ALLOWED_GOVERNANCE_FILES:
+    if is_governance_exempt(file_path):
         return True
     for pat in patterns:
         if file_path == pat:
@@ -330,7 +357,7 @@ def get_scope_drift_report() -> dict:
     """Computes structured Scope Drift status comparing git status against declared Target files."""
     modified_files = [
         f for f in get_modified_workspace_files()
-        if f not in ALWAYS_ALLOWED_GOVERNANCE_FILES
+        if not is_governance_exempt(f)
     ]
     active_tasks = parse_active_tasks()
 

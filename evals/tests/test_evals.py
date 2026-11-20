@@ -260,6 +260,35 @@ class TestSyncTargetsRegistry(unittest.TestCase):
             (empty_dir / "package.json").write_text("{}\n", encoding="utf-8")
             self.assertTrue(version_manager.validate_safe_target_dir(empty_dir, init_mode=False)[0])
 
+    def test_consumer_scope_guard_exempts_synced_protocol_files(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            with patch.object(rsi_orchestrator, "ROOT_DIR", root):
+                # Source protocol repo (no consumer manifest): evals/ and AGENTS.md are strictly guarded
+                self.assertFalse(rsi_orchestrator.is_consumer_project())
+                self.assertFalse(rsi_orchestrator.is_governance_exempt("evals/security_audit.py"))
+                self.assertFalse(rsi_orchestrator.is_governance_exempt("AGENTS.md"))
+
+                # Consumer repo (has package.json): synced protocol files are exempt, app code stays guarded
+                (root / "package.json").write_text('{"name": "app"}\n', encoding="utf-8")
+                self.assertTrue(rsi_orchestrator.is_consumer_project())
+                self.assertTrue(rsi_orchestrator.is_governance_exempt("evals/security_audit.py"))
+                self.assertTrue(rsi_orchestrator.is_governance_exempt("AGENTS.md"))
+                self.assertFalse(rsi_orchestrator.is_governance_exempt("src/app.ts"))
+
+    def test_ensure_target_gitignore_hygiene_is_idempotent(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            target = Path(tmp)
+            gi = target / ".gitignore"
+            gi.write_text("node_modules/\n.env\n", encoding="utf-8")
+            added_first = version_manager.ensure_target_gitignore_hygiene(target)
+            self.assertEqual(len(added_first), len(version_manager.EPHEMERAL_GITIGNORE_ENTRIES))
+            added_second = version_manager.ensure_target_gitignore_hygiene(target)
+            self.assertEqual(added_second, [])
+            content = gi.read_text(encoding="utf-8")
+            for entry in version_manager.EPHEMERAL_GITIGNORE_ENTRIES:
+                self.assertEqual(content.count(entry), 1)
+
 
 if __name__ == "__main__":
     unittest.main()

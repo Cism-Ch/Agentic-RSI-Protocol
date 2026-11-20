@@ -60,6 +60,30 @@ PROJECT_MARKERS = {
     "Cargo.toml", "go.mod", "docs/TASKS.md", "AGENTS.md"
 }
 
+EPHEMERAL_GITIGNORE_ENTRIES = [
+    "evals/logs/",
+    ".agents/telemetry/active_session.json",
+    ".agents/telemetry/cognitive_state.json",
+    ".agents/telemetry/sync_targets.json",
+]
+
+def ensure_target_gitignore_hygiene(target_dir: Path) -> list[str]:
+    """Ensures ephemeral RSI telemetry and log paths are ignored in the target project's .gitignore."""
+    gitignore_path = target_dir / ".gitignore"
+    if not gitignore_path.exists() or gitignore_path.is_symlink():
+        return []
+    try:
+        content = gitignore_path.read_text(encoding="utf-8", errors="ignore")
+        existing_lines = {line.strip() for line in content.splitlines()}
+        missing = [entry for entry in EPHEMERAL_GITIGNORE_ENTRIES if entry not in existing_lines]
+        if missing:
+            prefix = "" if (not content or content.endswith("\n")) else "\n"
+            block = prefix + "\n# RSI Protocol Ephemeral Telemetry & Logs\n" + "\n".join(missing) + "\n"
+            gitignore_path.write_text(content + block, encoding="utf-8")
+        return missing
+    except Exception:
+        return []
+
 def parse_semver(version_str: str) -> tuple[int, int, int, str | None]:
     clean = version_str.lstrip("v").strip()
     match = re.match(r"^(\d+)\.(\d+)\.(\d+)(?:-([a-zA-Z0-9._-]+))?$", clean)
@@ -364,6 +388,11 @@ def sync_protocol_to_target(target_path_str: str, init_mode: bool = False) -> No
                 print(f"[OK] Standard RSI scripts already present in package.json")
         except Exception as e:
             print(f"[WARN] Could not update target package.json: {e}")
+
+    # 6. Ensure ephemeral RSI logs/telemetry are ignored in target .gitignore
+    added_ignores = ensure_target_gitignore_hygiene(target_dir)
+    if added_ignores:
+        print(f"[OK] Added {len(added_ignores)} ephemeral RSI rule(s) to target .gitignore: {', '.join(added_ignores)}")
 
     register_sync_target(target_dir, get_current_version())
 

@@ -12,6 +12,7 @@
 +-------------------------+  +-------------------------+  +-------------------------+
 | [>] IN PROGRESS (SP 01) |  |   [?] FUTURE BACKLOG    |  |       [X] ARCHIVES      |
 +-------------------------+  +-------------------------+  +-------------------------+
+|                         |  |                         |  | [x] TASK-SYNC-SCOPE-01  |
 |                         |  |                         |  | [x] TASK-SEC-HARDEN-01  |
 |                         |  |                         |  | [x] TASK-SEC-PERF-01    |
 |                         |  |                         |  | [x] TASK-FRICTION-01    |
@@ -47,6 +48,14 @@
 ---
 
 ## Active Sprint 01: Project Setup & Initialization
+
+- [x] **`TASK-SYNC-SCOPE-01` - Exempt Synced Protocol Files in Consumer Scope Guard & Enforce Target Gitignore Hygiene**
+  - **Priority:** MEDIUM
+  - **Target files:** `evals/rsi_orchestrator.py`, `evals/version_manager.py`, `evals/tests/test_evals.py`, `docs/TASKS.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-SYNC-SCOPE-01.01`: Exempt synced RSI protocol files from `Scope Guard` drift warnings on consumer projects while keeping strict enforcement on the source protocol repo.
+    - [x] `TASK-SYNC-SCOPE-01.02`: Ensure `--sync-to` idempotently adds ephemeral RSI telemetry/log entries to target `.gitignore` (`ensure_target_gitignore_hygiene`).
+    - [x] `TASK-SYNC-SCOPE-01.03`: Add unit tests in `evals/tests/test_evals.py` and validate `python evals/run_fullstack_eval.py` (`100/100 PASS`).
 
 - [x] **`TASK-SEC-HARDEN-01` - Supply-Chain, Host Hardware & Agent Integrity Hardening**
   - **Priority:** HIGH
