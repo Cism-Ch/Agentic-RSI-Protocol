@@ -98,7 +98,7 @@ Autonomous coding agents (Cursor Agent, Windsurf Cascade, Google Antigravity, Cl
 - **What happens:** When executed in default Windows PowerShell (CP1252 / ISO-8859-1) or in minimal Linux Docker containers without UTF-8 locale configuration, Python crashes abruptly:
   `UnicodeEncodeError: 'charmap' codec can't encode characters in position 23-24: character maps to <undefined>`
   The agent cannot read its own test results and gets trapped in an unresolvable loop trying to fix functional code that was never broken.
-- **The RSI Fix:** The protocol mechanically enforces **pure ASCII output**. The judge in `evals/security_audit.py` actively scans for any non-ASCII or emoji characters across all scripts, rules, and documentation, failing with an exit code 1 if any agent commits an emoji.
+- **The RSI Fix:** The protocol mechanically enforces **pure ASCII output** in executable scripts. The judge in `evals/security_audit.py` actively scans all Python scripts (`evals/**/*.py`) for any non-ASCII or emoji characters, failing with exit code 1 if any agent commits an emoji, while preserving accented prose in Markdown documentation.
 
 ### Real-World Failure Scenario 6: Uncontrolled Scope Drift & Over-Zealous Refactoring
 - **The Problem:** An agent is asked to fix a typo or add a small validation rule in a controller. While reading adjacent code, the agent decides to refactor utility files, change function names in unrelated modules, and rewrite tests.
@@ -237,12 +237,13 @@ Output:
 ```
 
 ### 4. Adaptive Deterministic Judge
-The evaluation engine (`evals/run_fullstack_eval.py`) automatically discovers project tooling without manual configuration:
+The evaluation engine (`evals/run_fullstack_eval.py`) automatically discovers project tooling without manual configuration and executes every check with `shell=False` (resolving package manager binaries via `shutil.which()`):
 - Package manager detection (`pnpm`, `bun`, `yarn`, `npm`).
 - TypeScript static analysis (`tsc --noEmit`).
 - Code style and linting (invokes project `lint` script).
-- ORM and database verification (Prisma schema validation, Drizzle checks).
-- Security audits (secret leakage, operational anti-patterns, and `.gitignore` airtightness).
+- ORM and database verification (confined Prisma schema validation, Drizzle checks).
+- Security and supply-chain audits (`evals/security_audit.py`).
+- Protocol engine unit tests (`eval_unit_tests` via `evals/tests/test_*.py`).
 - Granular per-step timing: measures `duration_ms` per check (`checks`) and wall-clock `total_duration_ms` in `evals/logs/trajectory_latest.json`.
 - Compact failure filtering: captures and outputs at most 10 significant lines per failed step to avoid overflowing prompt context.
 
@@ -255,20 +256,20 @@ When an agent encounters a bug and resolves it, it runs **Phase 3**:
 5. In subsequent sessions, any agent touching related files will receive the distilled rule, preventing regression.
 
 ### 6. Zero-Leak Security Audit
-[`evals/security_audit.py`](evals/security_audit.py) executes automated static analysis across all files:
-- Scans for private cryptographic keys (RSA, EC, OpenSSH).
-- Detects provider API tokens (OpenAI, Anthropic, AWS Access Keys, GitHub PATs, Slack).
-- Detects unmasked database connection strings (`postgres://...`).
-- Verifies `.gitignore` blocks `.env*`, `.pem`, `.key`, and dependencies.
+[`evals/security_audit.py`](evals/security_audit.py) executes fast, whole-file pre-filtered static analysis (skipping lockfiles, binary extensions, and ephemeral telemetry files to prevent timeouts):
+- Scans for private cryptographic keys (RSA, EC, OpenSSH), provider API tokens (OpenAI, Anthropic, AWS Access Keys, GitHub PATs, Slack), and unmasked database connection strings (`postgres://...`), while ignoring documented template placeholders and `.env.example`.
+- Verifies `.gitignore` blocks `.env*`, `*.pem`, `*.key`, and dependencies.
+- **Supply-Chain & Agent Integrity Guard (`audit_supply_chain_and_agent_integrity()`):** Scans `.agents/` (including third-party skills), `evals/`, and `package.json` for remote pipe-to-shell payloads (`curl|sh`, `iwr|iex`), encoded PowerShell commands, destructive host/disk commands (`rm -rf /`, `Format-Volume`, `dd of=/dev/`), prompt-injection / guardrail-subversion directives, unsafe symlinks, and (on the source protocol repo) enforces `ALLOWED_EVAL_SCRIPTS`.
+- **Host & Path Hardening:** `version_manager.py` enforces `validate_safe_target_dir()` and `ALLOWED_SYNC_EVAL_FILES` during `--sync-to`; `stack_inspector.py` enforces path confinement (`is_relative_to`) in `restore_skill.py` and caps file size/count (`512 KB`, `1500` files) to prevent RAM/CPU exhaustion.
 
 ### 7. Deterministic Pure ASCII & Emoji Hygiene Enforcement
-Does the protocol really prevent agents from writing emojis? **Yes, mechanically.**
+Does the protocol really prevent agents from writing emojis in CLI tools? **Yes, mechanically.**
 - `evals/security_audit.py` includes a dedicated `audit_ascii_hygiene()` function that executes on every test run.
-- It scans all scripts (`evals/*.py`), rule modules (`.agents/**/*.md`), and documentation (`*.md`).
-- If an agent inserts an emoji (such as checkmarks, rocket icons, or smileys) or non-ASCII typography (such as em-dashes or smart quotes), the test fails deterministically with exit code 1:
+- It scans all executable Python scripts (`evals/**/*.py`) to prevent Windows CP1252 / CI encoding crashes while allowing accented prose (e.g., French documentation) in Markdown files.
+- If an agent inserts an emoji (such as checkmarks, rocket icons, or smileys) or non-ASCII typography (such as em-dashes or smart quotes) inside `evals/**/*.py`, the test fails deterministically with exit code 1:
   ```
   [FAIL] 1 non-ASCII / emoji violation(s) detected:
-    - [Non-ASCII / Emoji Character] evals/script.py:12 -> print("Done [emoji]")
+    - [Non-ASCII Character in Python Script] evals/script.py:12 -> print("Done [emoji]")
   [FAIL] SECURITY & HYGIENE AUDIT: FAILED
   ```
 - Because the deterministic judge score drops below 100/100, the task CANNOT be closed until the agent replaces the emoji with standard ASCII tags (`[OK]`, `[FAIL]`, `[WARN]`, `[INFO]`).
@@ -277,7 +278,7 @@ Does the protocol really prevent agents from writing emojis? **Yes, mechanically
 To prevent AI agents from wasting tokens on solved problems or introducing operational vulnerabilities, the protocol combines an *a priori* **Cognitive Compass** with an *a posteriori* **Reflex Nervous System**:
 - **Cognitive Routing (`.agents/rules/modules/pattern_recognition.md`):** Instructs the agent to route routine boilerplate (`System 1`) to fast execution, reuse existing canonical patterns in $O(1)$ (`[R-PAT-02]`), and reserve deep reasoning (`System 2`) for security boundaries and state concurrency.
 - **Fast-Fail Diagnostic Reflex (`--diagnose`):** When an evaluation fails, `python evals/memory_engine.py --diagnose` inspects `evals/logs/trajectory_latest.json` in `< 10ms` and maps known error signatures directly to 1-line deterministic fixes before the agent burns tokens guessing.
-- **Operational Anti-Pattern Guard:** `evals/security_audit.py` scans application code to block public frontend secret exposure (`NEXT_PUBLIC_.*SECRET`, `VITE_.*SECRET`), non-singleton ORM instantiations (`new PrismaClient()`), and unsafe dynamic code execution (`eval`, `new Function`).
+- **Operational Anti-Pattern Guard:** `evals/security_audit.py` scans application code to block public frontend secret exposure (`NEXT_PUBLIC_.*SECRET`, `VITE_.*SECRET`), non-singleton ORM instantiations (`new PrismaClient()` strictly scoped to application code under `src/`, excluding `SINGLETON_ALLOWED_FILES`), and unsafe dynamic code execution (`eval`, `new Function`).
 
 ### 9. Topological Repo Map, Autonomous Stack Profiler & Lossless Skill Pruning
 - **$O(1)$ Topological Map (`--map`):** `python evals/stack_inspector.py --map` scans the codebase and outputs existing singletons (ORM, Supabase, Auth, Redis, Storage) and top dependency hubs in `< 25 lines`. The agent immediately knows where existing building blocks live without performing 15 blind `grep` searches.
@@ -286,8 +287,8 @@ To prevent AI agents from wasting tokens on solved problems or introducing opera
 
 ### 10. `[Scope: XS..XL]` Sizing, Scope Drift Guard & Automated Task Rollover
 - **Automatic `[Scope: XS / S / M / L / XL]` Sizing & Blast Radius:** Both `--pulse` and `--scope` automatically compute the Blast Radius of all declared `Target files:` and assign a task scope badge (`XS`, `S`, `M`, `L`, or `XL`). Tasks reaching `[Scope: XL]` (9+ target files or 2+ `HIGH` Blast Radius hubs) trigger an automatic warning advising the agent to split the task into smaller sub-tasks (`TASK-DOM-XXa/b`).
-- **Scope Drift Guard (`--scope` / `--strict-scope`):** `python evals/rsi_orchestrator.py --scope` cross-checks `git status --porcelain` against the active `[-]` task's declared `Target files:` in `docs/TASKS.md` and exposes `get_scope_drift_report()`. Use `--guardrail --strict-scope` to enforce line ceilings and strict scope alignment together.
-- **Cold-Start Pulse (`--pulse`):** `python evals/rsi_orchestrator.py --pulse` gives any new agent session an instant cockpit briefing (< 50ms) detailing protocol version, judge health, active task with `[Scope: XS..XL]`, sprint ID, Blast Radius, git workspace status, auto-resolved rule modules, and missing official tooling, while initializing `.agents/telemetry/active_session.json`.
+- **Scope Drift Guard (`--scope` / `--strict-scope`):** `python evals/rsi_orchestrator.py --scope` cross-checks `git status --porcelain -uall` against the active `[-]` task's declared `Target files:` in `docs/TASKS.md` and exposes `get_scope_drift_report()`. In consumer projects, synced protocol files (`evals/*`, `AGENTS.md`, `system_core.md`, `.agents/workflows/*`) are exempt from false drift warnings after `--sync-all`, while remaining strictly guarded on the source protocol repo. Use `--guardrail --strict-scope` to enforce line ceilings and strict scope alignment together.
+- **Cold-Start Pulse (`--pulse`):** `python evals/rsi_orchestrator.py --pulse` gives any new agent session an instant cockpit briefing (< 50ms) detailing protocol version, judge health, active `[-]` and `[!] Blocked` tasks with `[Scope: XS..XL]`, sprint ID, Blast Radius, git workspace status, auto-resolved rule modules, missing official tooling, and registered sync targets, while initializing `.agents/telemetry/active_session.json`.
 - **Automated Rollover (`--rollover`):** When `docs/TASKS.md` nears 250 lines, `python evals/rsi_orchestrator.py --rollover` archives completed `[x]` sprint tasks to `docs/archive/tasks/sprint_archive_YYYY_MM.md` while leaving active tasks and historical tables completely intact.
 
 ### 11. Telemetry-Native Execution & Zero-Estimation Observability
@@ -364,11 +365,12 @@ python evals/rsi_orchestrator.py --sync-all
 ```
 
 What `--sync-to` does automatically:
-- **Updates Engine:** Synchronizes `evals/`, `.agents/workflows/`, `.agents/prompts/`, `AGENTS.md`, and `VERSION`.
+- **Validates Target Safety:** Blocks filesystem roots, user home, system/credential paths (`.ssh`, `.gemini`, `System32`, etc.), symlinks, and uninitialized directories without project markers (`validate_safe_target_dir()`).
+- **Updates Engine (Allowlisted):** Synchronizes approved `evals/` scripts (`ALLOWED_SYNC_EVAL_FILES`), `.agents/workflows/`, `.agents/prompts/`, `AGENTS.md`, and `VERSION`.
 - **Updates Base Rules:** Updates `.agents/rules/system_core.md` and `fullstack_playbook.md`.
-- **Preserves Target Backlog:** Never overwrites existing `docs/TASKS.md` or completed task archives.
-- **Preserves Target Memories:** Never overwrites existing custom modules in `.agents/rules/modules/` or project telemetry in `.agents/telemetry/`.
-- **Registers Target Locally:** Saves the target workspace path locally in git-ignored `.agents/telemetry/sync_targets.json` so agents prompt you after future protocol commits to sync known targets or any additional unsynchronized workspace path you provide.
+- **Preserves Target Backlog & Memories:** Never overwrites existing `docs/TASKS.md`, completed task archives, custom `.agents/rules/modules/`, or project telemetry.
+- **Injects Scripts & `.gitignore` Hygiene:** Automatically registers the 9 standard `rsi:*` scripts in `package.json` (when present) and idempotently adds ephemeral RSI entries (`evals/logs/`, `evals/backups/`, `backups/skills/`, `.agents/telemetry/*.tmp`, `active_session.json`, `cognitive_state.json`, `sync_targets.json`, `__pycache__/`, `*.pyc`) to the target `.gitignore`.
+- **Registers Target Locally:** Saves the target workspace path locally in git-ignored `.agents/telemetry/sync_targets.json` so agents prompt you after future protocol commits to sync known targets (`--sync-all`) or any additional unsynchronized workspace path you provide.
 
 #### Option B: Manual Cross-Platform Copy
 
@@ -388,18 +390,19 @@ python evals/rsi_orchestrator.py --pulse
 python evals/run_fullstack_eval.py --quick
 ```
 
-Add standard scripts to your project's `package.json` (optional):
+Standard scripts injected automatically into a target project's `package.json` by `--sync-to`:
 ```json
 {
   "scripts": {
-    "eval:quick": "python evals/run_fullstack_eval.py --quick",
-    "eval:fullstack": "python evals/run_fullstack_eval.py",
     "rsi:pulse": "python evals/rsi_orchestrator.py --pulse",
-    "rsi:map": "python evals/stack_inspector.py --map",
+    "rsi:eval": "python evals/run_fullstack_eval.py --quick",
+    "rsi:eval:full": "python evals/run_fullstack_eval.py",
     "rsi:scope": "python evals/rsi_orchestrator.py --scope",
+    "rsi:guardrail": "python evals/rsi_orchestrator.py --guardrail",
+    "rsi:map": "python evals/stack_inspector.py --map",
     "rsi:memory": "python evals/memory_engine.py --audit",
     "rsi:security": "python evals/security_audit.py",
-    "rsi:reset": "python evals/reset_rsi.py"
+    "rsi:verify": "python evals/telemetry_hook.py --verify-contract"
   }
 }
 ```
@@ -455,7 +458,9 @@ Agentic-RSI-Protocol/
 |   |-- security_audit.py            # Static secret scanner, operational audit & ASCII guard
 |   |-- stack_inspector.py           # O(1) topological map & predictive blast radius analyzer
 |   |-- telemetry_hook.py            # Live transcript extractor & standalone ROI recorder
-|   \-- version_manager.py           # SemVer version bump & changelog sealer
+|   |-- version_manager.py           # SemVer version bump, target sync & gitignore hygiene
+|   \-- tests/
+|       \-- test_evals.py            # Standard-library unittest suite for protocol engine
 |-- docs/
 |   |-- ARCHITECTURE.md              # In-depth architectural guide & diagrams
 |   |-- TASKS.md                     # Single Source of Truth task registry (< 250L)
@@ -477,14 +482,14 @@ All tools are in `evals/` and require Python 3.10+:
 
 | Command | Purpose | Flags / Options |
 | :--- | :--- | :--- |
-| `python evals/run_fullstack_eval.py` | Runs all deterministic checks with per-step `duration_ms` timing | `--quick` (skips prod build), `--no-telemetry` |
-| `python evals/security_audit.py` | Scans repository for leaked secrets, operational anti-patterns, and ASCII hygiene | *(None)* |
+| `python evals/run_fullstack_eval.py` | Runs all deterministic checks (`shell=False`) including `eval_unit_tests` with per-step `duration_ms` timing | `--quick` (skips prod build), `--no-telemetry` |
+| `python evals/security_audit.py` | Scans for leaked secrets, operational anti-patterns, pure ASCII (`evals/**/*.py`), and supply-chain/agent integrity | *(None)* |
 | `python evals/memory_engine.py` | Audits module limits, injects rules (+ session trace), or diagnoses failures | `--audit`, `--inject [files...]`, `--diagnose` |
 | `python evals/stack_inspector.py` | Autonomous stack profiler, O(1) topological map, Blast Radius, and lossless skill pruner | `--map`, `--impact <file>`, `--profile`, `--prune-skills`, `--dry-run` |
 | `python evals/reset_rsi.py` | Resets task registry and changelog to a clean template baseline | `--dry-run`, `--force`, `--no-backup` |
-| `python evals/rsi_orchestrator.py` | Session pulse, evaluation retry loop, guardrails, scope guard, task rollover, and target project sync | `--pulse`, `--eval`, `--attempt N`, `--guardrail`, `--scope`, `--strict-scope`, `--rollover`, `--dry-run`, `--sync-to TARGET_DIR`, `--init-target TARGET_DIR` |
+| `python evals/rsi_orchestrator.py` | Session pulse, evaluation retry loop, guardrails, scope guard, task rollover, and target project sync | `--pulse`, `--eval`, `--attempt N`, `--guardrail`, `--scope`, `--strict-scope`, `--rollover`, `--dry-run`, `--sync-to TARGET_DIR`, `--init-target TARGET_DIR`, `--sync-targets`, `--sync-all` |
 | `python evals/telemetry_hook.py` | Records trajectory telemetry, real transcript tokens, rule ROI, and verifies JSON contract | `--verify-contract`, `--target TARGET_DIR` |
-| `python evals/version_manager.py` | Increments SemVer release, seals changelog, or syncs protocol to target project | `--bump [major\|minor\|patch]`, `--sync-to TARGET_DIR`, `--init-target TARGET_DIR` |
+| `python evals/version_manager.py` | Increments SemVer release, seals changelog, or syncs protocol to target projects | `--bump [major\|minor\|patch]`, `--sync-to TARGET_DIR`, `--init-target TARGET_DIR`, `--sync-targets`, `--sync-all` |
 
 ---
 
@@ -494,9 +499,11 @@ All AI agents interacting with this repository must strictly adhere to the guide
 
 1. **No Unregistered Coding:** Every modification must correspond to a formalized task in `docs/TASKS.md` with explicit criteria and declared `Target files`.
 2. **Deterministic Validation Before Closure:** No task may be marked completed `[x]` without achieving a 100/100 score on `run_fullstack_eval.py`.
-3. **Strict Size Ceilings:** `docs/TASKS.md` must not exceed **250 lines**; sub-modules in `.agents/rules/modules/` must not exceed **80 lines**.
-4. **Universal ASCII Output:** All scripts and documents must produce pure ASCII output to avoid charset encoding failures on Windows or headless CI environments.
-5. **Absolute Secret Protection:** Never commit or unmask environment variables, tokens, private keys, or credentials.
+3. **Fail-Loud Honesty & Zero Reward Hacking:** Never hide errors, fake success, or silently weaken tests, linters, or `evals/` validators to force `100/100`. On external/structural blockers or after 3 failed attempts, halt, mark the task `[!] BLOCKED` in `docs/TASKS.md`, and report exact facts without penalty.
+4. **Strict Size Ceilings:** `docs/TASKS.md` must not exceed **250 lines**; sub-modules in `.agents/rules/modules/` must not exceed **80 lines**.
+5. **Universal ASCII Output:** All executable scripts (`evals/**/*.py`) and terminal outputs must be pure ASCII to avoid charset encoding failures on Windows or headless CI environments.
+6. **Absolute Secret & Supply-Chain Protection:** Never commit or unmask environment variables, tokens, private keys, credentials, symlinks, or unsafe remote shell payloads.
+7. **Post-Commit Target Sync:** On the source protocol repository, after committing changes, always ask the user before running `--sync-all` / `--sync-to <dir>` on registered targets and prompt for any other unsynchronized project disk paths.
 
 ---
 

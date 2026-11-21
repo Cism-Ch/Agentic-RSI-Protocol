@@ -12,6 +12,7 @@
 +-------------------------+  +-------------------------+  +-------------------------+
 | [>] IN PROGRESS (SP 01) |  |   [?] FUTURE BACKLOG    |  |       [X] ARCHIVES      |
 +-------------------------+  +-------------------------+  +-------------------------+
+|                         |  |                         |  | [x] TASK-DOCS-07        |
 |                         |  |                         |  | [x] TASK-SYNC-IGNORE-01 |
 |                         |  |                         |  | [x] TASK-SYNC-SCOPE-01  |
 |                         |  |                         |  | [x] TASK-SEC-HARDEN-01  |
@@ -49,6 +50,14 @@
 ---
 
 ## Active Sprint 01: Project Setup & Initialization
+
+- [x] **`TASK-DOCS-07` - Align README.md with Current Security, Sync, ASCII & Test Capabilities**
+  - **Priority:** MEDIUM
+  - **Target files:** `README.md`, `docs/TASKS.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-DOCS-07.01`: Correct ASCII hygiene scope (`evals/**/*.py`), Prisma `src/` scope, `package.json` 9-script block, repository layout (`evals/tests/test_evals.py`), and CLI reference flags (`--sync-targets`, `--sync-all`).
+    - [x] `TASK-DOCS-07.02`: Document supply-chain/agent integrity guardrails, `shell=False` execution, target `.gitignore` hygiene, consumer `Scope Guard` exemption, and Fail-Loud / `[!] BLOCKED` rule.
+    - [x] `TASK-DOCS-07.03`: Validate with `python evals/run_fullstack_eval.py` (`100/100 PASS`).
 
 - [x] **`TASK-SYNC-IGNORE-01` - Expand Target Gitignore Hygiene Entries in version_manager.py & Sync Targets**
   - **Priority:** MEDIUM
