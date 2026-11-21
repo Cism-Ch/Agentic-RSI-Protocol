@@ -10,6 +10,7 @@ Static Security Audit & Secret Leak Detector
 import sys
 import re
 import os
+import json
 import subprocess
 from pathlib import Path
 
@@ -332,6 +333,71 @@ def audit_supply_chain_and_agent_integrity() -> list[dict]:
 
     return findings
 
+GENERIC_HOST_USERNAMES = {"runner", "root", "user", "admin", "vscode", "codespace", "ubuntu", "ci", "docker"}
+
+def audit_private_context_leaks() -> list[dict]:
+    """On the source protocol repo, blocks accidental commits of synced private project names or local home paths."""
+    is_protocol_source_repo = (
+        not (ROOT_DIR / "package.json").exists()
+        and not (ROOT_DIR / "pyproject.toml").exists()
+        and (ROOT_DIR / "evals" / "version_manager.py").exists()
+    )
+    if not is_protocol_source_repo:
+        return []
+
+    private_terms: list[tuple[re.Pattern, str]] = []
+    sync_targets_file = ROOT_DIR / ".agents" / "telemetry" / "sync_targets.json"
+    if sync_targets_file.exists():
+        try:
+            tdata = json.loads(sync_targets_file.read_text(encoding="utf-8", errors="ignore"))
+            for item in tdata.get("targets", []):
+                tname = str(item.get("name", "")).strip()
+                if len(tname) >= 4 and tname.lower() != ROOT_DIR.name.lower():
+                    private_terms.append((
+                        re.compile(rf'(?i:\b{re.escape(tname)}\b)'),
+                        f"Private Synced Project Name Leak ('{tname}')"
+                    ))
+        except Exception:
+            pass
+
+    home_user = Path.home().name.strip()
+    if len(home_user) >= 3 and home_user.lower() not in GENERIC_HOST_USERNAMES:
+        private_terms.append((
+            re.compile(rf'(?i:(?:[A-Z]:[\\/]+Users[\\/]+|/(?:Users|home)/){re.escape(home_user)}(?:[\\/]|$|\s|["\']))'),
+            "Local Host User Home Path Leak"
+        ))
+
+    if not private_terms:
+        return []
+
+    combined_priv_re = re.compile("|".join(f"(?:{p.pattern})" for p, _ in private_terms))
+    findings = []
+    for root, dirs, files in os.walk(ROOT_DIR):
+        dirs[:] = [d for d in dirs if d not in IGNORE_DIRS and not d.startswith('.git')]
+        root_path = Path(root)
+        for f in files:
+            if f in SECRET_SKIP_FILENAMES:
+                continue
+            path = root_path / f
+            if path.suffix.lower() in BINARY_EXTENSIONS or path.is_symlink():
+                continue
+            rel_str = str(path.relative_to(ROOT_DIR)).replace("\\", "/")
+            content, _ = _read_text_if_scannable(path, max_bytes=MAX_SECRET_SCAN_BYTES)
+            if not content or not combined_priv_re.search(content):
+                continue
+            if is_gitignored(rel_str):
+                continue
+            for idx, line in enumerate(content.splitlines(), start=1):
+                for pat, label in private_terms:
+                    if pat.search(line):
+                        findings.append({
+                            "file": rel_str,
+                            "line": idx,
+                            "type": label,
+                            "sample": line.strip()[:60]
+                        })
+    return findings
+
 def run_security_audit() -> bool:
     print("[RSI Security Audit] Running static security, secret leak, operational pattern, and ASCII guard audit...")
     gitignore_issues = audit_gitignore()
@@ -339,6 +405,7 @@ def run_security_audit() -> bool:
     ascii_violations = audit_ascii_hygiene()
     operational_violations = audit_operational_patterns()
     supply_chain_violations = audit_supply_chain_and_agent_integrity()
+    private_context_violations = audit_private_context_leaks()
 
     success = True
     if gitignore_issues:
@@ -380,6 +447,14 @@ def run_security_audit() -> bool:
         success = False
     else:
         print("  [OK] Supply-Chain & Agent Integrity Guard: 0 attack vectors found.")
+
+    if private_context_violations:
+        print(f"\n[FAIL] {len(private_context_violations)} private target / host path leak(s) detected:")
+        for pv in private_context_violations:
+            print(f"  - [{pv['type']}] {pv['file']}:{pv['line']} -> {pv['sample']}")
+        success = False
+    else:
+        print("  [OK] Private Context Leak Guard: 0 personal target names or host paths leaked.")
 
     # Check for real uncommitted .env files
     env_files = list(ROOT_DIR.glob(".env*"))

@@ -12,6 +12,7 @@
 +-------------------------+  +-------------------------+  +-------------------------+
 | [>] IN PROGRESS (SP 01) |  |   [?] FUTURE BACKLOG    |  |       [X] ARCHIVES      |
 +-------------------------+  +-------------------------+  +-------------------------+
+|                         |  |                         |  | [x] TASK-PRIVACY-MODEL-01|
 |                         |  |                         |  | [x] TASK-DOCS-07        |
 |                         |  |                         |  | [x] TASK-SYNC-IGNORE-01 |
 |                         |  |                         |  | [x] TASK-SYNC-SCOPE-01  |
@@ -51,6 +52,14 @@
 
 ## Active Sprint 01: Project Setup & Initialization
 
+- [x] **`TASK-PRIVACY-MODEL-01` - Anonymize Personal Targets, Add Private Context Leak Guard & Dynamic LLM Model Detection**
+  - **Priority:** HIGH
+  - **Target files:** `evals/security_audit.py`, `evals/telemetry_hook.py`, `evals/tests/test_evals.py`, `docs/TASKS.md`, `docs/archive/tasks/sprint_archive_2026_11.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-PRIVACY-MODEL-01.01`: Remove personal project names from tracked docs and unit tests.
+    - [x] `TASK-PRIVACY-MODEL-01.02`: Add `audit_private_context_leaks()` in `evals/security_audit.py` to block private synced target names and local home paths on the source protocol repo.
+    - [x] `TASK-PRIVACY-MODEL-01.03`: Make `_normalize_model_label()` and `_resolve_model_pricing()` dynamic for any future LLM in `evals/telemetry_hook.py` and validate `100/100 PASS`.
+
 - [x] **`TASK-DOCS-07` - Align README.md with Current Security, Sync, ASCII & Test Capabilities**
   - **Priority:** MEDIUM
   - **Target files:** `README.md`, `docs/TASKS.md`
@@ -64,7 +73,7 @@
   - **Target files:** `evals/version_manager.py`, `docs/TASKS.md`
   - **Acceptance criteria:**
     - [x] `TASK-SYNC-IGNORE-01.01`: Add `evals/backups/`, `backups/skills/`, `.agents/telemetry/*.tmp`, `__pycache__/`, and `*.pyc` to `EPHEMERAL_GITIGNORE_ENTRIES` in `evals/version_manager.py`.
-    - [x] `TASK-SYNC-IGNORE-01.02`: Validate `python evals/run_fullstack_eval.py` (`100/100 PASS`) and run `--sync-all` on `OfferAnalyst` and `home-services`.
+    - [x] `TASK-SYNC-IGNORE-01.02`: Validate `python evals/run_fullstack_eval.py` (`100/100 PASS`) and run `--sync-all` on registered target projects.
 
 - [x] **`TASK-SYNC-SCOPE-01` - Exempt Synced Protocol Files in Consumer Scope Guard & Enforce Target Gitignore Hygiene**
   - **Priority:** MEDIUM

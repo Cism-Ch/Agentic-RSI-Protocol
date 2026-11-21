@@ -97,27 +97,30 @@ def find_active_task() -> tuple[str, str]:
     return ("TASK-DEV-01", "General Milestone Execution")
 
 
+EFFORT_QUALIFIERS = {"low", "medium", "high", "fast", "thinking", "default", "auto", "max", "minimal"}
+
 def _normalize_model_label(raw_segment: str) -> str:
-    clean = raw_segment.lower().strip()
-    if "argon" in clean:
-        return "gemini-4-argon"
-    if "hydrogen" in clean or "gemini 4" in clean or "gemini-4" in clean:
-        return "gemini-4-hydrogen"
-    if "3.8" in clean:
-        return "gemini-3.8-flash"
-    if "2.5-pro" in clean or "pro" in clean:
-        return "gemini-2.5-pro"
-    if "2.5" in clean or "flash" in clean:
-        return "gemini-2.5-flash" if "2.5" in clean else "gemini-3.8-flash"
-    if "claude" in clean:
-        return "claude-3-5-sonnet"
-    if "gpt-4" in clean:
-        return "gpt-4o"
-    return clean
+    """Dynamically normalizes any human-readable LLM model label into a stable lowercase slug."""
+    clean = raw_segment.strip().strip("`'\".,;:")
+    if not clean:
+        return "unknown-model"
+
+    def _strip_effort(match: re.Match) -> str:
+        inner = match.group(1).strip().lower()
+        return "" if inner in EFFORT_QUALIFIERS else f" {inner}"
+
+    without_effort = re.sub(r"\(([^)]+)\)", _strip_effort, clean)
+    slug = re.sub(r"[^a-z0-9.]+", "-", without_effort.lower()).strip("-")
+    slug = re.sub(r"-{2,}", "-", slug)
+    return slug or "unknown-model"
 
 
 def _detect_model_from_events(events: list[dict]) -> Optional[str]:
     for ev in reversed(events):
+        if isinstance(ev, dict):
+            explicit = ev.get("model") or ev.get("model_name") or ev.get("modelId")
+            if isinstance(explicit, str) and explicit.strip():
+                return _normalize_model_label(explicit)
         if ev.get("type") != "USER_INPUT":
             continue
         content = str(ev.get("content", ""))
@@ -305,8 +308,21 @@ def extract_real_session_metrics(since_iso: Optional[str] = None) -> Optional[di
     return None
 
 
+def _resolve_model_pricing(model: str) -> dict:
+    """Resolves token pricing by exact match first, then dynamically by model family/tier."""
+    slug = _normalize_model_label(model)
+    if slug in FALLBACK_PRICING:
+        return FALLBACK_PRICING[slug]
+    tokens = set(re.split(r"[-._]+", slug))
+    if tokens & {"flash", "lite", "mini", "haiku", "nano", "small"}:
+        return {"in": 0.00000015, "out": 0.0000006, "cache": 0.0000000375}
+    if tokens & {"opus", "ultra", "o1", "o3"}:
+        return {"in": 0.000015, "out": 0.000075, "cache": 0.0000015}
+    return {"in": 0.00000125, "out": 0.000005, "cache": 0.0000003125}
+
+
 def _estimate_run_cost(model: str, prompt_tokens: int, output_tokens: int, cached_tokens: int) -> float:
-    rates = FALLBACK_PRICING.get(model, FALLBACK_PRICING["gemini-3.8-flash"])
+    rates = _resolve_model_pricing(model)
     uncached = max(0, prompt_tokens - cached_tokens)
     cost = (uncached * rates["in"]) + (cached_tokens * rates["cache"]) + (output_tokens * rates["out"])
     return round(cost, 6)
