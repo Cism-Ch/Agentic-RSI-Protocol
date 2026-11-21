@@ -12,6 +12,7 @@
 +-------------------------+  +-------------------------+  +-------------------------+
 | [>] IN PROGRESS (SP 01) |  |   [?] FUTURE BACKLOG    |  |       [X] ARCHIVES      |
 +-------------------------+  +-------------------------+  +-------------------------+
+|                         |  |                         |  | [x] TASK-TEST-SECRET-01 |
 |                         |  |                         |  | [x] TASK-PRIVACY-MODEL-01|
 |                         |  |                         |  | [x] TASK-DOCS-07        |
 |                         |  |                         |  | [x] TASK-SYNC-IGNORE-01 |
@@ -51,6 +52,13 @@
 ---
 
 ## Active Sprint 01: Project Setup & Initialization
+
+- [x] **`TASK-TEST-SECRET-01` - Build Synthetic Secret Fixtures Dynamically to Avoid GitHub Secret Scanning Alerts**
+  - **Priority:** HIGH
+  - **Target files:** `evals/tests/test_evals.py`, `docs/TASKS.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-TEST-SECRET-01.01`: Construct all synthetic DB URI and API key test fixtures dynamically at runtime in `evals/tests/test_evals.py` so zero literal connection strings appear in source.
+    - [x] `TASK-TEST-SECRET-01.02`: Validate with `python evals/run_fullstack_eval.py` (`100/100 PASS`).
 
 - [x] **`TASK-PRIVACY-MODEL-01` - Anonymize Personal Targets, Add Private Context Leak Guard & Dynamic LLM Model Detection**
   - **Priority:** HIGH
