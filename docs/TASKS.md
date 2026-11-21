@@ -12,6 +12,7 @@
 +-------------------------+  +-------------------------+  +-------------------------+
 | [>] IN PROGRESS (SP 01) |  |   [?] FUTURE BACKLOG    |  |       [X] ARCHIVES      |
 +-------------------------+  +-------------------------+  +-------------------------+
+|                         |  |                         |  | [x] TASK-REL-02         |
 |                         |  |                         |  | [x] TASK-TEST-SECRET-01 |
 |                         |  |                         |  | [x] TASK-PRIVACY-MODEL-01|
 |                         |  |                         |  | [x] TASK-DOCS-07        |
@@ -52,6 +53,13 @@
 ---
 
 ## Active Sprint 01: Project Setup & Initialization
+
+- [x] **`TASK-REL-02` - Seal & Publish Protocol Release v0.2.0**
+  - **Priority:** HIGH
+  - **Target files:** `VERSION`, `CHANGELOG.md`, `README.md`, `docs/TASKS.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-REL-02.01`: Update `CHANGELOG.md` release notes, bump `VERSION` to `0.2.0`, and update `README.md` version badge.
+    - [x] `TASK-REL-02.02`: Validate `python evals/run_fullstack_eval.py` (`100/100 PASS`), commit, tag `v0.2.0`, and push tag to trigger GitHub Release.
 
 - [x] **`TASK-TEST-SECRET-01` - Build Synthetic Secret Fixtures Dynamically to Avoid GitHub Secret Scanning Alerts**
   - **Priority:** HIGH
