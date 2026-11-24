@@ -12,6 +12,7 @@
 +-------------------------+  +-------------------------+  +-------------------------+
 | [>] IN PROGRESS (SP 01) |  |   [?] FUTURE BACKLOG    |  |       [X] ARCHIVES      |
 +-------------------------+  +-------------------------+  +-------------------------+
+|                         |  |                         |  | [x] TASK-REL-03         |
 |                         |  |                         |  | [x] TASK-RULES-SYNC-01  |
 |                         |  |                         |  | [x] TASK-REL-02         |
 |                         |  |                         |  | [x] TASK-TEST-SECRET-01 |
@@ -54,6 +55,13 @@
 ---
 
 ## Active Sprint 01: Project Setup & Initialization
+
+- [x] **`TASK-REL-03` - Seal & Publish Protocol Release v0.2.1 and Sync Registered Targets**
+  - **Priority:** HIGH
+  - **Target files:** `VERSION`, `CHANGELOG.md`, `README.md`, `docs/TASKS.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-REL-03.01`: Update `CHANGELOG.md`, bump `VERSION` to `0.2.1`, and update `README.md` version badge.
+    - [x] `TASK-REL-03.02`: Validate `100/100 PASS`, commit, push tag `v0.2.1`, and run `--sync-all` on registered targets.
 
 - [x] **`TASK-RULES-SYNC-01` - Anti-AI-Slop & Secure-by-Default Rules + Non-Destructive AGENTS.md Backup/Merge**
   - **Priority:** HIGH

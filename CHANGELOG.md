@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-11-24
+
+### Added
+- UI & Structural Integrity (Anti-AI Slop) and Secure-by-Default Endpoint/Upload rules in `AGENTS.md`, `.agents/rules/system_core.md`, `.agents/workflows/rsi-feature.md`, and `.agents/rules/modules/` (`ui_frontend.md`, `api_backend.md`, `security_auth.md`).
+- Non-destructive `AGENTS.md` sync (`sync_agents_md_safely()` in `evals/version_manager.py`) using `<!-- RSI-PROTOCOL:START / END -->` markers, automatic backup of pre-existing custom `AGENTS.md` to `evals/backups/AGENTS.md.<timestamp>.bak`, and human-review `[ACTION REQUIRED]` prompt.
+
 ## [0.2.0] - 2026-11-21
 
 ### Added
