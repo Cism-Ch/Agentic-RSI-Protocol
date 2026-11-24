@@ -12,6 +12,7 @@
 +-------------------------+  +-------------------------+  +-------------------------+
 | [>] IN PROGRESS (SP 01) |  |   [?] FUTURE BACKLOG    |  |       [X] ARCHIVES      |
 +-------------------------+  +-------------------------+  +-------------------------+
+|                         |  |                         |  | [x] TASK-RULES-SYNC-01  |
 |                         |  |                         |  | [x] TASK-REL-02         |
 |                         |  |                         |  | [x] TASK-TEST-SECRET-01 |
 |                         |  |                         |  | [x] TASK-PRIVACY-MODEL-01|
@@ -53,6 +54,14 @@
 ---
 
 ## Active Sprint 01: Project Setup & Initialization
+
+- [x] **`TASK-RULES-SYNC-01` - Anti-AI-Slop & Secure-by-Default Rules + Non-Destructive AGENTS.md Backup/Merge**
+  - **Priority:** HIGH
+  - **Target files:** `AGENTS.md`, `.agents/rules/system_core.md`, `.agents/workflows/rsi-feature.md`, `.agents/rules/modules/ui_frontend.md`, `.agents/rules/modules/api_backend.md`, `.agents/rules/modules/security_auth.md`, `evals/version_manager.py`, `evals/tests/test_evals.py`, `docs/TASKS.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-RULES-SYNC-01.01`: Add UI structural/design-system integrity, zero orphan components, and secure-by-default endpoint/upload rules to `AGENTS.md`, `system_core.md`, `rsi-feature.md`, and `.agents/rules/modules/`.
+    - [x] `TASK-RULES-SYNC-01.02`: Implement `sync_agents_md_safely()` in `evals/version_manager.py` with `evals/backups/AGENTS.md.<ts>.bak` backup, `RSI-PROTOCOL:START/END` non-destructive merge, and human-review `[ACTION REQUIRED]` prompt.
+    - [x] `TASK-RULES-SYNC-01.03`: Add unit test in `evals/tests/test_evals.py` and validate `python evals/run_fullstack_eval.py` (`100/100 PASS`).
 
 - [x] **`TASK-REL-02` - Seal & Publish Protocol Release v0.2.0**
   - **Priority:** HIGH

@@ -86,9 +86,10 @@ This phase triggers whenever an error was resolved (> 1 attempt) OR a security a
    python evals/rsi_orchestrator.py --guardrail
    ```
    Confirm `docs/TASKS.md` (`< 250L`), modules (`< 80L`), and Scope Guard (`git status` aligned with `Target files` in `docs/TASKS.md`).
-2. **Double Deterministic Check:**
-   - Typecheck (0 errors).
-   - Linter (0 errors / warnings).
+2. **Double Deterministic Check & Pre-Closure Quality Gate:**
+   - Typecheck (0 errors) and Linter (0 errors / warnings).
+   - **UI & Structural Gate:** Confirm any added/edited page inherits the canonical layout (`Header`/`Footer`), uses design-system tokens/primitives, and leaves 0 orphaned components after refactors (verify with `python evals/stack_inspector.py --impact <file>`).
+   - **Secure-by-Default Gate:** Confirm any public route/action (contact, quote, upload, auth) applies schema validation + rate-limiting, and any upload/presigned URL enforces MIME type, max size, and auth/ownership checks.
 3. **Automatic SemVer Version Sealing:**
    - Run `python evals/version_manager.py --bump patch` to bump version, seal `CHANGELOG.md`, and create Git tag.
 4. **SSOT Task Closure in `docs/TASKS.md`:**
@@ -105,3 +106,4 @@ This phase triggers whenever an error was resolved (> 1 attempt) OR a security a
    - After committing changes on `Agentic-RSI-Protocol`, run `python evals/rsi_orchestrator.py --sync-targets` to inspect locally registered target workspaces (`.agents/telemetry/sync_targets.json`).
    - Ask the user for confirmation before executing `python evals/rsi_orchestrator.py --sync-all` or `--sync-to <TARGET_DIR>` on known targets.
    - Also ask the user to signal any other unsynchronized project by providing its disk path / working directory so `--sync-to <TARGET_DIR>` can be executed automatically (explaining that if they do not have the path on hand, they can ask in that project's workspace for its working directory path and paste it into this conversation).
+   - If `--sync-to` backs up a pre-existing `AGENTS.md` to `evals/backups/AGENTS.md.<timestamp>.bak`, evaluate its rules against `.agents/rules/system_core.md` and `.agents/rules/modules/` and ask the user whether to preserve uncovered or conflicting project rules in `AGENTS.md` (`## Project-Specific Rules`) or in a domain module.
