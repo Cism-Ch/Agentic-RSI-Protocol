@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-11-25
+
+### Added
+- Net-new Sprint-End Security & Performance Gate (`python evals/rsi_orchestrator.py --sprint-gate`): production dependency CVE audit (`high`/`critical`), oversized `public/` assets (`> 500 KB`), static N+1 DB loop detection in `src/`, and modified UI page LCP review reminder without re-running passed task suites.
+- Mandatory Pre-Commit Security & Performance Audit rule (Rule 6) inside the `RSI-PROTOCOL:START/END` block of `AGENTS.md`.
+
 ## [0.2.1] - 2026-11-24
 
 ### Added

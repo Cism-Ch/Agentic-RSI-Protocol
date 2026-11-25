@@ -12,7 +12,7 @@
 > **A deterministic runtime specification, cognitive compass, and closed feedback loop designed for modern autonomous coding agents.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Protocol Version](https://img.shields.io/badge/Protocol-v0.2.1-blue.svg)](VERSION)
+[![Protocol Version](https://img.shields.io/badge/Protocol-v0.2.2-blue.svg)](VERSION)
 [![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![Status](https://img.shields.io/badge/RSI%20Judge-100%2F100%20PASS-brightgreen.svg)]()
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)]()
