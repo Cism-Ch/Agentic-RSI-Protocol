@@ -23,7 +23,7 @@ This document governs engineering guidelines, codebase governance, and the Recur
    - **Dedicated Workflow:** Use the `/rsi-feature` command.
    - **Post-Commit Target Sync:** On the source protocol repository, after work & commit, always ask the user before running `--sync-all` / `--sync-to <dir>` on registered targets and ask for the disk path of any other unsynchronized project. If `--sync-to` backs up a pre-existing `AGENTS.md`, evaluate its rules against `system_core.md` / `.agents/rules/modules/` and ask the user how to merge uncovered or conflicting rules.
 4. **Anti-Saturation Test Cadence:**
-   - Micro-edits without global test suite -> Milestone checkpoint with compact `--quick` -> Task closure with full validation.
+   - Micro-edits without global test suite -> Milestone checkpoint with compact `--quick` -> Task closure with full validation -> Sprint closure with `--sprint-gate` (net-new CVE & performance checks only, without re-running passed task suites).
 5. **Memory Duality:**
    - IDE Artifacts for episodic session tracking; `.agents/rules/modules/` files for durable procedural memory.
 <!-- RSI-PROTOCOL:END -->

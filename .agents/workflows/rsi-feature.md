@@ -90,6 +90,7 @@ This phase triggers whenever an error was resolved (> 1 attempt) OR a security a
    - Typecheck (0 errors) and Linter (0 errors / warnings).
    - **UI & Structural Gate:** Confirm any added/edited page inherits the canonical layout (`Header`/`Footer`), uses design-system tokens/primitives, and leaves 0 orphaned components after refactors (verify with `python evals/stack_inspector.py --impact <file>`).
    - **Secure-by-Default Gate:** Confirm any public route/action (contact, quote, upload, auth) applies schema validation + rate-limiting, and any upload/presigned URL enforces MIME type, max size, and auth/ownership checks.
+   - **Sprint-End Gate (at Sprint Closure before final commit):** Run `python evals/rsi_orchestrator.py --sprint-gate` for net-new dependency CVE audit, oversized `public/` assets (> 500 KB), static N+1 DB loop patterns, and LCP check reminder on modified UI pages (without re-running already-passed task checks).
 3. **Automatic SemVer Version Sealing:**
    - Run `python evals/version_manager.py --bump patch` to bump version, seal `CHANGELOG.md`, and create Git tag.
 4. **SSOT Task Closure in `docs/TASKS.md`:**

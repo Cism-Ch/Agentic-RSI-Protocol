@@ -12,6 +12,7 @@
 +-------------------------+  +-------------------------+  +-------------------------+
 | [>] IN PROGRESS (SP 01) |  |   [?] FUTURE BACKLOG    |  |       [X] ARCHIVES      |
 +-------------------------+  +-------------------------+  +-------------------------+
+|                         |  |                         |  | [x] TASK-SPRINT-GATE-01 |
 |                         |  |                         |  | [x] TASK-REL-03         |
 |                         |  |                         |  | [x] TASK-RULES-SYNC-01  |
 |                         |  |                         |  | [x] TASK-REL-02         |
@@ -55,6 +56,14 @@
 ---
 
 ## Active Sprint 01: Project Setup & Initialization
+
+- [x] **`TASK-SPRINT-GATE-01` - Add Net-New Sprint-End Security & Performance Gate (--sprint-gate)**
+  - **Priority:** MEDIUM
+  - **Target files:** `evals/rsi_orchestrator.py`, `.agents/workflows/rsi-feature.md`, `AGENTS.md`, `evals/tests/test_evals.py`, `docs/TASKS.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-SPRINT-GATE-01.01`: Implement `--sprint-gate` in `evals/rsi_orchestrator.py` running only net-new sprint-end checks (dependency CVE audit, heavy `public/` assets > 500 KB, static `src/` N+1 loop queries, touched UI page LCP reminder) without re-running passed task suites.
+    - [x] `TASK-SPRINT-GATE-01.02`: Reference `--sprint-gate` in `AGENTS.md` and `.agents/workflows/rsi-feature.md`.
+    - [x] `TASK-SPRINT-GATE-01.03`: Add unit tests in `evals/tests/test_evals.py` and validate `python evals/run_fullstack_eval.py` (`100/100 PASS`).
 
 - [x] **`TASK-REL-03` - Seal & Publish Protocol Release v0.2.1 and Sync Registered Targets**
   - **Priority:** HIGH

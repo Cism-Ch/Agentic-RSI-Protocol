@@ -131,6 +131,29 @@ class TestOrchestratorParsers(unittest.TestCase):
                 self.assertEqual(just_closed[0]["id"], "TASK-DONE-01")
                 self.assertEqual(just_closed[0]["status"], "closed")
 
+    def test_sprint_gate_detects_oversized_assets_and_n_plus_one(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "public").mkdir()
+            (root / "public" / "small.png").write_bytes(b"\x89PNG" + b"0" * 100)
+            (root / "public" / "huge.png").write_bytes(b"\x89PNG" + b"0" * (rsi_orchestrator.MAX_PUBLIC_ASSET_BYTES + 10))
+            (root / "src").mkdir()
+            (root / "src" / "service.ts").write_text(
+                "for (const id of ids) {\n"
+                "  const row = await prisma.user.findUnique({ where: { id } });\n"
+                "}\n",
+                encoding="utf-8",
+            )
+            with patch.object(rsi_orchestrator, "ROOT_DIR", root):
+                heavy = rsi_orchestrator.audit_heavy_public_assets()
+                self.assertEqual(len(heavy), 1)
+                self.assertEqual(heavy[0]["file"], "public/huge.png")
+
+                n1 = rsi_orchestrator.audit_n_plus_one_queries()
+                self.assertEqual(len(n1), 1)
+                self.assertEqual(n1[0]["file"], "src/service.ts")
+                self.assertEqual(n1[0]["line"], 2)
+
 
 class TestSecurityAudit(unittest.TestCase):
     def test_secrets_ascii_and_prisma_scope_guards(self):
