@@ -26,6 +26,8 @@ This document governs engineering guidelines, codebase governance, and the Recur
    - Micro-edits without global test suite -> Milestone checkpoint with compact `--quick` -> Task closure with full validation -> Sprint closure with `--sprint-gate` (net-new CVE & performance checks only, without re-running passed task suites).
 5. **Memory Duality:**
    - IDE Artifacts for episodic session tracking; `.agents/rules/modules/` files for durable procedural memory.
+6. **Mandatory Pre-Commit Security & Performance Audit:**
+   - Before any `git commit`, agents MUST perform a security & performance audit on the changed scope without duplicating already-passed task checks: verify `evals/security_audit.py` (0 secrets, anti-patterns, or supply-chain alerts), run `python evals/rsi_orchestrator.py --sprint-gate` (prod dependency CVEs, oversized `public/` assets, N+1 DB loops, and LCP review on modified UI pages), and confirm zero unvalidated inputs, missing rate-limits, or insecure shortcuts in the diff.
 <!-- RSI-PROTOCOL:END -->
 
 ## Project-Specific Rules

@@ -12,6 +12,7 @@
 +-------------------------+  +-------------------------+  +-------------------------+
 | [>] IN PROGRESS (SP 01) |  |   [?] FUTURE BACKLOG    |  |       [X] ARCHIVES      |
 +-------------------------+  +-------------------------+  +-------------------------+
+|                         |  |                         |  | [x] TASK-PRECOMMIT-01   |
 |                         |  |                         |  | [x] TASK-SPRINT-GATE-01 |
 |                         |  |                         |  | [x] TASK-REL-03         |
 |                         |  |                         |  | [x] TASK-RULES-SYNC-01  |
@@ -56,6 +57,13 @@
 ---
 
 ## Active Sprint 01: Project Setup & Initialization
+
+- [x] **`TASK-PRECOMMIT-01` - Add Mandatory Pre-Commit Security & Performance Audit Rule in AGENTS.md**
+  - **Priority:** HIGH
+  - **Target files:** `AGENTS.md`, `docs/TASKS.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-PRECOMMIT-01.01`: Add Rule 6 (`Mandatory Pre-Commit Security & Performance Audit`) inside the `RSI-PROTOCOL:START/END` block of `AGENTS.md`.
+    - [x] `TASK-PRECOMMIT-01.02`: Validate with `python evals/run_fullstack_eval.py` (`100/100 PASS`).
 
 - [x] **`TASK-SPRINT-GATE-01` - Add Net-New Sprint-End Security & Performance Gate (--sprint-gate)**
   - **Priority:** MEDIUM
