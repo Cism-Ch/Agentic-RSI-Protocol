@@ -12,6 +12,7 @@
 +-------------------------+  +-------------------------+  +-------------------------+
 | [>] IN PROGRESS (SP 01) |  |   [?] FUTURE BACKLOG    |  |       [X] ARCHIVES      |
 +-------------------------+  +-------------------------+  +-------------------------+
+|                         |  |                         |  | [x] TASK-SPECIALIST-01  |
 |                         |  |                         |  | [x] TASK-REL-04         |
 |                         |  |                         |  | [x] TASK-PRECOMMIT-01   |
 |                         |  |                         |  | [x] TASK-SPRINT-GATE-01 |
@@ -58,6 +59,14 @@
 ---
 
 ## Active Sprint 01: Project Setup & Initialization
+
+- [x] **`TASK-SPECIALIST-01` - Add Single Specialist Reviewer Agent (6 Personas), Agent Operations Guide & README Updates**
+  - **Priority:** HIGH
+  - **Target files:** `.agents/prompts/rsi_specialist.md`, `evals/memory_engine.py`, `evals/tests/test_evals.py`, `.agents/workflows/rsi-feature.md`, `AGENTS.md`, `docs/AGENT_OPERATIONS.md`, `README.md`, `docs/TASKS.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-SPECIALIST-01.01`: Create `.agents/prompts/rsi_specialist.md` with common Maker/Checker core (`CAPITALIZATION_CANDIDATE`) and 6 tagged personas (`< 40` lines each): `architect`, `db`, `security`, `ui`, `qa`, `meta`.
+    - [x] `TASK-SPECIALIST-01.02`: Add `--persona`, `--list-personas`, and `< 40L` persona audit in `evals/memory_engine.py` with unit tests in `evals/tests/test_evals.py`.
+    - [x] `TASK-SPECIALIST-01.03`: Create `docs/AGENT_OPERATIONS.md`, link it in `README.md`, update `AGENTS.md` / `.agents/workflows/rsi-feature.md`, and validate `100/100 PASS`.
 
 - [x] **`TASK-REL-04` - Seal & Publish Protocol Release v0.2.2 and Sync Registered Targets**
   - **Priority:** HIGH

@@ -16,6 +16,7 @@ EVALS_DIR = Path(__file__).resolve().parent.parent
 if str(EVALS_DIR) not in sys.path:
     sys.path.insert(0, str(EVALS_DIR))
 
+import memory_engine
 import rsi_orchestrator
 import security_audit
 import telemetry_hook
@@ -385,6 +386,37 @@ class TestSyncTargetsRegistry(unittest.TestCase):
             merged_txt = dst_agents.read_text(encoding="utf-8")
             self.assertIn("# Protocol v2", merged_txt)
             self.assertIn("Custom Rule: Preserve GraphQL schema", merged_txt)
+
+
+class TestSpecialistPersonas(unittest.TestCase):
+    def test_parse_resolve_and_audit_specialist_personas(self):
+        core, personas = memory_engine.parse_specialist_personas()
+        self.assertTrue(len(core) > 0)
+        for expected in ("architect", "db", "security", "ui", "qa", "meta"):
+            self.assertIn(expected, personas)
+
+        ok, out = memory_engine.resolve_persona("security")
+        self.assertTrue(ok)
+        self.assertIn("CAPITALIZATION_CANDIDATE", out)
+        self.assertIn("Persona: security", out)
+
+        ok_bad, msg_bad = memory_engine.resolve_persona("nonexistent")
+        self.assertFalse(ok_bad)
+        self.assertIn("Unknown persona", msg_bad)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            oversized = Path(tmp) / "rsi_specialist.md"
+            bloated_lines = "\n".join(f"- Line {i}" for i in range(45))
+            oversized.write_text(
+                f"<!-- PERSONA:bloated:START -->\n{bloated_lines}\n<!-- PERSONA:bloated:END -->\n",
+                encoding="utf-8",
+            )
+            empty_mods = Path(tmp) / "modules"
+            empty_mods.mkdir()
+            with patch.object(memory_engine, "SPECIALIST_CATALOG_FILE", oversized), patch.object(
+                memory_engine, "MODULES_DIR", empty_mods
+            ):
+                self.assertFalse(memory_engine.audit_memory_modules())
 
 
 if __name__ == "__main__":

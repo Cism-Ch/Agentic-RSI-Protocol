@@ -24,6 +24,8 @@ The **Recursive Self-Improvement (RSI) Protocol** is a language-agnostic enginee
 
 It establishes an inviolable operational contract between human developers and autonomous coding agents: eliminating context saturation, preventing unverified mutations, enforcing deterministic evaluation, and enabling agents to distill debugging lessons into durable procedural memory.
 
+> **New:** Read the dedicated **[Agent Operations Guide (`docs/AGENT_OPERATIONS.md`)](docs/AGENT_OPERATIONS.md)** for a complete reference on how Lead and `rsi-specialist` agents collaborate, handle blockers (`[!] BLOCKED`), audit pre-commit security/performance, and capitalize rules.
+
 ---
 
 ## Table of Contents
@@ -53,6 +55,7 @@ It establishes an inviolable operational contract between human developers and a
   - [9. Topological Repo Map & Predictive Blast Radius](#9-topological-repo-map-autonomous-stack-profiler--lossless-skill-pruning)
   - [10. Scope Sizing, Drift Guard & Task Rollover](#10-scope-xsxl-sizing-scope-drift-guard--automated-task-rollover)
   - [11. Telemetry-Native Execution & Observability](#11-telemetry-native-execution--zero-estimation-observability)
+  - [12. On-Demand Specialist Agent (`rsi-specialist`) & Pre-Commit Sprint Gate](#12-on-demand-specialist-agent-rsi-specialist--pre-commit-sprint-gate)
 - [Protocol Versioning Specification](#protocol-versioning-specification)
 - [Quick Start Guide](#quick-start-guide)
   - [Using as a GitHub Template](#using-as-a-github-template)
@@ -295,7 +298,15 @@ To prevent AI agents from wasting tokens on solved problems or introducing opera
 To prevent ephemeral runtime telemetry from disappearing into terminal scrollback, the protocol records deterministic telemetry across every phase:
 - **Active Session Tracking (`.agents/telemetry/active_session.json`):** `rsi_orchestrator.py --pulse` initializes `task_id`, `task_title`, `sprint_id`, and `session_started_at`; `memory_engine.py --inject` records queried files, loaded modules, and extracted `[R-DOM-XX]` rule IDs; `--diagnose` logs error rule matches in `last_diagnosis_matches`. Passing runs automatically reset `active_session.json` for the next task.
 - **Orchestrated Trajectory Enrichment (`--eval --attempt <N>`):** After running `run_fullstack_eval.py --quick --no-telemetry`, `rsi_orchestrator.py` enriches `evals/logs/trajectory_latest.json` with `attempt`, `task_id`, `task_title`, `sprint_id`, `scope_report`, `injected_rule_ids`, and `task_elapsed_sec` before invoking the telemetry hook once.
-- **Live Transcript Extraction & Autonomous Fallback (`evals/telemetry_hook.py`):** Inspects local IDE session logs (`transcript.jsonl` / `transcript_full.jsonl`) to extract real `prompt_tokens` (`input_tokens + cache_read_tokens`), `cached_tokens`, `output_tokens`, `useful_actions`, `wasted_actions`, and the active LLM model (`"telemetry_source": "LIVE_TRANSCRIPT"`). In headless CI or external terminals, it marks `"telemetry_source": "ESTIMATED_FALLBACK"` explicitly. It forwards telemetry to `cognitive-rsi-ops` CLI when available or autonomously updates `.agents/telemetry/cognitive_state.json` and increments `prevented_errors_count` on injected rules when runs pass.
+- **Live Transcript Extraction & Autonomous Fallback (`evals/telemetry_hook.py`):** Inspects local IDE session logs (`transcript.jsonl` / `transcript_full.jsonl`) to extract real `prompt_tokens` (`input_tokens + cache_read_tokens`), `cached_tokens`, `output_tokens`, `useful_actions`, `wasted_actions`, and dynamically slugifies any active LLM model name (with tier-based fallback pricing, `"telemetry_source": "LIVE_TRANSCRIPT"`). In headless CI or external terminals, it marks `"telemetry_source": "ESTIMATED_FALLBACK"` explicitly. It forwards telemetry to `cognitive-rsi-ops` CLI when available or autonomously updates `.agents/telemetry/cognitive_state.json` and increments `prevented_errors_count` on injected rules when runs pass.
+
+### 12. On-Demand Specialist Agent (`rsi-specialist`) & Pre-Commit Sprint Gate
+To eliminate self-validation bias without introducing multi-agent bureaucracy, the protocol follows a **Single Strong Lead (Maker) + On-Demand Isolated Checker** pattern documented in [`docs/AGENT_OPERATIONS.md`](docs/AGENT_OPERATIONS.md):
+- **Single Tagged Persona Catalog (`.agents/prompts/rsi_specialist.md`):** Houses a shared neutral Checker core plus 6 tagged personas (`architect`, `db`, `security`, `ui`, `qa`, `meta`), each strictly capped under **40 lines** and audited by `evals/memory_engine.py --audit`.
+- **Zero-Bloat Persona Extraction:** Running `python evals/memory_engine.py --persona <role>` injects only the common core + requested persona (`~45 lines`), keeping `XS`/`S` tasks friction-free while giving `M`/`L`/`XL` and security/UI-sensitive work an independent senior review.
+- **Closed-Loop Capitalization:** Read-only reviewer personas emit optional 1-line `CAPITALIZATION_CANDIDATE` rules when catching defects that bypassed `tsc`/`lint`, feeding the `meta` persona in Phase 3.
+- **Net-New Pre-Commit Sprint Gate (`--sprint-gate`):** `python evals/rsi_orchestrator.py --sprint-gate` executes only non-duplicated sprint-end checks (prod dependency CVE audit, oversized `public/` assets `> 500 KB`, static N+1 DB loop patterns in `src/`, and modified UI page LCP reminders).
+- **Non-Destructive `AGENTS.md` Sync:** `evals/version_manager.py` updates only the bounded `<!-- RSI-PROTOCOL:START / END -->` section while preserving `## Project-Specific Rules`, and automatically backs up any pre-existing unmarked `AGENTS.md` into `evals/backups/AGENTS.md.<timestamp>.bak` for human-guided rule evaluation.
 
 ---
 
@@ -435,7 +446,8 @@ Resets the template state so you can begin work without carrying over past task 
 Agentic-RSI-Protocol/
 |-- .agents/
 |   |-- prompts/
-|   |   \-- meta_optimizer.md        # Reflexive role for post-mortem rule distillation
+|   |   |-- meta_optimizer.md        # Reflexive role for post-mortem rule distillation
+|   |   \-- rsi_specialist.md        # Single Checker agent catalog (6 tagged personas < 40L)
 |   |-- rules/
 |   |   |-- system_core.md           # Invariant engineering rules
 |   |   |-- fullstack_playbook.md    # Index & routing layer for procedural memory
@@ -462,6 +474,7 @@ Agentic-RSI-Protocol/
 |   \-- tests/
 |       \-- test_evals.py            # Standard-library unittest suite for protocol engine
 |-- docs/
+|   |-- AGENT_OPERATIONS.md          # How Lead & rsi-specialist agents behave and collaborate
 |   |-- ARCHITECTURE.md              # In-depth architectural guide & diagrams
 |   |-- TASKS.md                     # Single Source of Truth task registry (< 250L)
 |   \-- archive/tasks/               # Rollover folder for completed sprint archives
@@ -484,10 +497,10 @@ All tools are in `evals/` and require Python 3.10+:
 | :--- | :--- | :--- |
 | `python evals/run_fullstack_eval.py` | Runs all deterministic checks (`shell=False`) including `eval_unit_tests` with per-step `duration_ms` timing | `--quick` (skips prod build), `--no-telemetry` |
 | `python evals/security_audit.py` | Scans for leaked secrets, operational anti-patterns, pure ASCII (`evals/**/*.py`), and supply-chain/agent integrity | *(None)* |
-| `python evals/memory_engine.py` | Audits module limits, injects rules (+ session trace), or diagnoses failures | `--audit`, `--inject [files...]`, `--diagnose` |
+| `python evals/memory_engine.py` | Audits module (`<80L`) & persona (`<40L`) limits, injects rules, extracts specialist personas, or diagnoses failures | `--audit`, `--inject [files...]`, `--diagnose`, `--persona NAME`, `--list-personas` |
 | `python evals/stack_inspector.py` | Autonomous stack profiler, O(1) topological map, Blast Radius, and lossless skill pruner | `--map`, `--impact <file>`, `--profile`, `--prune-skills`, `--dry-run` |
 | `python evals/reset_rsi.py` | Resets task registry and changelog to a clean template baseline | `--dry-run`, `--force`, `--no-backup` |
-| `python evals/rsi_orchestrator.py` | Session pulse, evaluation retry loop, guardrails, scope guard, task rollover, and target project sync | `--pulse`, `--eval`, `--attempt N`, `--guardrail`, `--scope`, `--strict-scope`, `--rollover`, `--dry-run`, `--sync-to TARGET_DIR`, `--init-target TARGET_DIR`, `--sync-targets`, `--sync-all` |
+| `python evals/rsi_orchestrator.py` | Session pulse, evaluation retry loop, guardrails, scope guard, sprint gate, task rollover, and target project sync | `--pulse`, `--eval`, `--attempt N`, `--guardrail`, `--scope`, `--strict-scope`, `--sprint-gate`, `--rollover`, `--dry-run`, `--sync-to TARGET_DIR`, `--init-target TARGET_DIR`, `--sync-targets`, `--sync-all` |
 | `python evals/telemetry_hook.py` | Records trajectory telemetry, real transcript tokens, rule ROI, and verifies JSON contract | `--verify-contract`, `--target TARGET_DIR` |
 | `python evals/version_manager.py` | Increments SemVer release, seals changelog, or syncs protocol to target projects | `--bump [major\|minor\|patch]`, `--sync-to TARGET_DIR`, `--init-target TARGET_DIR`, `--sync-targets`, `--sync-all` |
 
