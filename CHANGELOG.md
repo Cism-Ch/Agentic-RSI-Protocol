@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-26
+
+### Added
+- On-demand single Checker/Reviewer specialist agent catalog (`.agents/prompts/rsi_specialist.md`) combining a shared Maker/Checker `CORE` contract (`VERDICT`, `FINDINGS`, optional `CAPITALIZATION_CANDIDATE`) with 6 tagged domain personas (`< 40` non-empty lines each): `architect`, `db`, `security`, `ui`, `qa`, and `meta`.
+- Persona extraction and `< 40`-line structural enforcement in `evals/memory_engine.py` (`--list-personas`, `--persona <name>`, integrated into `rsi_memory_hygiene`) with unit test coverage in `evals/tests/test_evals.py`.
+- Dedicated Agent Operations Guide (`docs/AGENT_OPERATIONS.md`) detailing end-to-end agent behavior, Maker/Checker specialist reviews, `CAPITALIZATION_CANDIDATE -> meta` rule capitalization, Fail-Loud / `[!] BLOCKED` handling, memory duality, and non-destructive `AGENTS.md` synchronization.
+
+### Changed
+- Linked `docs/AGENT_OPERATIONS.md` prominently in `README.md` and `AGENTS.md`, added Section 12 (`On-Demand Specialist Agent (rsi-specialist) & Pre-Commit Sprint Gate`) to `README.md`, and updated `.agents/workflows/rsi-feature.md` Phase 3 with the specialist review and capitalization pipeline.
+
 ## [0.2.2] - 2026-11-25
 
 ### Added

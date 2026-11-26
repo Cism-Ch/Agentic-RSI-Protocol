@@ -12,6 +12,7 @@
 +-------------------------+  +-------------------------+  +-------------------------+
 | [>] IN PROGRESS (SP 01) |  |   [?] FUTURE BACKLOG    |  |       [X] ARCHIVES      |
 +-------------------------+  +-------------------------+  +-------------------------+
+|                         |  |                         |  | [x] TASK-REL-05         |
 |                         |  |                         |  | [x] TASK-SPECIALIST-01  |
 |                         |  |                         |  | [x] TASK-REL-04         |
 |                         |  |                         |  | [x] TASK-PRECOMMIT-01   |
@@ -59,6 +60,13 @@
 ---
 
 ## Active Sprint 01: Project Setup & Initialization
+
+- [x] **`TASK-REL-05` - Seal & Publish Protocol Release v0.3.0 and Sync Registered Targets**
+  - **Priority:** HIGH
+  - **Target files:** `VERSION`, `CHANGELOG.md`, `README.md`, `docs/TASKS.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-REL-05.01`: Update `CHANGELOG.md`, bump `VERSION` to `0.3.0`, and update `README.md` version badge.
+    - [x] `TASK-REL-05.02`: Validate `100/100 PASS`, commit, push tag `v0.3.0`, and run `--sync-all` on registered targets.
 
 - [x] **`TASK-SPECIALIST-01` - Add Single Specialist Reviewer Agent (6 Personas), Agent Operations Guide & README Updates**
   - **Priority:** HIGH
