@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-27
+
+### Added
+- Automatic `FAIL -> PASS` `rsi_learning_trigger` in `evals/run_fullstack_eval.py` and `evals/rsi_orchestrator.py` (with session failure tracking so resolved failures are never lost on pass).
+- Sync-resilient auto-discovery of custom `.agents/rules/modules/*.md` modules via inline `<!-- triggers: ... -->` headers in `evals/memory_engine.py`, duplicate rule ID detection in `--audit`, project-rule keyword fallback in `--diagnose`, and compact Phase 3 briefing CLI (`--propose`).
+- Official `[Scope: XS]` Fast-Track workflow across `AGENTS.md`, `.agents/workflows/rsi-feature.md`, `docs/AGENT_OPERATIONS.md`, and `README.md`.
+- 5 new standard-library unit tests in `evals/tests/test_evals.py` (20 tests total).
+
+### Changed
+- Replaced synthetic `R-AUTO-XX` rule mutations in `evals/telemetry_hook.py` with real module rule diffs, live `failure_taxonomy` aggregation, and automatic `PROBATION -> PROVEN` promotion at `prevented_errors_count >= 3`.
+- Deduplicated SSOT rule layers (`AGENTS.md`, `system_core.md`, `api_backend.md`, `security_auth.md`), turned `meta_optimizer.md` into a thin alias pointer to `--persona meta`, and made `version_manager.py --bump` optional per release in `rsi-feature.md`.
+
+### Fixed
+- Eliminated false-positive `Blast Radius: HIGH / CRITICAL` (`[Scope: XL]`) warnings on documentation and metadata files (`VERSION`, `README.md`, `CHANGELOG.md`, `docs/TASKS.md`) in `evals/stack_inspector.py` and `evals/rsi_orchestrator.py`.
+
 ## [0.3.0] - 2026-11-26
 
 ### Added

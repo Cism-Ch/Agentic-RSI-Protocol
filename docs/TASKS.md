@@ -12,6 +12,7 @@
 +-------------------------+  +-------------------------+  +-------------------------+
 | [>] IN PROGRESS (SP 01) |  |   [?] FUTURE BACKLOG    |  |       [X] ARCHIVES      |
 +-------------------------+  +-------------------------+  +-------------------------+
+|                         |  |                         |  | [x] TASK-REL-06         |
 |                         |  |                         |  | [x] TASK-RSI-HYGIENE-01 |
 |                         |  |                         |  | [x] TASK-RSI-LOOP-01    |
 |                         |  |                         |  | [x] TASK-REL-05         |
@@ -62,6 +63,13 @@
 ---
 
 ## Active Sprint 01: Project Setup & Initialization
+
+- [x] **`TASK-REL-06` - Seal & Publish Protocol Release v0.4.0**
+  - **Priority:** HIGH
+  - **Target files:** `VERSION`, `CHANGELOG.md`, `README.md`, `docs/TASKS.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-REL-06.01`: Update `CHANGELOG.md`, bump `VERSION` to `0.4.0`, and update `README.md` version badge.
+    - [x] `TASK-REL-06.02`: Validate `100/100 PASS` + `--guardrail`, commit, and push tag `v0.4.0`.
 
 - [x] **`TASK-RSI-HYGIENE-01` - Deduplicate SSOT Rule Layers, Add Module Triggers, XS Fast-Track & Docs**
   - **Priority:** HIGH
