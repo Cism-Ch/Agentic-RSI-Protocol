@@ -162,6 +162,15 @@ def run_evaluation(attempt: int, quick: bool = True) -> bool:
         print(f"[WARN] [RSI Loop] Telemetry hook skipped: {e}")
 
     if passed:
+        post_session = load_active_session()
+        learning_trigger = None
+        if TRAJECTORY_FILE.exists():
+            try:
+                t_post = json.loads(TRAJECTORY_FILE.read_text(encoding="utf-8", errors="ignore"))
+                learning_trigger = t_post.get("rsi_learning_trigger")
+            except Exception:
+                learning_trigger = None
+
         save_active_session({
             "task_id": None,
             "task_title": None,
@@ -171,9 +180,19 @@ def run_evaluation(attempt: int, quick: bool = True) -> bool:
             "target_files_queried": [],
             "injected_modules": [],
             "injected_rule_ids": [],
-            "last_diagnosis_matches": []
+            "last_diagnosis_matches": [],
+            "pending_failures": [],
+            "failure_count": 0,
+            "last_resolved_failures": post_session.get("last_resolved_failures", []),
+            "learning_review_pending": bool(post_session.get("learning_review_pending", False)),
         })
         print(f"[OK] [RSI Loop] Deterministic validation passed (Score: 100/100) on attempt {attempt}!")
+        if isinstance(learning_trigger, dict) and learning_trigger.get("triggered"):
+            cnt = learning_trigger.get("resolved_failures_count", 0)
+            print(f"\n[RSI LEARNING TRIGGER] Recovered from {cnt} prior failure(s) on {task_id}!")
+            for rf in learning_trigger.get("resolved_failures", [])[:3]:
+                print(f"  - [{rf.get('step', 'unknown')}] {str(rf.get('error_excerpt', ''))[:100]}")
+            print("  -> Run: python evals/memory_engine.py --propose && python evals/memory_engine.py --persona meta")
         return True
     else:
         try:
@@ -310,10 +329,15 @@ def classify_task_scope(targets: list[str]) -> dict:
     target_impacts = []
     high_count = 0
     medium_count = 0
+    non_code_doc_files = {"docs/tasks.md", "readme.md", "changelog.md", "version", "license", "agents.md"}
     try:
         from stack_inspector import compute_blast_radius
         for tf in targets:
             if "*" in tf:
+                continue
+            tf_norm = tf.replace("\\", "/").strip().lower()
+            if tf_norm in non_code_doc_files or tf_norm.endswith((".md", ".txt", ".rst")):
+                target_impacts.append({"target": tf, "count": 0, "tier": "LOW"})
                 continue
             info = compute_blast_radius(tf)
             target_impacts.append(info)
@@ -606,6 +630,15 @@ def run_session_pulse() -> None:
         b_list = ", ".join(b["id"] for b in blocked)
         print(f"   [!] Blocked    : {b_list} (awaiting human guidance)")
 
+    try:
+        from memory_engine import load_active_session
+        pulse_sess = load_active_session()
+        if pulse_sess.get("learning_review_pending") and pulse_sess.get("last_resolved_failures"):
+            l_cnt = len(pulse_sess.get("last_resolved_failures", []))
+            print(f"   [!] Learning   : {l_cnt} resolved failure(s) pending review -> python evals/memory_engine.py --propose")
+    except Exception:
+        pass
+
     # Working tree & scope status
     if mod_files:
         print(f"3. Git Workspace  : {len(mod_files)} modified file(s): {', '.join(mod_files[:5])}")
@@ -620,11 +653,12 @@ def run_session_pulse() -> None:
         candidate_files.extend(t["targets"])
     if candidate_files:
         try:
-            from memory_engine import MODULE_TRIGGERS
+            from memory_engine import discover_module_triggers
+            triggers_map = discover_module_triggers()
             matched_mods = set()
             for cf in candidate_files:
                 cf_low = cf.lower().replace("\\", "/")
-                for mod, kw_list in MODULE_TRIGGERS.items():
+                for mod, kw_list in triggers_map.items():
                     if any(k in cf_low for k in kw_list):
                         matched_mods.add(mod)
             if matched_mods:

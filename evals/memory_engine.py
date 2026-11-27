@@ -30,6 +30,8 @@ ACTIVE_SESSION_FILE = ROOT_DIR / ".agents" / "telemetry" / "active_session.json"
 MAX_LINES_PER_MODULE = 80
 MAX_LINES_PER_PERSONA = 40
 RULE_ID_PATTERN = re.compile(r"\[(R-[A-Z0-9\-]+)\]")
+RULE_LINE_RE = re.compile(r"^\s*-\s*\[(R-[A-Z0-9\-]+)\]\s*(.+)$")
+TRIGGER_COMMENT_RE = re.compile(r"<!--\s*triggers:\s*(.+?)\s*-->", re.IGNORECASE)
 PERSONA_BLOCK_RE = re.compile(
     r"<!--\s*PERSONA:([a-zA-Z0-9_\-]+):START\s*-->(.*?)<!--\s*PERSONA:\1:END\s*-->",
     re.DOTALL,
@@ -47,13 +49,13 @@ MODULE_TRIGGERS = {
 KNOWN_ERROR_PATTERNS = [
     (
         re.compile(r"Non-ASCII / Emoji Character|UnicodeEncodeError|charmap", re.IGNORECASE),
-        "[R-SYS-05] ASCII & Emoji Hygiene Violation",
-        "Strip all emojis, smart quotes, em-dashes, and Unicode arrows (>127) from scripts and markdown files."
+        "[CORE-ASCII] ASCII & Emoji Hygiene Violation",
+        "Strip all emojis, smart quotes, em-dashes, and Unicode arrows (>127) from evals/**/*.py scripts and CLI output."
     ),
     (
         re.compile(r"LIMIT EXCEEDED|exceed the maximum allowed line count", re.IGNORECASE),
-        "[R-MEM-01] Module Line Ceiling Exceeded (>80 lines)",
-        "Synthesize redundant rules without losing specificity, or split the module into finer domain files and register in fullstack_playbook.md."
+        "[CORE-MEM-80L] Module or Persona Line Ceiling Exceeded",
+        "Synthesize redundant rules without losing specificity, or split the module into finer domain files with <!-- triggers: ... -->."
     ),
     (
         re.compile(r"Errno 2.*No such file or directory.*python", re.IGNORECASE),
@@ -72,10 +74,74 @@ KNOWN_ERROR_PATTERNS = [
     ),
     (
         re.compile(r"TS\d{4}:|error TS|Type '.*' is not assignable", re.IGNORECASE),
-        "[R-SYS-01] Strict TypeScript Type Mismatch",
+        "[CORE-STRICT-TS] Strict TypeScript Type Mismatch",
         "Align explicit return types and validate external payloads with Zod before passing to typed functions."
     )
 ]
+
+
+def discover_module_triggers(modules_dir: Path | None = None) -> dict[str, list[str]]:
+    """Auto-discovers all *.md modules and their triggers (inline <!-- triggers: --> + defaults + filename tokens)."""
+    target_dir = modules_dir or MODULES_DIR
+    discovered: dict[str, list[str]] = {}
+    if not target_dir.exists():
+        return dict(MODULE_TRIGGERS)
+
+    for mod in sorted(target_dir.glob("*.md")):
+        triggers: list[str] = []
+        try:
+            head_lines = mod.read_text(encoding="utf-8", errors="ignore").splitlines()[:8]
+            for ln in head_lines:
+                m = TRIGGER_COMMENT_RE.search(ln)
+                if m:
+                    for raw_kw in m.group(1).split(","):
+                        kw = raw_kw.strip().lower()
+                        if kw and kw not in triggers:
+                            triggers.append(kw)
+                    break
+        except Exception:
+            pass
+
+        if not triggers and mod.name in MODULE_TRIGGERS:
+            triggers.extend(MODULE_TRIGGERS[mod.name])
+
+        for tok in re.split(r"[_\-\s]+", mod.stem.lower()):
+            if len(tok) >= 2 and tok not in triggers:
+                triggers.append(tok)
+
+        discovered[mod.name] = triggers
+    return discovered
+
+
+def compute_next_rule_ids(modules_dir: Path | None = None) -> dict[str, str]:
+    """Computes the next available [R-XXX-NN] rule identifier for every module."""
+    target_dir = modules_dir or MODULES_DIR
+    next_ids: dict[str, str] = {}
+    if not target_dir.exists():
+        return next_ids
+
+    for mod in sorted(target_dir.glob("*.md")):
+        prefix_counts: dict[str, int] = {}
+        max_num = 0
+        try:
+            for ln in mod.read_text(encoding="utf-8", errors="ignore").splitlines():
+                for rid in RULE_ID_PATTERN.findall(ln):
+                    m = re.match(r"^(R-[A-Z0-9]+)-(\d+)$", rid)
+                    if m:
+                        pref, num = m.group(1), int(m.group(2))
+                        prefix_counts[pref] = prefix_counts.get(pref, 0) + 1
+                        if num > max_num:
+                            max_num = num
+        except Exception:
+            pass
+
+        if prefix_counts:
+            best_prefix = max(prefix_counts.items(), key=lambda kv: kv[1])[0]
+        else:
+            stem_tok = re.sub(r"[^A-Z0-9]", "", mod.stem.split("_")[0].upper())[:6] or "MOD"
+            best_prefix = f"R-{stem_tok}"
+        next_ids[mod.name] = f"[{best_prefix}-{max_num + 1:02d}]"
+    return next_ids
 
 def parse_specialist_personas(catalog_path: Path | None = None) -> tuple[str, dict[str, str]]:
     """Parses CORE and tagged PERSONA blocks from .agents/prompts/rsi_specialist.md."""
@@ -121,18 +187,21 @@ def list_personas(catalog_path: Path | None = None) -> list[str]:
         print(f"  - {name} ({lines}/{MAX_LINES_PER_PERSONA} lines) -> python evals/memory_engine.py --persona {name}")
     return sorted(personas.keys())
 
-def audit_memory_modules() -> bool:
-    """Verifies that each rule module (< 80L) and specialist persona block (< 40L) stays compact."""
+def audit_memory_modules(modules_dir: Path | None = None, catalog_path: Path | None = None) -> bool:
+    """Verifies module (<80L), specialist persona (<40L), and duplicate rule ID integrity."""
     has_violation = False
+    target_modules_dir = modules_dir or MODULES_DIR
+    target_catalog = catalog_path or SPECIALIST_CATALOG_FILE
 
-    if not MODULES_DIR.exists():
-        print(f"[WARN] [RSI Memory Audit] Modules directory not found at {MODULES_DIR}")
+    if not target_modules_dir.exists():
+        print(f"[WARN] [RSI Memory Audit] Modules directory not found at {target_modules_dir}")
     else:
-        modules = list(MODULES_DIR.glob("*.md"))
+        modules = sorted(target_modules_dir.glob("*.md"))
         if not modules:
             print("[INFO] [RSI Memory Audit] No modules found.")
         else:
             print(f"[RSI Memory Audit] {len(modules)} modules detected.")
+            seen_rule_ids: dict[str, str] = {}
             for mod in modules:
                 try:
                     content = mod.read_text(encoding="utf-8")
@@ -142,11 +211,20 @@ def audit_memory_modules() -> bool:
                         has_violation = True
                     else:
                         print(f"  [OK] {mod.name}: {line_count}/{MAX_LINES_PER_MODULE} lines")
+                    for ln in content.splitlines():
+                        m_rule = RULE_LINE_RE.match(ln)
+                        if m_rule:
+                            rid = m_rule.group(1)
+                            if rid in seen_rule_ids:
+                                print(f"  [FAIL] Duplicate rule ID [{rid}] in {mod.name} (already defined in {seen_rule_ids[rid]})")
+                                has_violation = True
+                            else:
+                                seen_rule_ids[rid] = mod.name
                 except Exception as e:
                     print(f"  [WARN] Error reading {mod.name}: {e}")
 
-    if SPECIALIST_CATALOG_FILE.exists():
-        core, personas = parse_specialist_personas()
+    if target_catalog.exists():
+        core, personas = parse_specialist_personas(target_catalog)
         print(f"[RSI Specialist Audit] {len(personas)} persona block(s) detected in rsi_specialist.md.")
         if core:
             core_lines = len([ln for ln in core.splitlines() if ln.strip()])
@@ -164,10 +242,10 @@ def audit_memory_modules() -> bool:
                 print(f"  [OK] persona:{name}: {p_lines}/{MAX_LINES_PER_PERSONA} lines")
 
     if has_violation:
-        print("\n[FAIL] Some modules or specialist personas exceed their maximum line ceiling. Summarize or split them!")
+        print("\n[FAIL] Memory audit failed (line ceiling or duplicate rule ID violation).")
         return False
     else:
-        print("\n[OK] All modules and specialist personas comply with the strict compactness limits!")
+        print("\n[OK] All modules and specialist personas comply with strict compactness and unique-ID limits!")
         return True
 
 def load_active_session() -> dict:
@@ -190,15 +268,17 @@ def save_active_session(session: dict) -> None:
     except Exception:
         pass
 
-def resolve_context(files: list[str]) -> str:
+def resolve_context(files: list[str], modules_dir: Path | None = None) -> str:
     """Determines which modules to load based on input file paths and tracks injected rule IDs."""
+    target_modules_dir = modules_dir or MODULES_DIR
+    triggers_map = discover_module_triggers(target_modules_dir)
     matched_modules = set()
     normalized_files = []
     for f in files:
         norm = f.replace("\\", "/")
         normalized_files.append(norm)
         f_lower = norm.lower()
-        for mod, keywords in MODULE_TRIGGERS.items():
+        for mod, keywords in triggers_map.items():
             if any(k in f_lower for k in keywords):
                 matched_modules.add(mod)
 
@@ -207,7 +287,7 @@ def resolve_context(files: list[str]) -> str:
     output = ["[RSI Dynamic Memory Injection]"]
 
     for mod in sorted_modules:
-        mod_path = MODULES_DIR / mod
+        mod_path = target_modules_dir / mod
         if mod_path.exists():
             mod_text = mod_path.read_text(encoding="utf-8").strip()
             output.append(f"\n--- [Module: {mod}] ---")
@@ -216,21 +296,81 @@ def resolve_context(files: list[str]) -> str:
                 if rid not in injected_rule_ids:
                     injected_rule_ids.append(rid)
 
-    # Persist injection trace into active_session.json
-    sess = load_active_session()
-    if not sess.get("session_started_at"):
-        sess["session_started_at"] = datetime.now(timezone.utc).isoformat()
-    sess["target_files_queried"] = list(dict.fromkeys(sess.get("target_files_queried", []) + normalized_files))
-    sess["injected_modules"] = list(dict.fromkeys(sess.get("injected_modules", []) + sorted_modules))
-    sess["injected_rule_ids"] = list(dict.fromkeys(sess.get("injected_rule_ids", []) + injected_rule_ids))
-    if "last_diagnosis_matches" not in sess:
-        sess["last_diagnosis_matches"] = []
-    save_active_session(sess)
+    # Persist injection trace into active_session.json (only when using default workspace dir)
+    if modules_dir is None:
+        sess = load_active_session()
+        if not sess.get("session_started_at"):
+            sess["session_started_at"] = datetime.now(timezone.utc).isoformat()
+        sess["target_files_queried"] = list(dict.fromkeys(sess.get("target_files_queried", []) + normalized_files))
+        sess["injected_modules"] = list(dict.fromkeys(sess.get("injected_modules", []) + sorted_modules))
+        sess["injected_rule_ids"] = list(dict.fromkeys(sess.get("injected_rule_ids", []) + injected_rule_ids))
+        if "last_diagnosis_matches" not in sess:
+            sess["last_diagnosis_matches"] = []
+        save_active_session(sess)
 
     if not matched_modules:
         return "[INFO] No specific sub-playbook required for these files. Refer to fullstack_playbook.md if needed."
 
     return "\n".join(output)
+
+
+def _match_project_rules(error_log: str, modules_dir: Path | None = None, limit: int = 2) -> list[tuple[str, str, str]]:
+    """Lightweight keyword fallback matching unclassified errors against actual project rules in modules/*.md."""
+    target_dir = modules_dir or MODULES_DIR
+    if not target_dir.exists() or not error_log.strip():
+        return []
+    stop_words = {"this", "that", "with", "from", "into", "never", "always", "file", "line", "error", "failed", "check"}
+    err_tokens = {w for w in re.findall(r"[a-z0-9_]{4,}", error_log.lower()) if w not in stop_words}
+    if not err_tokens:
+        return []
+    scored: list[tuple[int, str, str, str]] = []
+    for mod in sorted(target_dir.glob("*.md")):
+        try:
+            for ln in mod.read_text(encoding="utf-8", errors="ignore").splitlines():
+                m = RULE_LINE_RE.match(ln)
+                if not m:
+                    continue
+                rid, text = m.group(1), m.group(2).strip()
+                rule_tokens = {w for w in re.findall(r"[a-z0-9_]{4,}", text.lower()) if w not in stop_words}
+                overlap = len(err_tokens & rule_tokens)
+                if overlap >= 2:
+                    scored.append((overlap, mod.name, rid, text))
+        except Exception:
+            continue
+    scored.sort(key=lambda item: -item[0])
+    return [(mod_name, rid, text) for _, mod_name, rid, text in scored[:limit]]
+
+
+def propose_learning_candidates(modules_dir: Path | None = None, session_file: Path | None = None) -> str:
+    """Outputs a compact (<15 lines) Phase 3 briefing: resolved failures + next available rule IDs."""
+    sess_path = session_file or ACTIVE_SESSION_FILE
+    sess = {}
+    if sess_path.exists():
+        try:
+            raw = json.loads(sess_path.read_text(encoding="utf-8", errors="ignore"))
+            if isinstance(raw, dict):
+                sess = raw
+        except Exception:
+            sess = {}
+
+    resolved = list(sess.get("last_resolved_failures") or sess.get("pending_failures") or [])
+    next_ids = compute_next_rule_ids(modules_dir)
+    lines = ["=== [RSI LEARNING PROPOSAL BRIEF] ==="]
+    if resolved:
+        lines.append(f"1. Resolved Failures ({len(resolved)}):")
+        for item in resolved[:3]:
+            step = item.get("step", "unknown")
+            excerpt = str(item.get("error_excerpt", ""))[:95]
+            lines.append(f"   - [{step}] {excerpt}")
+    else:
+        lines.append("1. Resolved Failures : [OK] None pending from recent FAIL -> PASS recovery.")
+
+    if next_ids:
+        id_summary = ", ".join(f"{k} -> {v}" for k, v in sorted(next_ids.items()))
+        lines.append(f"2. Next Rule IDs     : {id_summary}")
+    lines.append("3. Next Action       : Load 'python evals/memory_engine.py --persona meta' ONLY if a recurring/structural lesson applies.")
+    lines.append("   (Prefer deterministic linters/tests over prose; skip if one-off typo.)")
+    return "\n".join(lines)
 
 def diagnose_trajectory() -> bool:
     """Fast-fail reflex: matches recent failure logs against known error signatures in <10ms."""
@@ -277,14 +417,26 @@ def diagnose_trajectory() -> bool:
                     "fix": fix
                 })
         if not step_matched:
-            snippet = error_log.strip().splitlines()[0] if error_log.strip() else "Empty error log"
-            print(f"     [UNCLASSIFIED] Escalate to System 2 reasoning. Log sample: {snippet[:90]}")
-            diag_matches.append({
-                "step": step_name,
-                "rule_ids": [],
-                "label": "UNCLASSIFIED",
-                "fix": "Escalate to System 2 architectural reasoning."
-            })
+            project_hints = _match_project_rules(error_log)
+            if project_hints:
+                for mod_name, rid, rule_text in project_hints:
+                    print(f"     [PROJECT-RULE-HINT] [{rid}] ({mod_name}): {rule_text[:110]}")
+                    diag_matches.append({
+                        "step": step_name,
+                        "rule_ids": [rid],
+                        "label": f"[{rid}] ({mod_name})",
+                        "fix": rule_text[:140]
+                    })
+                matched_any = True
+            else:
+                snippet = error_log.strip().splitlines()[0] if error_log.strip() else "Empty error log"
+                print(f"     [UNCLASSIFIED] Escalate to System 2 reasoning. Log sample: {snippet[:90]}")
+                diag_matches.append({
+                    "step": step_name,
+                    "rule_ids": [],
+                    "label": "UNCLASSIFIED",
+                    "fix": "Escalate to System 2 architectural reasoning."
+                })
 
     sess["last_diagnosis_matches"] = diag_matches
     if "target_files_queried" not in sess:
@@ -304,11 +456,16 @@ def main():
     parser.add_argument("--diagnose", action="store_true", help="Instant pattern diagnosis on latest failed trajectory")
     parser.add_argument("--persona", type=str, metavar="NAME", help="Extract CORE + targeted specialist persona from rsi_specialist.md")
     parser.add_argument("--list-personas", action="store_true", help="List available specialist personas and line counts")
+    parser.add_argument("--propose", action="store_true", help="Show resolved failures awaiting Phase 3 review and next available rule IDs")
     args = parser.parse_args()
 
     if args.audit:
         success = audit_memory_modules()
         sys.exit(0 if success else 1)
+
+    if args.propose:
+        print(propose_learning_candidates())
+        sys.exit(0)
 
     if args.list_personas:
         list_personas()

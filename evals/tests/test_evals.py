@@ -18,7 +18,9 @@ if str(EVALS_DIR) not in sys.path:
 
 import memory_engine
 import rsi_orchestrator
+import run_fullstack_eval
 import security_audit
+import stack_inspector
 import telemetry_hook
 import version_manager
 
@@ -417,6 +419,149 @@ class TestSpecialistPersonas(unittest.TestCase):
                 memory_engine, "MODULES_DIR", empty_mods
             ):
                 self.assertFalse(memory_engine.audit_memory_modules())
+
+
+class TestRSILoopUpgrades(unittest.TestCase):
+    def test_learning_trigger_emits_on_fail_to_pass_recovery(self):
+        session = {}
+        trig_fail, sess_after_fail = run_fullstack_eval.update_learning_trigger_state(
+            status="FAIL",
+            failed_steps=[{"step": "lint", "error_log": "src/app.ts:10 unused var\nsecond line"}],
+            prev_trajectory=None,
+            session=session,
+            now_iso="2026-11-27T00:00:00+00:00",
+        )
+        self.assertIsNone(trig_fail)
+        self.assertEqual(sess_after_fail["failure_count"], 1)
+        self.assertEqual(len(sess_after_fail["pending_failures"]), 1)
+
+        trig_pass, sess_after_pass = run_fullstack_eval.update_learning_trigger_state(
+            status="PASS",
+            failed_steps=[],
+            prev_trajectory={"status": "FAIL", "failed_steps": [{"step": "lint", "error_log": "unused"}]},
+            session=sess_after_fail,
+            now_iso="2026-11-27T00:01:00+00:00",
+        )
+        self.assertIsNotNone(trig_pass)
+        self.assertTrue(trig_pass["triggered"])
+        self.assertEqual(trig_pass["resolved_failures_count"], 1)
+        self.assertTrue(sess_after_pass["learning_review_pending"])
+        self.assertEqual(sess_after_pass["pending_failures"], [])
+
+    def test_auto_discover_custom_module_triggers_and_propose(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            mod_dir = tmp_path / "modules"
+            mod_dir.mkdir()
+            (mod_dir / "stripe_billing.md").write_text(
+                "# Module: Stripe Billing\n<!-- triggers: stripe, checkout, webhook -->\n- [R-STR-01] Verify Stripe webhook signatures.\n",
+                encoding="utf-8",
+            )
+            triggers = memory_engine.discover_module_triggers(mod_dir)
+            self.assertIn("stripe_billing.md", triggers)
+            self.assertIn("checkout", triggers["stripe_billing.md"])
+            injected = memory_engine.resolve_context(["src/app/api/checkout/route.ts"], modules_dir=mod_dir)
+            self.assertIn("R-STR-01", injected)
+
+            sess_file = tmp_path / "active_session.json"
+            sess_file.write_text(
+                json.dumps({"last_resolved_failures": [{"step": "typecheck", "error_excerpt": "TS2322 mismatch"}]}),
+                encoding="utf-8",
+            )
+            brief = memory_engine.propose_learning_candidates(modules_dir=mod_dir, session_file=sess_file)
+            self.assertIn("[R-STR-02]", brief)
+            self.assertIn("TS2322 mismatch", brief)
+
+    def test_audit_detects_duplicate_rule_ids(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            mod_dir = Path(tmp) / "modules"
+            mod_dir.mkdir()
+            (mod_dir / "a.md").write_text("- [R-DUP-01] First rule.\n", encoding="utf-8")
+            (mod_dir / "b.md").write_text("- [R-DUP-01] Duplicate rule.\n", encoding="utf-8")
+            self.assertFalse(memory_engine.audit_memory_modules(modules_dir=mod_dir, catalog_path=Path(tmp) / "none.md"))
+
+    def test_honest_telemetry_no_fake_r_auto_and_probation_promotion(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            mod_dir = tmp_path / ".agents" / "rules" / "modules"
+            mod_dir.mkdir(parents=True)
+            (mod_dir / "api_backend.md").write_text("- [R-API-01] Always validate inputs.\n", encoding="utf-8")
+            state_file = tmp_path / ".agents" / "telemetry" / "cognitive_state.json"
+
+            with (
+                patch.object(telemetry_hook, "ROOT_DIR", tmp_path),
+                patch.object(telemetry_hook, "MODULES_DIR", mod_dir),
+                patch.object(telemetry_hook, "STATE_FILE", state_file),
+            ):
+                # 3 passing runs with injected rule -> promotes PROBATION -> PROVEN, never invents R-AUTO-XX
+                for idx in range(3):
+                    telemetry_hook._record_standalone_state(
+                        traj_data={"total_score": 100, "status": "PASS", "checks": [], "failed_steps": []},
+                        task_id="TASK-TEST-01",
+                        task_title="Test",
+                        sprint_id="SPRINT-01",
+                        agent_name="test-agent",
+                        model="gemini-4-neon",
+                        attempts=2 if idx == 0 else 1,
+                        duration_sec=1.0,
+                        useful_actions=2,
+                        wasted_actions=0,
+                        prompt_tokens=100,
+                        output_tokens=50,
+                        cached_tokens=0,
+                        injected_rules=["R-API-01"],
+                        telemetry_source="LIVE_TRANSCRIPT",
+                    )
+
+                state = json.loads(state_file.read_text(encoding="utf-8"))
+                first_run = state["runs_history"][0]
+                self.assertFalse(first_run["rsi_mutation_triggered"]["mutated"])
+                self.assertIsNone(first_run["rsi_mutation_triggered"]["rule_added"])
+                self.assertTrue(first_run["rsi_mutation_triggered"]["learning_review_pending"])
+                rule_entry = state["active_rules_for_agents"][0]
+                self.assertEqual(rule_entry["status"], "PROVEN")
+                self.assertEqual(rule_entry["prevented_errors_count"], 3)
+
+                # Now add a real rule and record a run -> detects real mutation
+                (mod_dir / "api_backend.md").write_text(
+                    "- [R-API-01] Always validate inputs.\n- [R-API-02] New real rule.\n",
+                    encoding="utf-8",
+                )
+                telemetry_hook._record_standalone_state(
+                    traj_data={"total_score": 100, "status": "PASS", "checks": [], "failed_steps": []},
+                    task_id="TASK-TEST-02",
+                    task_title="Test 2",
+                    sprint_id="SPRINT-01",
+                    agent_name="test-agent",
+                    model="gemini-4-neon",
+                    attempts=2,
+                    duration_sec=1.0,
+                    useful_actions=2,
+                    wasted_actions=0,
+                    prompt_tokens=100,
+                    output_tokens=50,
+                    cached_tokens=0,
+                    injected_rules=[],
+                    telemetry_source="LIVE_TRANSCRIPT",
+                )
+                state2 = json.loads(state_file.read_text(encoding="utf-8"))
+                last_run = state2["runs_history"][-1]
+                self.assertTrue(last_run["rsi_mutation_triggered"]["mutated"])
+                self.assertEqual(last_run["rsi_mutation_triggered"]["rule_added"], "R-API-02")
+
+    def test_doc_and_metadata_files_do_not_trigger_high_blast_radius(self):
+        sizing = rsi_orchestrator.classify_task_scope(["VERSION", "CHANGELOG.md", "README.md", "docs/TASKS.md"])
+        self.assertEqual(sizing["high_count"], 0)
+        self.assertEqual(sizing["max_tier"], "LOW")
+        self.assertNotEqual(sizing["scope_badge"], "[Scope: XL]")
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            (tmp_path / "VERSION").write_text("0.4.0\n", encoding="utf-8")
+            for i in range(10):
+                (tmp_path / f"doc_{i}.md").write_text("This mentions the word VERSION in prose.\n", encoding="utf-8")
+            with patch.object(stack_inspector, "ROOT_DIR", tmp_path):
+                info = stack_inspector.compute_blast_radius("VERSION")
+                self.assertEqual(info["tier"], "LOW")
 
 
 if __name__ == "__main__":

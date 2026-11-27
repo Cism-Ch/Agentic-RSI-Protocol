@@ -402,13 +402,30 @@ def _record_standalone_state(
     meta["target_path"] = str(ROOT_DIR.resolve())
     meta["last_updated"] = datetime.now(timezone.utc).isoformat()
 
+    prev_rule_ids = {
+        str(r.get("rule_id", "")).upper()
+        for r in data.get("active_rules_for_agents", [])
+        if isinstance(r, dict) and r.get("rule_id")
+    }
     _sync_standalone_rules(data)
+    curr_rule_ids = {
+        str(r.get("rule_id", "")).upper()
+        for r in data.get("active_rules_for_agents", [])
+        if isinstance(r, dict) and r.get("rule_id")
+    }
+    newly_added_rules = sorted(curr_rule_ids - prev_rule_ids) if prev_rule_ids else []
+
     runs = data.setdefault("runs_history", [])
     run_num = len(runs) + 1
     eval_score = float(traj_data.get("total_score", 100))
     status = traj_data.get("status", "PASS")
     is_success = (status == "PASS" and eval_score >= 100)
     first_pass = (is_success and attempts == 1)
+    failed_step_names = [
+        str(s.get("step", "unknown"))
+        for s in traj_data.get("failed_steps", [])
+        if isinstance(s, dict)
+    ]
 
     steps = [
         {"step": 1, "type": "REASONING", "label": "Contextual rule resolution & repo mapping", "status": "OK", "ms": 450},
@@ -437,7 +454,8 @@ def _record_standalone_state(
         "eval_score": eval_score,
         "duration_sec": duration_sec,
         "estimated_cost_usd": _estimate_run_cost(model, prompt_tokens, output_tokens, cached_tokens),
-        "failure_category": "CLEAN_PASS" if is_success else "UNKNOWN_FAILURE",
+        "failure_category": "CLEAN_PASS" if is_success else (failed_step_names[0].upper() if failed_step_names else "UNKNOWN_FAILURE"),
+        "failed_step_names": failed_step_names,
         "telemetry_source": telemetry_source,
         "injected_rule_ids": injected_rules,
         "metrics": {
@@ -450,23 +468,36 @@ def _record_standalone_state(
         },
         "cognitive_steps": steps,
         "rsi_mutation_triggered": {
-            "mutated": attempts > 1 and is_success,
-            "rule_added": f"R-AUTO-{run_num:02d}" if (attempts > 1 and is_success) else None,
-            "reason": f"Reflexive fix on {task_id}" if (attempts > 1 and is_success) else None,
+            "mutated": bool(newly_added_rules),
+            "rule_added": newly_added_rules[0] if newly_added_rules else None,
+            "rules_added": newly_added_rules,
+            "learning_review_pending": bool(attempts > 1 and is_success and not newly_added_rules),
+            "reason": f"Added {', '.join(newly_added_rules)} on {task_id}" if newly_added_rules else None,
         },
     }
     if traj_data.get("scope_report") is not None:
         new_run["scope_report"] = traj_data["scope_report"]
     runs.append(new_run)
 
-    # Credit prevented_errors_count on injected rules when evaluation passed
+    # Credit prevented_errors_count on injected rules when evaluation passed and promote PROBATION -> PROVEN at >= 3
     if is_success and injected_rules:
         inj_set = {r.strip().upper() for r in injected_rules if r.strip()}
         for rule_entry in data.get("active_rules_for_agents", []):
             if str(rule_entry.get("rule_id", "")).upper() in inj_set:
-                rule_entry["prevented_errors_count"] = int(rule_entry.get("prevented_errors_count", 0)) + 1
+                new_cnt = int(rule_entry.get("prevented_errors_count", 0)) + 1
+                rule_entry["prevented_errors_count"] = new_cnt
+                if new_cnt >= 3 and rule_entry.get("status") == "PROBATION":
+                    rule_entry["status"] = "PROVEN"
 
-    # Recompute summary KPIs
+    # Recompute summary KPIs and real failure taxonomy
+    failure_taxonomy: dict[str, int] = {}
+    for r in runs:
+        for step_name in r.get("failed_step_names", []) or []:
+            key = str(step_name).strip().lower() or "unknown"
+            failure_taxonomy[key] = failure_taxonomy.get(key, 0) + 1
+        if not r.get("failed_step_names") and r.get("status") == "FAIL":
+            cat = str(r.get("failure_category", "unknown")).strip().lower()
+            failure_taxonomy[cat] = failure_taxonomy.get(cat, 0) + 1
     total_runs = len(runs)
     fp_ok = sum(1 for r in runs if r.get("first_pass_success") is True)
     t_useful = sum(int(r.get("metrics", {}).get("useful_actions", 0)) for r in runs)
@@ -491,7 +522,7 @@ def _record_standalone_state(
         "total_cached_tokens": t_cached,
         "cache_hit_ratio_pct": round((t_cached / max(1, t_prompt)) * 100.0, 1),
         "total_estimated_cost_usd": round(t_cost, 4),
-        "failure_taxonomy": {},
+        "failure_taxonomy": failure_taxonomy,
     }
 
     STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
@@ -527,6 +558,14 @@ def record_latest_eval(attempts: int = 1, agent_name: str = "antigravity-agent",
     injected_rules = traj_data.get("injected_rule_ids") or active_session.get("injected_rule_ids") or []
     scope_report = traj_data.get("scope_report")
     scope_drift_count = len(scope_report.get("out_of_scope_files", [])) if isinstance(scope_report, dict) else 0
+
+    if attempts == 1:
+        traj_attempt = int(traj_data.get("attempt") or 0)
+        resolved_cnt = int((traj_data.get("rsi_learning_trigger") or {}).get("resolved_failures_count") or 0)
+        sess_fail_cnt = int(active_session.get("failure_count") or 0)
+        inferred = max(traj_attempt, resolved_cnt + 1 if resolved_cnt > 0 else 1, sess_fail_cnt)
+        if inferred > 1:
+            attempts = inferred
 
     duration_sec = float(
         traj_data.get("task_elapsed_sec")

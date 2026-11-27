@@ -12,6 +12,7 @@
 +-------------------------+  +-------------------------+  +-------------------------+
 | [>] IN PROGRESS (SP 01) |  |   [?] FUTURE BACKLOG    |  |       [X] ARCHIVES      |
 +-------------------------+  +-------------------------+  +-------------------------+
+|                         |  |                         |  | [x] TASK-RSI-LOOP-01    |
 |                         |  |                         |  | [x] TASK-REL-05         |
 |                         |  |                         |  | [x] TASK-SPECIALIST-01  |
 |                         |  |                         |  | [x] TASK-REL-04         |
@@ -60,6 +61,14 @@
 ---
 
 ## Active Sprint 01: Project Setup & Initialization
+
+- [x] **`TASK-RSI-LOOP-01` - RSI Learning Trigger, Auto-Discoverable Modules, Honest Telemetry & Blast Radius Fix**
+  - **Priority:** HIGH
+  - **Target files:** `evals/run_fullstack_eval.py`, `evals/memory_engine.py`, `evals/rsi_orchestrator.py`, `evals/telemetry_hook.py`, `evals/stack_inspector.py`, `evals/tests/test_evals.py`, `docs/TASKS.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-RSI-LOOP-01.01`: Emit `rsi_learning_trigger` on `FAIL -> PASS` recovery in `run_fullstack_eval.py` / `rsi_orchestrator.py` and replace synthetic `R-AUTO-XX` with real rule diff, `failure_taxonomy`, and `PROBATION -> PROVEN` (`>= 3`) in `telemetry_hook.py`.
+    - [x] `TASK-RSI-LOOP-01.02`: Auto-discover `*.md` modules & `<!-- triggers: -->` in `memory_engine.py`, add duplicate rule ID audit, `--propose`, and project-rule fallback in `--diagnose`.
+    - [x] `TASK-RSI-LOOP-01.03`: Fix doc/metadata `Blast Radius` false positive in `stack_inspector.py` / `rsi_orchestrator.py` and add unit tests in `evals/tests/test_evals.py` (`100/100 PASS`).
 
 - [x] **`TASK-REL-05` - Seal & Publish Protocol Release v0.3.0 and Sync Registered Targets**
   - **Priority:** HIGH

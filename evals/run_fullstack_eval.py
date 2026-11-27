@@ -30,6 +30,73 @@ if sys.stdout.encoding != 'utf-8':
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 LOG_PATH = ROOT_DIR / "evals" / "logs" / "trajectory_latest.json"
+ACTIVE_SESSION_FILE = ROOT_DIR / ".agents" / "telemetry" / "active_session.json"
+
+
+def _compact_failure_summary(failed_steps: list[dict], ts: str) -> list[dict]:
+    summaries = []
+    for item in failed_steps:
+        step = str(item.get("step", "unknown"))
+        raw_log = str(item.get("error_log", "")).strip()
+        meaningful = [
+            ln.strip()[:120]
+            for ln in raw_log.splitlines()
+            if ln.strip() and not set(ln.strip()).issubset({"-", "=", "_"})
+        ]
+        err_lines = [
+            ln for ln in meaningful
+            if any(k in ln for k in ("Error", "FAIL", "Exception", "denied", "violation", "TS"))
+        ]
+        picked = err_lines[-2:] if err_lines else meaningful[-2:]
+        summaries.append({
+            "step": step,
+            "error_excerpt": " | ".join(picked) if picked else "No error details captured.",
+            "timestamp": ts,
+        })
+    return summaries
+
+
+def update_learning_trigger_state(
+    status: str,
+    failed_steps: list[dict],
+    prev_trajectory: dict | None,
+    session: dict,
+    now_iso: str,
+) -> tuple[dict | None, dict]:
+    """Tracks FAIL -> PASS recoveries to surface an automatic RSI Learning Trigger without losing failure context."""
+    updated = dict(session) if isinstance(session, dict) else {}
+    pending = list(updated.get("pending_failures") or [])
+
+    if status != "PASS":
+        new_items = _compact_failure_summary(failed_steps, now_iso)
+        pending.extend(new_items)
+        updated["pending_failures"] = pending[-10:]
+        updated["failure_count"] = int(updated.get("failure_count", 0)) + 1
+        updated["learning_review_pending"] = False
+        return None, updated
+
+    if not pending and isinstance(prev_trajectory, dict) and prev_trajectory.get("status") == "FAIL":
+        prev_failed = prev_trajectory.get("failed_steps") or []
+        if isinstance(prev_failed, list) and prev_failed:
+            pending = _compact_failure_summary(prev_failed, str(prev_trajectory.get("timestamp") or now_iso))
+
+    if pending:
+        resolved = pending[-5:]
+        trigger = {
+            "triggered": True,
+            "resolved_failures_count": len(pending),
+            "resolved_failures": resolved,
+            "action": "Run 'python evals/memory_engine.py --propose' and '--persona meta' if a structural lesson applies.",
+        }
+        updated["last_resolved_failures"] = resolved
+        updated["learning_review_pending"] = True
+        updated["pending_failures"] = []
+        updated["failure_count"] = 0
+        return trigger, updated
+
+    updated["pending_failures"] = []
+    updated["failure_count"] = 0
+    return None, updated
 
 def detect_package_manager() -> str:
     if (ROOT_DIR / "pnpm-lock.yaml").exists():
@@ -234,8 +301,33 @@ def main():
     failed_steps = [r for r in executed_checks if not r["passed"]]
     status = "PASS" if total_score == 100 and not failed_steps else "FAIL"
 
+    prev_trajectory = None
+    if LOG_PATH.exists():
+        try:
+            prev_trajectory = json.loads(LOG_PATH.read_text(encoding="utf-8", errors="ignore"))
+        except Exception:
+            prev_trajectory = None
+
+    active_session = {}
+    if ACTIVE_SESSION_FILE.exists():
+        try:
+            loaded_sess = json.loads(ACTIVE_SESSION_FILE.read_text(encoding="utf-8", errors="ignore"))
+            if isinstance(loaded_sess, dict):
+                active_session = loaded_sess
+        except Exception:
+            active_session = {}
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+    learning_trigger, updated_session = update_learning_trigger_state(
+        status=status,
+        failed_steps=failed_steps,
+        prev_trajectory=prev_trajectory,
+        session=active_session,
+        now_iso=now_iso,
+    )
+
     trajectory = {
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": now_iso,
         "mode": "QUICK" if args.quick else "FULL",
         "total_score": total_score,
         "raw_score": raw_score,
@@ -246,6 +338,16 @@ def main():
         "failed_steps": failed_steps,
         "summary": {r["step"]: ("PASSED" if r["passed"] else "FAILED") for r in executed_checks}
     }
+    if learning_trigger is not None:
+        trajectory["rsi_learning_trigger"] = learning_trigger
+
+    try:
+        ACTIVE_SESSION_FILE.parent.mkdir(parents=True, exist_ok=True)
+        tmp_sess = ACTIVE_SESSION_FILE.with_suffix(".tmp")
+        tmp_sess.write_text(json.dumps(updated_session, indent=2, ensure_ascii=False), encoding="utf-8")
+        os.replace(tmp_sess, ACTIVE_SESSION_FILE)
+    except Exception:
+        pass
 
     LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(LOG_PATH, "w", encoding="utf-8") as f:

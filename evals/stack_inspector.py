@@ -302,9 +302,15 @@ def compute_blast_radius(target_file: str) -> dict:
 
     target_path = Path(norm_target)
     target_stem = target_path.stem
+    is_non_code_doc = (
+        target_path.suffix.lower() in {".md", ".txt", ".rst", ".json", ".yml", ".yaml", ""}
+        or norm_target.lower() in {"version", "license", "changelog.md", "readme.md", "agents.md", "docs/tasks.md"}
+    )
     dependents = []
+    scan_pool = files if is_non_code_doc else all_scan_files
+    quoted_doc_re = re.compile(rf'''(?:["'`/]){re.escape(norm_target)}(?:["'`])''')
 
-    for f in all_scan_files:
+    for f in scan_pool:
         caller_rel = str(f.relative_to(ROOT_DIR)).replace("\\", "/")
         if caller_rel.lower() == norm_target.lower():
             continue
@@ -312,7 +318,10 @@ def compute_blast_radius(target_file: str) -> dict:
             content = f.read_text(encoding="utf-8", errors="ignore")
         except Exception:
             continue
-        if norm_target in content or (
+        if is_non_code_doc:
+            if quoted_doc_re.search(content):
+                dependents.append(caller_rel)
+        elif norm_target in content or (
             target_stem not in {"index", "__init__", "main", "route", "page", "layout"}
             and re.search(rf'\b{re.escape(target_stem)}\b', content)
         ):
