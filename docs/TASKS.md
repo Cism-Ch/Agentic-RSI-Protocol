@@ -12,6 +12,7 @@
 +-------------------------+  +-------------------------+  +-------------------------+
 | [>] IN PROGRESS (SP 01) |  |   [?] FUTURE BACKLOG    |  |       [X] ARCHIVES      |
 +-------------------------+  +-------------------------+  +-------------------------+
+|                         |  |                         |  | [x] TASK-RSI-HYGIENE-01 |
 |                         |  |                         |  | [x] TASK-RSI-LOOP-01    |
 |                         |  |                         |  | [x] TASK-REL-05         |
 |                         |  |                         |  | [x] TASK-SPECIALIST-01  |
@@ -61,6 +62,14 @@
 ---
 
 ## Active Sprint 01: Project Setup & Initialization
+
+- [x] **`TASK-RSI-HYGIENE-01` - Deduplicate SSOT Rule Layers, Add Module Triggers, XS Fast-Track & Docs**
+  - **Priority:** HIGH
+  - **Target files:** `.agents/rules/modules/api_backend.md`, `.agents/rules/modules/db.md`, `.agents/rules/modules/ui_frontend.md`, `.agents/rules/modules/security_auth.md`, `.agents/rules/modules/integration_ai.md`, `.agents/rules/modules/pattern_recognition.md`, `.agents/rules/system_core.md`, `.agents/prompts/meta_optimizer.md`, `.agents/workflows/rsi-feature.md`, `AGENTS.md`, `docs/AGENT_OPERATIONS.md`, `README.md`, `docs/TASKS.md`
+  - **Acceptance criteria:**
+    - [x] `TASK-RSI-HYGIENE-01.01`: Add `<!-- triggers: -->` headers to all 6 rule modules, merge duplicate `[R-API-02]`/`[R-API-05]` in `api_backend.md`, and refocus `[R-SEC-05]` in `security_auth.md`.
+    - [x] `TASK-RSI-HYGIENE-01.02`: Streamline `AGENTS.md`, `system_core.md`, and `meta_optimizer.md` to clear SSOT responsibilities without duplicating module checklists.
+    - [x] `TASK-RSI-HYGIENE-01.03`: Document `[Scope: XS]` Fast-Track, optional release `--bump`, `--propose`, and `Learning Trigger` in `rsi-feature.md`, `docs/AGENT_OPERATIONS.md`, and `README.md` (`100/100 PASS`).
 
 - [x] **`TASK-RSI-LOOP-01` - RSI Learning Trigger, Auto-Discoverable Modules, Honest Telemetry & Blast Radius Fix**
   - **Priority:** HIGH

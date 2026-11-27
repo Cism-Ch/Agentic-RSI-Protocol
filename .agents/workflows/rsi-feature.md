@@ -4,8 +4,11 @@ description: Develop an end-to-end feature with a deterministic 4-phase Recursiv
 
 # Workflow: /rsi-feature
 
-This workflow formalizes the Recursive Self-Improvement (RSI) protocol for any AI agent.  
-Scrupulously follow these 4 sequential phases without skipping any:
+This workflow formalizes the Recursive Self-Improvement (RSI) protocol for any AI agent.
+
+> **Fast-Track `[Scope: XS]`:** For localized micro-edits (`<= 2` files, `Blast Radius: LOW`, outside DB/Auth/API/security), register a compact entry in `docs/TASKS.md`, skip `--map`/`--impact`/`rsi-specialist` and Phase 3 (unless `rsi_learning_trigger` fires), then validate with `run_fullstack_eval.py` and `--guardrail` before closing.
+
+For `S`/`M`/`L`/`XL` tasks, follow these 4 sequential phases:
 
 ---
 
@@ -69,14 +72,13 @@ Scrupulously follow these 4 sequential phases without skipping any:
 
 ## PHASE 3: Meta-Cognitive Mutation & Specialist Review (Learning & Optimization)
 
-- **On-Demand Maker / Checker Review (for `M`/`L`/`XL` tasks or sensitive layers):** Before closure, optionally summon an isolated read-only persona via `python evals/memory_engine.py --persona <architect|db|security|ui|qa>` (`0` overhead on simple `XS`/`S` edits). Collect any `CAPITALIZATION_CANDIDATE` emitted in its verdict.
-- **Meta-Cognitive Distillation:** Triggers whenever an error was resolved (`> 1 attempt`), a security audit/refactor neutralized defects, or a specialist emitted an accepted `CAPITALIZATION_CANDIDATE`:
+- **On-Demand Maker / Checker Review (for `M`/`L`/`XL` tasks or sensitive layers):** Before closure, summon an isolated read-only persona via `python evals/memory_engine.py --persona <architect|db|security|ui|qa>` (`0` overhead on `XS`/`S` edits). Collect any `CAPITALIZATION_CANDIDATE` emitted in its verdict.
+- **Meta-Cognitive Distillation:** Triggers automatically when `rsi_learning_trigger` fires on `FAIL -> PASS` recovery, after security audits/refactors, or on accepted `CAPITALIZATION_CANDIDATE` items:
 
-1. Load the `meta` persona (`python evals/memory_engine.py --persona meta` or `.agents/prompts/meta_optimizer.md`).
-2. Pinpoint the affected layer (DB, Server Action, UI, Types, Security).
-3. Formulate a general, preventive 1-2 line rule (e.g., `[R-DOM-XX] Always...`).
-4. **Anti-Bloat & Modularity (< 80 lines):** Ensure the target sub-module in `.agents/rules/modules/` remains strictly under 80 lines using a 2-step lossless strategy: first merge semantically overlapping or redundant rules without losing technical specificity; second, if all rules are distinct and the file is full, split the module into finer domain sub-modules (`[sub_domain].md`) and register the new triggers in `evals/memory_engine.py` and `.agents/rules/fullstack_playbook.md`.
-5. Update the target sub-module in `.agents/rules/modules/` and keep `.agents/rules/fullstack_playbook.md` synchronized.
+1. Run `python evals/memory_engine.py --propose` to review resolved failures and next available `[R-DOM-XX]` IDs.
+2. If a recurring or structural lesson applies (skip one-off typos), load `python evals/memory_engine.py --persona meta`.
+3. Formulate a general, preventive 1-2 line rule (`- [R-DOM-XX] Always/Never...`) — preferring deterministic linters/tests over prose when automatable.
+4. **Anti-Bloat & Auto-Discovery (`< 80` lines):** Merge semantically overlapping rules first; if all rules are distinct and the module nears 80 lines, split into a new `.agents/rules/modules/<domain>.md` with an inline `<!-- triggers: kw1, kw2 -->` header (auto-discovered across `--sync-all` updates) and validate via `python evals/memory_engine.py --audit`.
 
 ---
 
@@ -92,8 +94,8 @@ Scrupulously follow these 4 sequential phases without skipping any:
    - **UI & Structural Gate:** Confirm any added/edited page inherits the canonical layout (`Header`/`Footer`), uses design-system tokens/primitives, and leaves 0 orphaned components after refactors (verify with `python evals/stack_inspector.py --impact <file>`).
    - **Secure-by-Default Gate:** Confirm any public route/action (contact, quote, upload, auth) applies schema validation + rate-limiting, and any upload/presigned URL enforces MIME type, max size, and auth/ownership checks.
    - **Sprint-End Gate (at Sprint Closure before final commit):** Run `python evals/rsi_orchestrator.py --sprint-gate` for net-new dependency CVE audit, oversized `public/` assets (> 500 KB), static N+1 DB loop patterns, and LCP check reminder on modified UI pages (without re-running already-passed task checks).
-3. **Automatic SemVer Version Sealing:**
-   - Run `python evals/version_manager.py --bump patch` to bump version, seal `CHANGELOG.md`, and create Git tag.
+3. **Optional Release Sealing (on user request or Sprint release only):**
+   - When sealing a release (not required on every individual task), run `python evals/version_manager.py --bump <patch|minor|major>` to bump version and seal `CHANGELOG.md`.
 4. **SSOT Task Closure in `docs/TASKS.md`:**
    - Check off all acceptance criteria `[x]`.
    - Mark task completed `[x]`.

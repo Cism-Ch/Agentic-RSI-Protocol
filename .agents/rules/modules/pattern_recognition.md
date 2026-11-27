@@ -1,4 +1,5 @@
 # Module: Pattern Recognition & Operational Reflexes
+<!-- triggers: pattern, architecture, core, utils, lib, helper, config, eval -->
 
 > Anti-Bloat Rule: This module must NEVER exceed **80 lines**.
 

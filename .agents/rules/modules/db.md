@@ -1,4 +1,5 @@
 # Module: Database & Persistence
+<!-- triggers: prisma, schema, model, migration, database, sql, mongo, db, drizzle, rls -->
 
 > Anti-Bloat Rule: This module must NEVER exceed **80 lines**.
 

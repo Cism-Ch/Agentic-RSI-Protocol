@@ -1,4 +1,5 @@
 # Module: AI Integration, Agents & LLMs
+<!-- triggers: ai, llm, agent, prompt, openai, gemini, anthropic, openrouter, rag -->
 
 > Anti-Bloat Rule: This module must NEVER exceed **80 lines**.
 

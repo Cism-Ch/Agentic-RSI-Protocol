@@ -1,4 +1,5 @@
 # Module: Frontend & User Interfaces
+<!-- triggers: component, components, page, layout, view, css, tailwind, tsx, jsx, styles -->
 
 > Anti-Bloat Rule: This module must NEVER exceed **80 lines**.
 

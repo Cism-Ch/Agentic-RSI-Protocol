@@ -34,7 +34,9 @@ flowchart LR
 ### Step-by-Step Behavior
 1. **Cold-Start Orientation:** Every session begins with `python evals/rsi_orchestrator.py --pulse` to read repository health, active `[-]` or `[!] BLOCKED` tasks, `[Scope: XS..XL]`, Blast Radius, git status, and missing official Skills/MCP tools.
 2. **SSOT Discipline (`docs/TASKS.md`):** No code is edited without a formalized task (`TASK-DOMAIN-XX`), declared `Target files`, and checkable acceptance criteria. Status updates happen in real time: `[ ]` -> `[-]` -> `[x]` (or `[!]` on impasse).
-3. **Topological Discovery:** Before creating helpers or changing shared interfaces, the agent runs `stack_inspector.py --map` (reuse existing singletons in $O(1)$) and `--impact <file>` (measure reverse dependencies).
+3. **Topological Discovery (or Fast-Track `[Scope: XS]`):**
+   - For `S`/`M`/`L`/`XL` tasks, run `stack_inspector.py --map` (reuse existing singletons in $O(1)$) and `--impact <file>` (measure reverse dependencies).
+   - **Fast-Track `[Scope: XS]`:** For localized `<= 2`-file edits with `Blast Radius: LOW` outside DB/Auth/API/security, register a compact `docs/TASKS.md` entry, skip `--map`/`--impact`/`rsi-specialist` and Phase 3 (unless `rsi_learning_trigger` fires), and validate directly with `run_fullstack_eval.py` + `--guardrail`.
 4. **Anti-Saturation Cadence:**
    - *Micro-edits:* Free editing flow without running global suites on every line.
    - *Milestone:* Compact `python evals/run_fullstack_eval.py --quick` (error logs capped to 10 significant lines).
@@ -62,8 +64,10 @@ python evals/memory_engine.py --persona security
 | `qa` | `READ-ONLY / TESTS` | `M+` features, critical bugs | Edge cases, concurrency, idempotent retries, verifying assertions test real behavior (zero reward hacking). |
 | `meta` | `WRITE-RULES-ONLY` | Phase 3 (post-incident or accepted `CAPITALIZATION_CANDIDATE`) | Distills lessons into `.agents/rules/modules/*.md` (`< 80L` ceiling, zero redundancy, lossless merge or split). |
 
-### Closing the Learning Loop (`CAPITALIZATION_CANDIDATE`)
-Read-only reviewer personas (`architect`, `db`, `security`, `ui`, `qa`) **never write directly** to `.agents/rules/modules/`. Instead, whenever they catch a structural or recurring defect that bypassed `tsc`/`lint` (such as an unstyled off-brand component or an unprotected public endpoint), they emit an optional 1-line `CAPITALIZATION_CANDIDATE` in their verdict (`PASS` | `CHANGES_REQUIRED` | `BLOCKED`). In Phase 3, the `meta` persona deduplicates and persists valuable candidates into the appropriate `< 80L` rule module.
+### Closing the Learning Loop (`Learning Trigger` & `CAPITALIZATION_CANDIDATE`)
+1. **Automatic `FAIL -> PASS` Learning Trigger:** Whenever `run_fullstack_eval.py` recovers from a prior `FAIL` to `100/100 PASS`, it emits a compact `rsi_learning_trigger` block summarizing the resolved failures. The agent runs `python evals/memory_engine.py --propose` to view those resolved failures alongside the next free `[R-DOM-XX]` rule IDs, then invokes `--persona meta` only if a recurring or structural lesson applies.
+2. **Specialist `CAPITALIZATION_CANDIDATE`:** Read-only reviewer personas (`architect`, `db`, `security`, `ui`, `qa`) **never write directly** to `.agents/rules/modules/`. Instead, whenever they catch a structural defect that bypassed `tsc`/`lint`, they emit an optional 1-line `CAPITALIZATION_CANDIDATE` in their verdict (`PASS` | `CHANGES_REQUIRED` | `BLOCKED`) for `meta` to deduplicate and persist.
+3. **Sync-Resilient Auto-Discovery & Rule Promotion:** Custom project modules in `.agents/rules/modules/*.md` declare `<!-- triggers: kw1, kw2 -->` in their header so `memory_engine.py --inject` discovers them automatically across `--sync-all` updates. In telemetry (`telemetry_hook.py`), mutations reflect **real** newly added rule IDs (never synthetic placeholders), and injected rules automatically promote from `PROBATION` to `PROVEN` once `prevented_errors_count >= 3`.
 
 ---
 

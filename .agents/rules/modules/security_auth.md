@@ -1,4 +1,5 @@
 # Module: Security, Auth & Sensitive Data
+<!-- triggers: auth, session, crypto, token, jwt, permission, security, hash, secret -->
 
 > Anti-Bloat Rule: This module must NEVER exceed **80 lines**.
 
@@ -6,4 +7,4 @@
 - [R-SEC-02] NEVER expose password hashes, tokens, or private keys to the client.
 - [R-SEC-03] Encrypt at rest (AES-256) all user-provided secrets, tokens, or sensitive credentials.
 - [R-SEC-04] Guarantee absolute integrity of environment variables (`.env`) without deleting existing keys.
-- [R-SEC-05] Secure by default (zero insecure shortcuts): never skip server-side auth, IDOR ownership checks, input validation, or MIME/signature verification during implementation.
+- [R-SEC-05] Secure by default (zero insecure shortcuts): never skip server-side auth or IDOR ownership checks during initial implementation.

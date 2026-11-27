@@ -423,12 +423,12 @@ Standard scripts injected automatically into a target project's `package.json` b
 ## Agent Slash Commands and Workflows
 
 ### `/rsi-feature` - End-to-End Feature Development
-Triggers the structured 4-phase engineering cycle:
-1. **Preparation:** Runs `python evals/rsi_orchestrator.py --pulse`, registers the task in `docs/TASKS.md` with declared `Target files:`, sets status to `[-]`, checks the topological map (`--map`), and injects context rules (`--inject`).
+Triggers the structured 4-phase engineering cycle (with an official **Fast-Track `[Scope: XS]`** for `<= 2`-file low-risk edits outside DB/Auth/API/security):
+1. **Preparation:** Runs `python evals/rsi_orchestrator.py --pulse`, registers the task in `docs/TASKS.md` with declared `Target files:`, sets status to `[-]`, checks the topological map (`--map`), and injects auto-discovered context rules (`--inject`).
 2. **Implementation:** Micro-edits without global check bloat, followed by `python evals/run_fullstack_eval.py --quick`.
-3. **Reflexive Loop:** Up to 3 attempts with failure log diagnostics (`memory_engine.py --diagnose`).
-4. **Meta-Optimization:** Extracts lessons learned into rule modules if an incident occurred.
-5. **Closure:** Verifies scope alignment (`--scope`) and guardrails (`--guardrail`), runs full evaluation (100/100 PASS required), bumps SemVer patch, and seals `docs/TASKS.md` (triggering `--rollover` if > 250 lines).
+3. **Reflexive Loop:** Up to 3 attempts with failure log diagnostics (`memory_engine.py --diagnose`, matching both static signatures and project rules).
+4. **Closed Learning Loop:** On `FAIL -> PASS` recovery (`rsi_learning_trigger`) or specialist `CAPITALIZATION_CANDIDATE`, runs `python evals/memory_engine.py --propose` and `--persona meta` when a structural lesson applies.
+5. **Closure:** Verifies scope alignment (`--scope`), guardrails (`--guardrail`), and pre-commit `--sprint-gate`, runs full evaluation (`100/100 PASS`), seals `docs/TASKS.md` (triggering `--rollover` if > 250 lines), and optionally seals a SemVer release when requested.
 
 ### `/reset-rsi` - Starting a Fresh Project
 Resets the template state so you can begin work without carrying over past task archives:
@@ -497,7 +497,7 @@ All tools are in `evals/` and require Python 3.10+:
 | :--- | :--- | :--- |
 | `python evals/run_fullstack_eval.py` | Runs all deterministic checks (`shell=False`) including `eval_unit_tests` with per-step `duration_ms` timing | `--quick` (skips prod build), `--no-telemetry` |
 | `python evals/security_audit.py` | Scans for leaked secrets, operational anti-patterns, pure ASCII (`evals/**/*.py`), and supply-chain/agent integrity | *(None)* |
-| `python evals/memory_engine.py` | Audits module (`<80L`) & persona (`<40L`) limits, injects rules, extracts specialist personas, or diagnoses failures | `--audit`, `--inject [files...]`, `--diagnose`, `--persona NAME`, `--list-personas` |
+| `python evals/memory_engine.py` | Audits module (`<80L`), persona (`<40L`) & unique rule IDs, auto-discovers/injects modules, proposes Phase 3 rules, extracts personas, or diagnoses failures | `--audit`, `--inject [files...]`, `--diagnose`, `--propose`, `--persona NAME`, `--list-personas` |
 | `python evals/stack_inspector.py` | Autonomous stack profiler, O(1) topological map, Blast Radius, and lossless skill pruner | `--map`, `--impact <file>`, `--profile`, `--prune-skills`, `--dry-run` |
 | `python evals/reset_rsi.py` | Resets task registry and changelog to a clean template baseline | `--dry-run`, `--force`, `--no-backup` |
 | `python evals/rsi_orchestrator.py` | Session pulse, evaluation retry loop, guardrails, scope guard, sprint gate, task rollover, and target project sync | `--pulse`, `--eval`, `--attempt N`, `--guardrail`, `--scope`, `--strict-scope`, `--sprint-gate`, `--rollover`, `--dry-run`, `--sync-to TARGET_DIR`, `--init-target TARGET_DIR`, `--sync-targets`, `--sync-all` |
